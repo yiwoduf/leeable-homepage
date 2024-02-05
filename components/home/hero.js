@@ -10,22 +10,25 @@ export default function Hero() {
           <br className="hidden lg:inline-block" />음 여기다가 뭘 쓸까
         </h1>
         <p className="mb-8 leading-relaxed">
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Amet
-          mauris commodo quis imperdiet massa. Consectetur libero id faucibus
-          nisl. Duis tristique sollicitudin nibh sit amet. Mus mauris vitae
-          ultricies leo integer malesuada nunc vel. Morbi quis commodo odio
-          aenean sed adipiscing diam donec adipiscing. Neque gravida in
-          fermentum et sollicitudin ac orci phasellus egestas. Vitae aliquet nec
-          ullamcorper sit amet risus nullam eget felis. Mi bibendum neque
-          egestas congue quisque egestas diam. Est ullamcorper eget nulla
-          facilisi etiam dignissim diam quis. Mi proin sed libero enim sed.
-          Egestas maecenas pharetra convallis posuere morbi leo urna molestie.
-          In eu mi bibendum neque egestas congue quisque.
+          Welcome to my portfolio! I am Peter (Jaeyol) Lee, a Computer Science
+          major from the University of Kansas, with a deep-rooted passion for
+          front-end development, web development, and software engineering. I
+          take great interest in UI/UX design and have a wealth of experience in
+          Web development, honed from various projects and experiences. Born in
+          South Korea and raised in the United States, I am a proud 1.5
+          generation Korean American. This unique background has instilled in me
+          a global perspective and the adaptability to navigate various cultural
+          and professional landscapes. I am driven by an ambitious dream: to
+          establish a revolutionary business that will change the world. This
+          dream fuels my self-motivation and has shaped me into an excellent
+          time keeper, always seeking to maximize efficiency and productivity.
+          As you navigate through my portfolio, you will discover the projects
+          I've worked on, the skills I've acquired, and the passion I bring to
+          my work. I look forward to sharing my journey with you!
         </p>
         <div className="flex justify-center">
           <Link href="/projects">
-            <a className="btn-project">프로젝트 보러가기</a>
+            <a className="btn-project">View My Work</a>
           </Link>
         </div>
       </div>
