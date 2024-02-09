@@ -62,12 +62,12 @@ export async function getServerSideProps() {
 
   const projects = await res.json();
 
-  if (!projects || !projects.results) {
-    console.error("API 응답에 문제가 있습니다.", projects);
-    return {
-      props: { projects: { results: [] } }, // 에러가 발생하면 빈 객체를 반환
-    };
-  }
+  // if (!projects || !projects.results) {
+  //   console.error("API 응답에 문제가 있습니다.", projects);
+  //   return {
+  //     props: { projects: { results: [] } }, // 에러가 발생하면 빈 객체를 반환
+  //   };
+  // }
 
   const projectNames = projects.results.map(
     (aProject) => aProject.properties.Name.title[0].plain_text
