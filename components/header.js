@@ -11,11 +11,11 @@ export default function Header() {
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
-                stroke="currentColor"
+                stroke="white"
                 strokeLinecap="round"
                 strokeLinejoin="round"
                 strokeWidth="2"
-                className="w-10 h-10 text-white p-2 bg-slate-900 rounded-full"
+                className="w-10 h-10 text-white p-2 bg-purple-600 rounded-full"
                 viewBox="0 0 24 24"
               >
                 <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
