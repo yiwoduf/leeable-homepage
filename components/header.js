@@ -34,7 +34,7 @@ export default function Header() {
             </Link>
 
             <a
-              href="https://open.kakao.com/o/s1BHyWgc"
+              href="mailto:yiwoduf@gmail.com"
               className="mr-5 hover:text-gray-900"
             >
               Contact

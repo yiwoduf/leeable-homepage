@@ -1,5 +1,35 @@
 import Image from "next/image";
 
+function getBgColor(tag) {
+  // key 값에 따라 색상 클래스를 결정
+  switch (tag) {
+    case "C++":
+      return "bg-sky-700";
+    case "HTML":
+      return "bg-red-700";
+    case "CSS":
+      return "bg-sky-400";
+    case "JavaScript":
+      return "bg-yellow-400";
+    case "React Native":
+      return "bg-blue-500";
+    case "TailwindCSS":
+      return "bg-blue-400";
+    case "ReactJS":
+      return "bg-blue-500";
+    case "NextJS":
+      return "bg-black";
+    case "SQL":
+      return "bg-sky-700";
+    case "C#":
+      return "bg-violet-500";
+    case "ElectronJS":
+      return "bg-blue-600";
+    default:
+      return "bg-purple-600";
+  }
+}
+
 export default function ProjectItem({ data }) {
   const title = data.properties.Name.title[0].plain_text;
   const github = data.properties.Github.url;
@@ -52,10 +82,13 @@ export default function ProjectItem({ data }) {
         <h1 className="text-2xl font-bold">{title}</h1>
         <h3 className="mt-4 text-xl">{description}</h3>
         <a href={github}>Visit Github</a>
-        <div className="flex items-start mt-2">
+        <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
           {tags.map((aTag) => (
             <h1
-              className="px-2 py-1 mr-2 rounded-md bg-purple-600 dark:bg-purple-600 w-30"
+              style={{ color: "#FFFFFF" }}
+              className={`px-2 py-1 mr-2 rounded-md ${getBgColor(
+                aTag.name
+              )} w-30`}
               key={aTag.id}
             >
               {aTag.name}
