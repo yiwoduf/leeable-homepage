@@ -16,9 +16,7 @@ export default function Projects({ projects }) {
         </Head>
         <h1 className="text-4xl font-bold sm:text-6xl">
           Projects # :
-          <span className="pl-4 text-purple-600">
-            {projects.results.length}
-          </span>
+          <span className="pl-4 text-blue-400">{projects.results.length}</span>
         </h1>
 
         <div className="grid grid-cols-1 gap-8 p-12 m-4 md:grid-cols-2">

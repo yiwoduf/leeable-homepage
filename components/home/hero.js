@@ -4,10 +4,10 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 
 export default function Hero() {
-  const titleTextOne = "Welcome To My Portfolio!";
-  const titleTextTwo = "I&apos;m Jaeyol Lee :)";
-  const titleTextThree = "I&apos;m a Software Engineer";
-  const titleTextFour = "I&apos;m a Web Developer";
+  const titleTextOne = encodeURI("Welcome To My Portfolio!");
+  const titleTextTwo = encodeURI("I'm Jaeyol Lee :)");
+  const titleTextThree = encodeURI("I'm a Software Engineer");
+  const titleTextFour = encodeURI("I'm a Web Developer");
   const { theme } = useTheme();
   const [titleURL, setTitleOne] = useState("");
 

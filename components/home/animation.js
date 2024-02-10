@@ -1,7 +1,7 @@
-import React from 'react'
-import Lottie from 'react-lottie-player'
+import React from "react";
+import Lottie from "react-lottie-player";
 
-import lottieJson from '/public/animation.json'
+import lottieJson from "/public/animation.json";
 
 export default function Animation() {
   return (
@@ -11,5 +11,5 @@ export default function Animation() {
       play
       style={{ width: `100%`, height: `100%` }}
     />
-  )
+  );
 }
