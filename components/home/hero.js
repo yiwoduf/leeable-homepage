@@ -16,7 +16,7 @@ export default function Hero() {
     setTitleOne(
       `https://readme-typing-svg.demolab.com?font=Fira+Code&size=30&duration=2500&pause=900&color=${color}&vCenter=true&random=false&width=435&lines=${titleTextOne};${titleTextTwo};${titleTextThree};${titleTextFour}`
     );
-  }, [theme]);
+  }, [theme, titleTextOne, titleTextTwo, titleTextThree, titleTextFour]);
   return (
     <>
       <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
