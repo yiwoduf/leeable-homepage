@@ -38,10 +38,36 @@ export default function Hero() {
           honed, and the passion I pour into my work. Excited to share my
           journey with you!
         </p>
-        <div className="flex justify-center">
-          <Link href="/projects">
-            <a className="btn-project">View My Work</a>
-          </Link>
+        <div className="flex justify-start space-x-5 w-full">
+          <div className="flex justify-center transition duration-300 transform shadow-lg hover:scale-105 hover:shadow-lg">
+            <Link href="/projects">
+              <a className="btn-project">VIEW MY WORK</a>
+            </Link>
+          </div>
+          <div className="flex justify-center transition duration-300 transform shadow-lg hover:scale-105 hover:shadow-lg">
+            <a
+              href="/Lee-CV.pdf"
+              download
+              className="btn-cv flex items-center justify-center"
+            >
+              <svg
+                className="mr-2"
+                stroke="currentColor"
+                fill="none"
+                stroke-width="2"
+                viewBox="0 0 24 24"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                height="0.8em"
+                width="0.8em"
+              >
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              RESUME/CV
+            </a>
+          </div>
         </div>
       </div>
       <div className="lg:max-w-lg lg:w-full md:w-1/2 w-5/6">

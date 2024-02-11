@@ -18,7 +18,7 @@ export default function Header() {
                 className="w-10 h-10 text-white p-2 bg-blue-300 rounded-full"
                 viewBox="0 0 24 24"
               >
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                <path d="M3 13.6493C3 16.6044 5.41766 19 8.4 19L16.5 19C18.9853 19 21 16.9839 21 14.4969C21 12.6503 19.8893 10.9449 18.3 10.25C18.1317 7.32251 15.684 5 12.6893 5C10.3514 5 8.34694 6.48637 7.5 8.5C4.8 8.9375 3 11.2001 3 13.6493Z"></path>
               </svg>
               <span className="ml-3 text-xl">Leeable Homepage</span>
             </a>
