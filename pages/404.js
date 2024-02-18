@@ -1,7 +1,7 @@
-export default function PageNotFound(){
-    return(
-        <>
-            <h1>페이지를 찾을수 없습니다 ㅠㅠ</h1>
-        </>
-    );
+export default function PageNotFound() {
+  return (
+    <>
+      <h1>Can't Find The Page You Requested</h1>
+    </>
+  );
 }
