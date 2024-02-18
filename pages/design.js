@@ -1,7 +1,7 @@
 import Layout from "../components/layout";
 import Head from "next/head";
-import { TOKEN, DATABASE_ID_PROJECT } from "../config";
-import ProjectItem from "../components/projects/project-item";
+import { TOKEN, DATABASE_ID_DESIGN } from "../config";
+import DesignItem from "../components/projects/design-item";
 
 export default function Projects({ projects }) {
   //console.log(projects);
@@ -10,7 +10,7 @@ export default function Projects({ projects }) {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-screen px-3 mb-10">
         <Head>
-          <title>Peter&apos;s Portfolio</title>
+          <title>Peter&apos;s Design Work</title>
           <meta name="description" content="오늘도 빡코딩!" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
@@ -21,7 +21,7 @@ export default function Projects({ projects }) {
 
         <div className="grid grid-cols-1 gap-8 p-12 m-4 md:grid-cols-2">
           {projects.results.map((aProject) => (
-            <ProjectItem key={aProject.id} data={aProject} />
+            <DesignItem key={aProject.id} data={aProject} />
           ))}
         </div>
       </div>
@@ -54,7 +54,7 @@ export async function getServerSideProps() {
   };
 
   const res = await fetch(
-    `https://api.notion.com/v1/databases/${DATABASE_ID_PROJECT}/query`,
+    `https://api.notion.com/v1/databases/${DATABASE_ID_DESIGN}/query`,
     options
   );
 

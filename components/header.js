@@ -33,6 +33,10 @@ export default function Header() {
               <a className="mr-5 hover:text-gray-900">Portfolio</a>
             </Link>
 
+            <Link href="/design">
+              <a className="mr-5 hover:text-gray-900">Design</a>
+            </Link>
+
             <a
               href="mailto:yiwoduf@gmail.com"
               className="mr-5 hover:text-gray-900"
