@@ -30,7 +30,7 @@ export default function Header() {
             </Link>
 
             <Link href="/projects">
-              <a className="mr-5 hover:text-gray-900">Portfolio</a>
+              <a className="mr-5 hover:text-gray-900">Projects</a>
             </Link>
 
             <Link href="/design">

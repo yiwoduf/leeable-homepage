@@ -8,8 +8,8 @@ export default function Home() {
   return (
     <Layout>
       <Head>
-        <title>Leeable Homepage</title>
-        <meta name="description" content="오늘도 빡코딩!" />
+        <title>Leeable | Homepage</title>
+        <meta name="description" content="Home" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <section className="flex min-h-screen flex-col items-center justify-center text-gray-600 body-font">
