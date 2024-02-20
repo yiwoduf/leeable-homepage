@@ -12,7 +12,7 @@ export default function Projects({ projects }) {
         <Head>
           <title>Leeable | Designs</title>
           <meta name="description" content="Leeable Designs" />
-          <link rel="icon" href="/favicon.ico" />
+          <link rel="icon" href="/leeable.ico" />
         </Head>
         <h1 className="text-4xl font-bold sm:text-6xl">
           Designs # :

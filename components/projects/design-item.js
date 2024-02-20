@@ -62,7 +62,7 @@ export default function DesignItem({ data }) {
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <h3 className="mt-4 text-xl">{description}</h3>
+        <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
           <h1
             style={{ color: "#FFFFFF" }}

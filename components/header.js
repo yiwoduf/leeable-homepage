@@ -1,7 +1,11 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
 import DarkModeToggleButton from "./dark-mode-toggle-button";
 
 export default function Header() {
+  const router = useRouter();
+
+  const isActive = (pathname) => router.pathname === pathname;
   return (
     <>
       <header className="text-gray-600 body-font">
@@ -26,15 +30,37 @@ export default function Header() {
 
           <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
             <Link href="/">
-              <a className="mr-5 hover:text-gray-900">Home</a>
+              <a
+                className={`mr-5 hover:text-gray-900 ${
+                  isActive("/") ? "font-bold border-b-2 border-blue-500" : ""
+                }`}
+              >
+                Home
+              </a>
             </Link>
 
             <Link href="/projects">
-              <a className="mr-5 hover:text-gray-900">Projects</a>
+              <a
+                className={`mr-5 hover:text-gray-900 ${
+                  isActive("/projects")
+                    ? "font-bold border-b-2 border-blue-500"
+                    : ""
+                }`}
+              >
+                Projects
+              </a>
             </Link>
 
             <Link href="/design">
-              <a className="mr-5 hover:text-gray-900">Design</a>
+              <a
+                className={`mr-5 hover:text-gray-900 ${
+                  isActive("/design")
+                    ? "font-bold border-b-2 border-blue-500"
+                    : ""
+                }`}
+              >
+                Design
+              </a>
             </Link>
 
             <a
