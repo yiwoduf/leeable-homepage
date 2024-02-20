@@ -10,8 +10,8 @@ export default function Projects({ projects }) {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-screen px-3 mb-10">
         <Head>
-          <title>Peter&apos;s Portfolio</title>
-          <meta name="description" content="오늘도 빡코딩!" />
+          <title>Leeable | Projects</title>
+          <meta name="description" content="Leeable Projects" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <h1 className="text-4xl font-bold sm:text-6xl">

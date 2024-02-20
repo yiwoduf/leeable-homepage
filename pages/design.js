@@ -10,16 +10,16 @@ export default function Projects({ projects }) {
     <Layout>
       <div className="flex flex-col items-center justify-center min-h-screen px-3 mb-10">
         <Head>
-          <title>Peter&apos;s Design Work</title>
-          <meta name="description" content="오늘도 빡코딩!" />
+          <title>Leeable | Designs</title>
+          <meta name="description" content="Leeable Designs" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <h1 className="text-4xl font-bold sm:text-6xl">
-          Projects # :
-          <span className="pl-4 text-blue-400">{projects.results.length}</span>
+          Designs # :
+          <span className="pl-4 text-blue-300">{projects.results.length}</span>
         </h1>
 
-        <div className="grid grid-cols-1 gap-8 p-12 m-4 md:grid-cols-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 p-12 m-4">
           {projects.results.map((aProject) => (
             <DesignItem key={aProject.id} data={aProject} />
           ))}

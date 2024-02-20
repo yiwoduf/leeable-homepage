@@ -72,10 +72,10 @@ export default function ProjectItem({ data }) {
         src={imgSrc}
         alt="cover image"
         width="100%"
-        height="50%"
+        height="70%"
         layout="responsive"
         objectFit="cover"
-        quality={100}
+        quality={70}
       />
 
       <div className="p-4 flex flex-col">

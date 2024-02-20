@@ -3,28 +3,12 @@ import Image from "next/image";
 function getBgColor(tag) {
   // key 값에 따라 색상 클래스를 결정
   switch (tag) {
-    case "C++":
+    case "Logo":
       return "bg-sky-700";
-    case "HTML":
+    case "UI":
       return "bg-red-700";
-    case "CSS":
-      return "bg-sky-400";
-    case "JavaScript":
+    case "Poster":
       return "bg-yellow-400";
-    case "React Native":
-      return "bg-blue-500";
-    case "TailwindCSS":
-      return "bg-blue-400";
-    case "ReactJS":
-      return "bg-blue-500";
-    case "NextJS":
-      return "bg-black";
-    case "SQL":
-      return "bg-sky-700";
-    case "C#":
-      return "bg-violet-500";
-    case "ElectronJS":
-      return "bg-blue-600";
     default:
       return "bg-purple-600";
   }
@@ -38,30 +22,30 @@ export default function DesignItem({ data }) {
   const imgSrc = data.cover.file?.url || data.cover.external.url;
   const tags = data.properties.Type.select;
 
-  const calculatedPeriod = (start, end) => {
-    const startDateStringArray = start.split("-");
-    const endDateStringArray = end.split("-");
+  // const calculatedPeriod = (start, end) => {
+  //   const startDateStringArray = start.split("-");
+  //   const endDateStringArray = end.split("-");
 
-    var startDate = new Date(
-      startDateStringArray[0],
-      startDateStringArray[1],
-      startDateStringArray[2]
-    );
-    var endDate = new Date(
-      endDateStringArray[0],
-      endDateStringArray[1],
-      endDateStringArray[2]
-    );
+  //   var startDate = new Date(
+  //     startDateStringArray[0],
+  //     startDateStringArray[1],
+  //     startDateStringArray[2]
+  //   );
+  //   var endDate = new Date(
+  //     endDateStringArray[0],
+  //     endDateStringArray[1],
+  //     endDateStringArray[2]
+  //   );
 
-    console.log(`startDate: ${startDate}`);
-    console.log(`endDate: ${endDate}`);
+  //   console.log(`startDate: ${startDate}`);
+  //   console.log(`endDate: ${endDate}`);
 
-    const diffInMs = Math.abs(endDate - startDate);
-    const result = diffInMs / (1000 * 60 * 60 * 24);
+  //   const diffInMs = Math.abs(endDate - startDate);
+  //   const result = diffInMs / (1000 * 60 * 60 * 24);
 
-    console.log(`Project Period : ${result}`);
-    return result;
-  };
+  //   console.log(`Project Period : ${result}`);
+  //   return result;
+  // };
 
   return (
     <div className="project-card">
@@ -70,10 +54,10 @@ export default function DesignItem({ data }) {
         src={imgSrc}
         alt="cover image"
         width="100%"
-        height="50%"
+        height="70%"
         layout="responsive"
         objectFit="cover"
-        quality={100}
+        quality={50}
       />
 
       <div className="p-4 flex flex-col">
