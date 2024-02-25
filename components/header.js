@@ -63,6 +63,18 @@ export default function Header() {
               </a>
             </Link>
 
+            <Link href="/experience">
+              <a
+                className={`mr-5 hover:text-gray-900 ${
+                  isActive("/experience")
+                    ? "font-bold border-b-2 border-blue-500"
+                    : ""
+                }`}
+              >
+                Experience
+              </a>
+            </Link>
+
             <a
               href="mailto:yiwoduf@gmail.com"
               className="mr-5 hover:text-gray-900"
