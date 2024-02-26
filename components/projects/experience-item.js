@@ -10,7 +10,7 @@ function getBgColor(tag) {
     case "Poster":
       return "bg-yellow-400";
     default:
-      return "bg-blue-200";
+      return "bg-blue-300";
   }
 }
 
@@ -45,7 +45,7 @@ export default function ExperienceITem({ data }) {
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
           {tags.map((aTag) => (
             <h1
-              style={{ color: "#FFFFFF" }}
+              style={{ color: "#FFFFFF", whiteSpace: "nowrap" }}
               className={`px-2 py-1 mr-2 rounded-md ${getBgColor(
                 aTag.name
               )} w-30`}

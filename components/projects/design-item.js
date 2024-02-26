@@ -65,7 +65,7 @@ export default function DesignItem({ data }) {
         <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
           <h1
-            style={{ color: "#FFFFFF" }}
+            style={{ color: "#FFFFFF", whiteSpace: "nowrap" }}
             className={`px-2 py-1 mr-2 rounded-md ${getBgColor(
               tags.name
             )} w-30`}
