@@ -39,7 +39,7 @@ export default function ExperienceITem({ data }) {
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
         <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
-        <h4 className="text-md text-gray-400">
+        <h4 className="text-md text-gray-300 font-bold italic">
           {startDate} ~ {endDate}
         </h4>
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
