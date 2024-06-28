@@ -32,11 +32,11 @@ export default function Hero() {
           front-end and web development. I&apos;m intrigued by UI/UX design and
           have gained extensive experience from numerous projects. As a proud
           1.5 generation Korean American, I bring a unique global perspective
-          and adaptability. My dream is to create a revolutionary business and
-          this ambition fuels my efficiency and productivity. Explore my
-          portfolio to see the projects I&apos;ve tackled, the skills I&apos;ve
-          honed, and the passion I pour into my work. Excited to share my
-          journey with you!
+          and adaptability. My strengths are voracious self-learning and
+          versatile mindset, which drive my efficiency and productivity. Explore
+          my portfolio to see the projects I&apos;ve tackled, the skills
+          I&apos;ve honed, and the passion I pour into my work. Excited to share
+          my journey with you!
         </p>
         <div className="flex justify-start space-x-5 w-full">
           <div className="flex justify-center transition duration-300 transform shadow-lg hover:scale-105 hover:shadow-lg">
