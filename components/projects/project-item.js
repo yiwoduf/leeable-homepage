@@ -102,8 +102,8 @@ export default function ProjectItem({ data }) {
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
-        <a href={github}>Visit Github</a>
+        <h3 className="mt-2 text-lg text-sky-600">{description}</h3>
+        <a href={github}>View Project</a>
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
           {tags.map((aTag) => (
             <h1
