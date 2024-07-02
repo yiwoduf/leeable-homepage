@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 function getBgColor(tag) {
   // key 값에 따라 색상 클래스를 결정
@@ -89,22 +89,22 @@ export default function ProjectItem({ data }) {
 
   return (
     <div className="project-card">
-      <div className="relative h-[40vh]">
-        <Image
-          className="rounded-t-xl"
-          src={imgSrc}
-          alt="cover image"
-          layout="fill"
-          objectFit="cover"
-          quality={70}
-        />
-      </div>
+      <Image
+        className="rounded-t-xl"
+        src={imgSrc}
+        alt="cover image"
+        width="100%"
+        height="70%"
+        layout="responsive"
+        objectFit="cover"
+        quality={70}
+      />
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
         <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
         <a
-          className="bg-transparent text-sky-600 hover:bg-sky-600 hover:text-white"
+          className="text-sky-600 hover:text-sky-800 hover:text-white"
           href={github}
         >
           View Project

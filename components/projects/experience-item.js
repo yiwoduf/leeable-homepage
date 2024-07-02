@@ -1,4 +1,4 @@
-import Image from "next/image";
+import Image from "next/legacy/image";
 
 function getBgColor(tag) {
   // key 값에 따라 색상 클래스를 결정
