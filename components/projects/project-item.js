@@ -35,6 +35,18 @@ function getBgColor(tag) {
       return "bg-sky-500";
     case "Python":
       return "bg-sky-700";
+    case "API":
+      return "bg-lime-500";
+    case "Database":
+      return "bg-indigo-400";
+    case "MySQL":
+      return "bg-cyan-500";
+    case "Java":
+      return "bg-orange-600";
+    case "Reverse Engineering":
+      return "bg-pink-500";
+    case "Server":
+      return "bg-emerald-500";
     default:
       return "bg-purple-600";
   }
