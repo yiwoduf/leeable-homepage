@@ -89,21 +89,24 @@ export default function ProjectItem({ data }) {
 
   return (
     <div className="project-card">
-      <Image
-        className="rounded-t-xl"
-        src={imgSrc}
-        alt="cover image"
-        width="100%"
-        height="70%"
-        layout="responsive"
-        objectFit="cover"
-        quality={70}
-      />
+      <div className="relative h-[40vh]">
+        <Image
+          className="rounded-t-xl"
+          src={imgSrc}
+          alt="cover image"
+          layout="fill"
+          objectFit="cover"
+          quality={70}
+        />
+      </div>
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
         <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
-        <a className="text-sky-600" href={github}>
+        <a
+          className="bg-transparent text-sky-600 hover:bg-sky-600 hover:text-white"
+          href={github}
+        >
           View Project
         </a>
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">

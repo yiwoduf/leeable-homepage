@@ -1,7 +1,12 @@
-import Animation from "./animation";
 import Link from "next/link";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
+
+const Animation = dynamic(() => import("./animation"), {
+  ssr: false,
+  loading: () => <div>Loading...</div>,
+});
 
 export default function Hero() {
   const titleTextOne = encodeURI("Welcome To My Portfolio!");
@@ -40,8 +45,8 @@ export default function Hero() {
         </p>
         <div className="flex justify-start space-x-5 w-full">
           <div className="flex justify-center transition duration-300 transform shadow-lg hover:scale-105 hover:shadow-lg">
-            <Link href="/projects">
-              <a className="btn-project">VIEW MY WORK</a>
+            <Link className="btn-project" href="/projects">
+              VIEW MY WORK
             </Link>
           </div>
           <div className="flex justify-center transition duration-300 transform shadow-lg hover:scale-105 hover:shadow-lg">

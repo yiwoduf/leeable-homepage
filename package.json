@@ -6,21 +6,23 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "codemod": "next-codemod next-image-import ./"
   },
   "dependencies": {
     "autoprefixer": "^10.4.17",
     "dotenv": "^16.0.1",
-    "next": "12.1.6",
-    "next-themes": "^0.2.0",
+    "jscodeshift": "^0.16.1",
+    "next": "^14.2.4",
+    "next-themes": "^0.3.0",
     "postcss": "^8.4.34",
-    "react": "18.1.0",
-    "react-dom": "18.1.0",
-    "react-lottie-player": "^1.4.3"
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-lottie-player": "^2.0.0"
   },
   "devDependencies": {
-    "eslint": "8.17.0",
-    "eslint-config-next": "12.1.6",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.2.4",
     "tailwindcss": "^3.4.1"
   }
 }

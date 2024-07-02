@@ -8,7 +8,7 @@ const nextConfig = {
       "s3.us-west-2.amazonaws.com",
       "prod-files-secure.s3.us-west-2.amazonaws.com",
     ],
-    format: ["image/png", "image/webp", "image/jpeg"],
+    formats: ["image/avif", "image/webp"],
   },
 };
 

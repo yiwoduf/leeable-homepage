@@ -3,7 +3,7 @@ import Lottie from "react-lottie-player";
 
 import lottieJson from "/public/animation.json";
 
-export default function Animation() {
+const Animation = () => {
   return (
     <Lottie
       loop
@@ -12,4 +12,6 @@ export default function Animation() {
       style={{ width: `100%`, height: `100%` }}
     />
   );
-}
+};
+
+export default Animation;
