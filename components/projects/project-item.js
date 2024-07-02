@@ -25,6 +25,16 @@ function getBgColor(tag) {
       return "bg-violet-500";
     case "ElectronJS":
       return "bg-blue-600";
+    case "Flask":
+      return "bg-cyan-700";
+    case "Multi-Thread":
+      return "bg-teal-500";
+    case "MachineLearning":
+      return "bg-rose-600";
+    case "Docker":
+      return "bg-sky-500";
+    case "Python":
+      return "bg-sky-700";
     default:
       return "bg-purple-600";
   }
