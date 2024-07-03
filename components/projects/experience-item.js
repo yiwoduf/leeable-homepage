@@ -1,4 +1,6 @@
 import Image from "next/legacy/image";
+import Loader from "./loader";
+import { useState, useEffect } from "react";
 
 function getBgColor(tag) {
   // key 값에 따라 색상 클래스를 결정
@@ -23,9 +25,29 @@ export default function ExperienceITem({ data }) {
   const startDate = data.properties.WorkPeriod.date.start;
   const endDate = data.properties.WorkPeriod.date.end;
 
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    return () => {
+      setIsLoaded(false); // This will be executed when the component unmounts
+    };
+  }, []);
+
   return (
     <div className="project-card">
-      <div style={{ maxWidth: "500px" }}>
+      <div style={{ maxWidth: "500px", position: "relative" }}>
+        {!isLoaded && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <Loader />
+          </div>
+        )}
         <Image
           className="rounded-t-xl"
           src={imgSrc}
@@ -34,8 +56,9 @@ export default function ExperienceITem({ data }) {
           height="70%"
           layout="responsive"
           objectFit="cover"
-          quality={50}
+          quality={70}
           loading="lazy"
+          onLoad={() => setIsLoaded(true)}
         />
       </div>
 
