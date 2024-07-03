@@ -29,6 +29,18 @@ function getBgColor(tag) {
       return "bg-blue-600";
     case "Flask":
       return "bg-cyan-700";
+    case "Express":
+      return "bg-amber-400";
+    case "MongoDB":
+      return "bg-lime-400";
+    case "Mongoose":
+      return "bg-rose-700";
+    case "Babel":
+      return "bg-amber-500";
+    case "NoSQL":
+      return "bg-indigo-400";
+    case "SCSS":
+      return "bg-rose-400";
     case "Multi-Thread":
       return "bg-teal-500";
     case "MachineLearning":
@@ -43,14 +55,18 @@ function getBgColor(tag) {
       return "bg-indigo-400";
     case "MySQL":
       return "bg-cyan-500";
+    case "MariaDB":
+      return "bg-indigo-300";
     case "Java":
       return "bg-orange-600";
     case "Reverse Engineering":
       return "bg-pink-500";
     case "Server":
       return "bg-emerald-500";
+    case "XML":
+      return "bg-orange-500";
     default:
-      return "bg-purple-600";
+      return "bg-blue-600";
   }
 }
 
@@ -92,8 +108,10 @@ export default function ProjectItem({ data }) {
   const [isLoaded, setIsLoaded] = useState(false);
 
   useEffect(() => {
-    setIsLoaded(false); // Reset the loaded state whenever imgSrc changes
-  }, [imgSrc]);
+    return () => {
+      setIsLoaded(false); // This will be executed when the component unmounts
+    };
+  }, []);
 
   return (
     <div className="project-card">
@@ -140,13 +158,13 @@ export default function ProjectItem({ data }) {
             const bgColorClass = getBgColor(aTag.name);
             return (
               <span
-                className={`px-2 text-xs py-1 mt-2 mr-2 rounded-md bg-neutral-300 text-white transition-all duration-300 ease-in-out transform hover:scale-110`}
+                className={`px-2 text-xs py-1 mt-2 mr-2 rounded-md bg-neutral-200 text-white transition-all duration-300 ease-in-out transform hover:scale-110`}
                 key={aTag.id}
                 onMouseEnter={(e) =>
-                  e.target.classList.replace("bg-neutral-300", bgColorClass)
+                  e.target.classList.replace("bg-neutral-200", bgColorClass)
                 }
                 onMouseLeave={(e) =>
-                  e.target.classList.replace(bgColorClass, "bg-neutral-300")
+                  e.target.classList.replace(bgColorClass, "bg-neutral-200")
                 }
               >
                 {aTag.name}
