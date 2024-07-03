@@ -23,6 +23,20 @@ export default function Header() {
       });
   }, []);
 
+  /* FOR RESPONSIVE NAV */
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  const fontSize = windowWidth < 560 ? "text-xs" : "text-base";
+
+  /* ACTIVE TAB HANDLER */
   const isActive = (pathname) => router.pathname === pathname;
   return (
     <>
@@ -46,10 +60,12 @@ export default function Header() {
             </a>
           </Link>
 
-          <nav className="md:ml-auto flex flex-wrap items-center text-base justify-center">
+          <nav
+            className={`md:ml-auto flex flex-wrap items-center text-base justify-center ${fontSize}`}
+          >
             <Link href="/" legacyBehavior>
               <a
-                className={`mr-5 hover:text-gray-900 ${
+                className={`mr-5 hover:text-gray-700 ${
                   isActive("/") ? "font-bold border-b-2 border-blue-500" : ""
                 }`}
               >
@@ -59,7 +75,7 @@ export default function Header() {
 
             <Link href="/projects" legacyBehavior>
               <a
-                className={`mr-5 hover:text-gray-900 ${
+                className={`mr-5 hover:text-gray-700 ${
                   isActive("/projects")
                     ? "font-bold border-b-2 border-blue-500"
                     : ""
@@ -74,7 +90,7 @@ export default function Header() {
 
             <Link href="/design" legacyBehavior>
               <a
-                className={`mr-5 hover:text-gray-900 ${
+                className={`mr-5 hover:text-gray-700 ${
                   isActive("/design")
                     ? "font-bold border-b-2 border-blue-500"
                     : ""
@@ -89,7 +105,7 @@ export default function Header() {
 
             <Link href="/experience" legacyBehavior>
               <a
-                className={`mr-5 hover:text-gray-900 ${
+                className={`mr-5 hover:text-gray-700 ${
                   isActive("/experience")
                     ? "font-bold border-b-2 border-blue-500"
                     : ""
@@ -104,7 +120,7 @@ export default function Header() {
 
             <a
               href="mailto:yiwoduf@gmail.com"
-              className="mr-5 hover:text-gray-900"
+              className="mr-5 hover:text-gray-700"
             >
               Contact
             </a>
