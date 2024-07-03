@@ -158,13 +158,13 @@ export default function ProjectItem({ data }) {
             const bgColorClass = getBgColor(aTag.name);
             return (
               <span
-                className={`px-2 text-xs py-1 mt-2 mr-2 rounded-md bg-neutral-200 text-white transition-all duration-300 ease-in-out transform hover:scale-110`}
+                className={`px-2 text-xs py-1 mt-2 mr-2 rounded-md bg-neutral-300 text-white transition-all duration-300 ease-in-out transform hover:scale-110`}
                 key={aTag.id}
                 onMouseEnter={(e) =>
-                  e.target.classList.replace("bg-neutral-200", bgColorClass)
+                  e.target.classList.replace("bg-neutral-300", bgColorClass)
                 }
                 onMouseLeave={(e) =>
-                  e.target.classList.replace(bgColorClass, "bg-neutral-200")
+                  e.target.classList.replace(bgColorClass, "bg-neutral-300")
                 }
               >
                 {aTag.name}
