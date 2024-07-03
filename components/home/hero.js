@@ -22,6 +22,7 @@ export default function Hero() {
       `https://readme-typing-svg.demolab.com?font=Fira+Code&size=30&duration=2500&pause=900&color=${color}&vCenter=true&random=false&width=435&lines=${titleTextOne};${titleTextTwo};${titleTextThree};${titleTextFour}`
     );
   }, [theme, titleTextOne, titleTextTwo, titleTextThree, titleTextFour]);
+
   return (
     <>
       <div className="lg:flex-grow md:w-1/2 lg:pr-24 md:pr-16 flex flex-col md:items-start md:text-left mb-16 md:mb-0 items-center text-center">
@@ -30,7 +31,6 @@ export default function Hero() {
           <br className="hidden lg:inline-block" />음 여기다가 뭘 쓸까
         </h1> */}
         <img className="w-full" src={titleURL} alt="Typing SVG" />
-
         <p className="mb-8 leading-relaxed">
           Welcome to my portfolio! I&apos;m Peter (Jaeyol) Lee, a Computer
           Science major from the University of Kansas, with a strong passion for

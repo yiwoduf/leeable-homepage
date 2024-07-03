@@ -1,9 +1,27 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import DarkModeToggleButton from "./dark-mode-toggle-button";
+import { useEffect, useState } from "react";
+import CountUp from "react-countup";
+import DesignItem from "./projects/design-item";
 
 export default function Header() {
   const router = useRouter();
+
+  /* DISPLAY COUNTS */
+  const [projectCount, setProjectCount] = useState(0);
+  const [designCount, setDesignCount] = useState(0); // 디자인 수를 관리하는 상태를 추가합니다.
+  const [experienceCount, setExperienceCount] = useState(0); // 경험 수를 관리하는 상태를 추가합니다.
+
+  useEffect(() => {
+    fetch("/api/projectCounts")
+      .then((response) => response.json())
+      .then((data) => {
+        setProjectCount(data.projectCount);
+        setDesignCount(data.designCount); // 디자인 수를 설정합니다.
+        setExperienceCount(data.experienceCount); // 경험 수를 설정합니다.
+      });
+  }, []);
 
   const isActive = (pathname) => router.pathname === pathname;
   return (
@@ -47,6 +65,9 @@ export default function Header() {
                     : ""
                 }`}
               >
+                <span className="text-blue-500 font-bold">
+                  <CountUp start={0} end={projectCount} duration={3} />{" "}
+                </span>
                 Projects
               </a>
             </Link>
@@ -59,6 +80,9 @@ export default function Header() {
                     : ""
                 }`}
               >
+                <span className="text-blue-500 font-bold">
+                  <CountUp start={0} end={designCount} duration={3} />
+                </span>{" "}
                 Design
               </a>
             </Link>
@@ -71,6 +95,9 @@ export default function Header() {
                     : ""
                 }`}
               >
+                <span className="text-blue-500 font-bold">
+                  <CountUp start={0} end={experienceCount} duration={3} />
+                </span>{" "}
                 Experience
               </a>
             </Link>
