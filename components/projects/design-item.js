@@ -49,20 +49,23 @@ export default function DesignItem({ data }) {
 
   return (
     <div className="project-card">
-      <Image
-        className="rounded-t-xl"
-        src={imgSrc}
-        alt="cover image"
-        width="100%"
-        height="70%"
-        layout="responsive"
-        objectFit="cover"
-        quality={70}
-      />
+      <div style={{ maxWidth: "500px" }}>
+        <Image
+          className="rounded-t-xl"
+          src={imgSrc}
+          alt="cover image"
+          width="100%"
+          height="70%"
+          layout="responsive"
+          objectFit="cover"
+          quality={70}
+          loading="lazy"
+        />
+      </div>
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
+        <h3 className="mt-2 text-m text-gray-400">{description}</h3>
         <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
           <h1
             style={{ color: "#FFFFFF", whiteSpace: "nowrap" }}

@@ -19,7 +19,7 @@ export default function Projects({ projects }) {
           <span className="pl-4 text-blue-400">{projects.results.length}</span>
         </h1>
 
-        <div className="grid grid-cols-1 gap-8 p-12 m-4 md:grid-cols-2 justify-items-center align-items-center">
+        <div className="grid grid-cols-1 gap-8 p-12 m-4 smm:grid-cols-2 lg:grid-cols-3 justify-items-center align-items-center lg:max-w-[80%]">
           {projects.results.map((aProject) => (
             <ExperienceItem key={aProject.id} data={aProject} />
           ))}

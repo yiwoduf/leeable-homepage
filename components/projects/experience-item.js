@@ -25,16 +25,19 @@ export default function ExperienceITem({ data }) {
 
   return (
     <div className="project-card">
-      <Image
-        className="rounded-t-xl"
-        src={imgSrc}
-        alt="cover image"
-        width="100%"
-        height="70%"
-        layout="responsive"
-        objectFit="cover"
-        quality={50}
-      />
+      <div style={{ maxWidth: "500px" }}>
+        <Image
+          className="rounded-t-xl"
+          src={imgSrc}
+          alt="cover image"
+          width="100%"
+          height="70%"
+          layout="responsive"
+          objectFit="cover"
+          quality={50}
+          loading="lazy"
+        />
+      </div>
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>

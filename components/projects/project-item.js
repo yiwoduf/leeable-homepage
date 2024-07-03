@@ -1,4 +1,6 @@
 import Image from "next/legacy/image";
+import Loader from "./loader";
+import { useState, useEffect } from "react";
 
 function getBgColor(tag) {
   // key 값에 따라 색상 클래스를 결정
@@ -87,40 +89,70 @@ export default function ProjectItem({ data }) {
     return result;
   };
 
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  useEffect(() => {
+    setIsLoaded(false); // Reset the loaded state whenever imgSrc changes
+  }, [imgSrc]);
+
   return (
     <div className="project-card">
-      <Image
-        className="rounded-t-xl"
-        src={imgSrc}
-        alt="cover image"
-        width="100%"
-        height="70%"
-        layout="responsive"
-        objectFit="cover"
-        quality={70}
-      />
+      <div style={{ maxWidth: "500px", position: "relative" }}>
+        {!isLoaded && (
+          <div
+            style={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+            }}
+          >
+            <Loader />
+          </div>
+        )}
+        <Image
+          className="rounded-t-xl"
+          src={imgSrc}
+          alt="cover image"
+          width="100%"
+          height="70%"
+          layout="responsive"
+          objectFit="cover"
+          quality={70}
+          loading="lazy"
+          onLoad={() => setIsLoaded(true)}
+        />
+      </div>
 
       <div className="p-4 flex flex-col">
         <h1 className="text-2xl font-bold">{title}</h1>
-        <h3 className="mt-2 text-lg text-gray-400">{description}</h3>
+        <h3 className="mt-2 text-m text-gray-400">{description}</h3>
         <a
-          className="text-sky-600 hover:text-sky-800 hover:text-white"
+          className="text-sm text-sky-600 hover:text-sky-800"
           href={github}
+          target="_blank"
+          rel="noopener noreferrer"
         >
           View Project
         </a>
-        <div className="flex items-start mt-2 overflow-x-auto scrollbar-hide">
-          {tags.map((aTag) => (
-            <h1
-              style={{ color: "#FFFFFF", whiteSpace: "nowrap" }}
-              className={`px-2 py-1 mr-2 rounded-md ${getBgColor(
-                aTag.name
-              )} w-30`}
-              key={aTag.id}
-            >
-              {aTag.name}
-            </h1>
-          ))}
+        <div className="flex flex-wrap items-start mt-2">
+          {tags.map((aTag) => {
+            const bgColorClass = getBgColor(aTag.name);
+            return (
+              <span
+                className={`px-2 text-xs py-1 mt-2 mr-2 rounded-md bg-neutral-300 text-white transition-all duration-300 ease-in-out transform hover:scale-110`}
+                key={aTag.id}
+                onMouseEnter={(e) =>
+                  e.target.classList.replace("bg-neutral-300", bgColorClass)
+                }
+                onMouseLeave={(e) =>
+                  e.target.classList.replace(bgColorClass, "bg-neutral-300")
+                }
+              >
+                {aTag.name}
+              </span>
+            );
+          })}
         </div>
       </div>
     </div>
