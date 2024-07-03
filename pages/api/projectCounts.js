@@ -5,7 +5,6 @@ import {
   DATABASE_ID_EXP,
   TOKEN,
 } from "../../config";
-
 export default async function handler(req, res) {
   const options = {
     method: "POST",
@@ -26,28 +25,31 @@ export default async function handler(req, res) {
     }),
   };
 
-  // Project #
-  const projectResponse = await fetch(
-    `https://api.notion.com/v1/databases/${DATABASE_ID_PROJECT}/query`,
-    options
-  );
-  const projects = await projectResponse.json();
+  // Do it all at once
+  const [projectResponse, designResponse, expResponse] = await Promise.all([
+    fetch(
+      `https://api.notion.com/v1/databases/${DATABASE_ID_PROJECT}/query`,
+      options
+    ),
+    fetch(
+      `https://api.notion.com/v1/databases/${DATABASE_ID_DESIGN}/query`,
+      options
+    ),
+    fetch(
+      `https://api.notion.com/v1/databases/${DATABASE_ID_EXP}/query`,
+      options
+    ),
+  ]);
+
+  // JSON convert
+  const [projects, designs, experiences] = await Promise.all([
+    projectResponse.json(),
+    designResponse.json(),
+    expResponse.json(),
+  ]);
+
   const projectCount = projects.results.length;
-
-  // Design #
-  const designResponse = await fetch(
-    `https://api.notion.com/v1/databases/${DATABASE_ID_DESIGN}/query`,
-    options
-  );
-  const designs = await designResponse.json();
   const designCount = designs.results.length;
-
-  // Experience #
-  const expResponse = await fetch(
-    `https://api.notion.com/v1/databases/${DATABASE_ID_EXP}/query`,
-    options
-  );
-  const experiences = await expResponse.json();
   const experienceCount = experiences.results.length;
 
   res.status(200).json({ projectCount, designCount, experienceCount });
