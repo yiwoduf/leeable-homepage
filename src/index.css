@@ -15,6 +15,11 @@
     scroll-behavior: smooth;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    background-color: #fdf6f9;
+  }
+
+  html.dark {
+    background-color: #0a0a14;
   }
 
   body {
