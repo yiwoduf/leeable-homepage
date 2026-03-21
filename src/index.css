@@ -78,6 +78,16 @@
   animation: float-slower 25s ease-in-out infinite;
 }
 
+/* Spinning border animation */
+@keyframes spin-border {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to   { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+.animate-spin-border {
+  animation: spin-border 2.5s linear infinite;
+}
+
 /* Hero gradient CSS variable — dark mode */
 :root {
   --hero-gradient: linear-gradient(135deg, #a78bfa 0%, #818cf8 35%, #38bdf8 70%, #34d399 100%);
