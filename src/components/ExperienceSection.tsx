@@ -16,11 +16,11 @@ interface ExperienceCardProps {
 const ExperienceCard = ({ item }: ExperienceCardProps) => {
   return (
     <div
-      className="flex flex-col gap-3 rounded-2xl p-6 w-80 shrink-0
-        dark:bg-white/[0.06] dark:backdrop-blur-xl dark:border dark:border-white/[0.1]
-        bg-white/60 backdrop-blur-xl border border-white/80
+      className="flex flex-col gap-3 rounded-2xl p-6 w-72 sm:w-80 shrink-0
+        dark:bg-white/[0.06] dark:backdrop-blur-md dark:border dark:border-white/[0.1]
+        bg-white/70 backdrop-blur-md border border-white/80
         shadow-lg dark:shadow-black/20 shadow-black/[0.06]
-        border-l-4 border-l-violet-400/30 dark:border-l-violet-400/30"
+        border-l-2 border-l-violet-400/30 dark:border-l-violet-400/30"
     >
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex flex-col gap-0.5">

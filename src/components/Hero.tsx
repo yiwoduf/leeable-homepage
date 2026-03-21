@@ -42,7 +42,7 @@ export const Hero = () => {
 
       <motion.h1
         variants={itemVariants}
-        className="font-display text-5xl font-bold sm:text-6xl md:text-7xl leading-[1.08] tracking-tight"
+        className="font-display text-[2rem] font-bold sm:text-6xl md:text-7xl leading-[1.08] tracking-tight whitespace-nowrap"
       >
         <span
           style={{

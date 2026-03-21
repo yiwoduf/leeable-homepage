@@ -83,7 +83,7 @@ export const SocialLinks = () => {
 
   return (
     <motion.div
-      className="flex flex-wrap items-center justify-center gap-3"
+      className="flex flex-col sm:flex-row sm:flex-wrap items-center justify-center gap-3"
       variants={containerVariants}
       initial="hidden"
       animate="visible"
