@@ -22,26 +22,33 @@ interface SiteData {
   experience: ExperienceItem[];
 }
 
-const parseExperience = (raw: string): ExperienceItem[] => {
-  try {
-    return JSON.parse(raw) as ExperienceItem[];
-  } catch {
-    return [];
-  }
-};
-
 export const siteData: SiteData = {
-  name: import.meta.env.VITE_NAME ?? "Your Name",
-  title: import.meta.env.VITE_TITLE ?? "Developer",
-  tagline: import.meta.env.VITE_TAGLINE ?? "",
-  statusMessage: import.meta.env.VITE_STATUS_MESSAGE ?? "New portfolio in progress",
+  name: "Jaeyol (Peter) Lee",
+  title: "Fullstack Developer",
+  tagline: "Building products with AI",
+  statusMessage: "New portfolio in progress",
   socials: {
-    github: import.meta.env.VITE_GITHUB_URL ?? "",
-    linkedin: import.meta.env.VITE_LINKEDIN_URL ?? "",
-    instagram: import.meta.env.VITE_INSTAGRAM_URL ?? "",
-    email: import.meta.env.VITE_EMAIL ?? "",
+    github: "https://github.com/yiwoduf",
+    linkedin: "https://linkedin.com/in/yiwoduf",
+    instagram: "https://instagram.com/o2.27.o2",
+    email: "yiwoduf@gmail.com",
   },
-  experience: parseExperience(import.meta.env.VITE_EXPERIENCE ?? "[]"),
+  experience: [
+    {
+      company: "Paycom",
+      role: "Software Developer",
+      period: "2024 - Present",
+      description: "Building enterprise HR and payroll solutions as a fullstack developer.",
+      tags: ["React", ".NET", "SQL", "Enterprise"],
+    },
+    {
+      company: "Freelance",
+      role: "Fullstack Developer",
+      period: "2023 - 2024",
+      description: "Delivered end-to-end web applications for clients, focusing on modern UI/UX and rapid iteration.",
+      tags: ["Next.js", "React", "Tailwind", "Supabase"],
+    },
+  ],
 };
 
 export type { SiteData, SocialLinks, ExperienceItem };
