@@ -2,7 +2,7 @@
 
 Personal portfolio landing page — a polished placeholder while the full portfolio is in development.
 
-**Live:** [leeable-homepage.vercel.app](https://leeable-homepage.vercel.app)
+**Live:** [leeable.dev](https://leeable.dev)
 
 ## Stack
 
