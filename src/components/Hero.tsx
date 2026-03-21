@@ -46,7 +46,7 @@ export const Hero = () => {
       >
         <span
           style={{
-            backgroundImage: "linear-gradient(135deg, #67e8f9, #38bdf8, #818cf8)",
+            backgroundImage: "linear-gradient(135deg, #f9a8d4, #c084fc, #818cf8)",
             WebkitBackgroundClip: "text",
             WebkitTextFillColor: "transparent",
             backgroundClip: "text",

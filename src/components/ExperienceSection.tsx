@@ -20,14 +20,14 @@ const ExperienceCard = ({ item }: ExperienceCardProps) => {
         dark:bg-white/[0.06] dark:backdrop-blur-xl dark:border dark:border-white/[0.1]
         bg-white/60 backdrop-blur-xl border border-white/80
         shadow-lg dark:shadow-black/20 shadow-black/[0.06]
-        border-l-4 border-l-sky-400/50 dark:border-l-sky-400/50"
+        border-l-4 border-l-violet-400/30 dark:border-l-violet-400/30"
     >
       <div className="flex items-start justify-between gap-4 flex-wrap">
         <div className="flex flex-col gap-0.5">
           <h3 className="font-display text-base font-semibold dark:text-white/90 text-neutral-800">
             {item.company}
           </h3>
-          <p className="font-body text-sm font-medium bg-gradient-to-r from-sky-400 to-cyan-400 dark:from-sky-400 dark:to-cyan-400 bg-clip-text text-transparent">
+          <p className="font-body text-sm font-medium bg-gradient-to-r from-fuchsia-400 to-violet-400 dark:from-fuchsia-400 dark:to-violet-400 bg-clip-text text-transparent">
             {item.role}
           </p>
         </div>
