@@ -94,21 +94,11 @@ export const ExperienceSection = () => {
       <motion.div
         variants={headerVariants}
         className="relative overflow-hidden w-full"
+        style={{
+          maskImage: "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
+          WebkitMaskImage: "linear-gradient(to right, transparent 0%, black 12%, black 88%, transparent 100%)",
+        }}
       >
-        {/* Left fade overlay */}
-        <div className="pointer-events-none absolute left-0 top-0 h-full w-24 z-10
-          bg-gradient-to-r
-          dark:from-neutral-950/80 dark:via-neutral-950/40 dark:to-transparent
-          from-white/80 via-white/40 to-transparent
-          backdrop-blur-[1px]" />
-
-        {/* Right fade overlay */}
-        <div className="pointer-events-none absolute right-0 top-0 h-full w-24 z-10
-          bg-gradient-to-l
-          dark:from-neutral-950/80 dark:via-neutral-950/40 dark:to-transparent
-          from-white/80 via-white/40 to-transparent
-          backdrop-blur-[1px]" />
-
         <div
           className="flex gap-6 animate-marquee"
           style={{ width: "max-content" }}
