@@ -24,8 +24,8 @@ interface SiteData {
 
 export const siteData: SiteData = {
   name: "Jaeyol (Peter) Lee",
-  title: "Fullstack Developer",
-  tagline: "Building products with AI",
+  title: "AI Product Engineer",
+  tagline: "Turning real-world problems into AI-powered products.",
   statusMessage: "New portfolio in progress",
   socials: {
     github: "https://github.com/yiwoduf",
