@@ -23,7 +23,10 @@
   "overrides": {
     "eslint": {
       "minimatch": "^3.1.5"
-    }
+    },
+    "esbuild": "^0.25.0",
+    "brace-expansion": "^1.1.13",
+    "picomatch": "^4.0.4"
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
