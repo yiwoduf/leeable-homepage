@@ -20,6 +20,6 @@ export const SKILL_ICONS: Record<string, string> = {
   'Google Cloud': 'googlecloud',
   Claude: 'claude',
   n8n: 'n8n',
-  // Codex → OpenAI's mark (recolored to follow the theme; see ADAPT in useSkillIcons).
-  Codex: 'openai',
+  // Codex and OpenClaw render from CUSTOM_SKILL_ICONS (inline, no fetch) —
+  // their marks are missing/blocked on the Simple Icons CDN.
 };
