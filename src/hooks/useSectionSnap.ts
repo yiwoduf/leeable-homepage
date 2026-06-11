@@ -33,7 +33,16 @@ const EDGE_EPS = 4; // px tolerance for "resting at a content edge"
 const MIN_INTERNAL = 40; // sections with less internal scroll than this just pull (no dead slack)
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
 const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
-const WHEEL_GLIDE_EASE = 0.16; // per-frame approach factor for the notchy-wheel glide
+
+// All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
+// so convergence speed is identical at 60/90/120/144Hz (a fixed per-frame
+// factor would run twice as fast on a 120Hz screen). τ values are tuned to
+// match the intended feel at 60Hz.
+const WHEEL_GLIDE_TAU = 96; // ms — notchy-wheel glide time constant
+const TOUCH_FOLLOW_TAU = 24; // ms — finger-follow time constant (tight, no lag)
+const FLING_TAU = 270; // ms — fling friction time constant
+const FLING_MAX_V = 3.6; // px/ms — fling launch velocity cap
+const MAX_FRAME_DT = 64; // ms — clamp dt across tab-switch / hitch gaps
 
 export function useSectionSnap(): void {
   useEffect(() => {
@@ -83,19 +92,22 @@ export function useSectionSnap(): void {
     // it simply judges from the glide TARGET (the effective position).
     let wheelTarget: number | null = null;
     let wheelGlideId = 0;
+    let wheelPrevT = 0;
 
     const stopWheelGlide = () => {
       cancelAnimationFrame(wheelGlideId);
       wheelTarget = null;
     };
 
-    const stepWheelGlide = () => {
+    const stepWheelGlide = (now: number) => {
       if (wheelTarget === null) return;
       if (isScrollLocked()) {
         // a section snap / nav glide took over — never fight it
         stopWheelGlide();
         return;
       }
+      const dt = Math.min(MAX_FRAME_DT, Math.max(0.1, now - wheelPrevT));
+      wheelPrevT = now;
       const cur = window.scrollY;
       const diff = wheelTarget - cur;
       if (Math.abs(diff) < 0.6) {
@@ -103,7 +115,8 @@ export function useSectionSnap(): void {
         wheelTarget = null;
         return;
       }
-      window.scrollTo({ top: cur + diff * WHEEL_GLIDE_EASE, behavior: 'instant' });
+      const k = 1 - Math.exp(-dt / WHEEL_GLIDE_TAU);
+      window.scrollTo({ top: cur + diff * k, behavior: 'instant' });
       wheelGlideId = requestAnimationFrame(stepWheelGlide);
     };
 
@@ -113,6 +126,7 @@ export function useSectionSnap(): void {
       if (notchy) {
         wheelTarget = newY;
         cancelAnimationFrame(wheelGlideId);
+        wheelPrevT = performance.now();
         wheelGlideId = requestAnimationFrame(stepWheelGlide);
       } else {
         stopWheelGlide();
@@ -270,21 +284,24 @@ export function useSectionSnap(): void {
     // with a tight ease, so the page sticks to the finger but moves smoothly.
     let tDesired: number | null = null;
     let tFollowId = 0;
-    const TOUCH_FOLLOW_EASE = 0.5; // tight — cushions event-rate steps without lag
+    let tFollowPrevT = 0;
 
     const stopTouchFollow = () => {
       cancelAnimationFrame(tFollowId);
       tDesired = null;
     };
 
-    const stepTouchFollow = () => {
+    const stepTouchFollow = (now: number) => {
       if (tDesired === null) return;
+      const dt = Math.min(MAX_FRAME_DT, Math.max(0.1, now - tFollowPrevT));
+      tFollowPrevT = now;
       const cur = window.scrollY;
       const diff = tDesired - cur;
       if (Math.abs(diff) < 0.5) {
         if (diff !== 0) window.scrollTo({ top: tDesired, behavior: 'instant' });
       } else {
-        window.scrollTo({ top: cur + diff * TOUCH_FOLLOW_EASE, behavior: 'instant' });
+        const k = 1 - Math.exp(-dt / TOUCH_FOLLOW_TAU);
+        window.scrollTo({ top: cur + diff * k, behavior: 'instant' });
       }
       tFollowId = requestAnimationFrame(stepTouchFollow);
     };
@@ -292,7 +309,10 @@ export function useSectionSnap(): void {
     const followTo = (target: number) => {
       const wasIdle = tDesired === null;
       tDesired = target;
-      if (wasIdle) tFollowId = requestAnimationFrame(stepTouchFollow);
+      if (wasIdle) {
+        tFollowPrevT = performance.now();
+        tFollowId = requestAnimationFrame(stepTouchFollow);
+      }
     };
 
     const onTouchStart = (e: TouchEvent) => {
@@ -390,14 +410,19 @@ export function useSectionSnap(): void {
       } else if (mode === 'pull-up') {
         smoothScrollTo(tReady ? tPrevRest : tRestTop);
       } else if (mode === 'internal') {
-        // fling: coast with friction, bounded to the section (parks at its edges)
-        let v = Math.max(-60, Math.min(60, tVel * 16)); // px/frame, capped
-        if (Math.abs(v) < 0.6) return;
-        const step = () => {
-          const ny = Math.max(tRestTop, Math.min(tRestBot, window.scrollY + v));
+        // fling: coast with friction, bounded to the section (parks at its
+        // edges). Velocity is px/ms and friction decays by elapsed time, so
+        // the coast feels identical at any refresh rate.
+        let v = Math.max(-FLING_MAX_V, Math.min(FLING_MAX_V, tVel));
+        if (Math.abs(v) < 0.036) return;
+        let prevT = performance.now();
+        const step = (now: number) => {
+          const dt = Math.min(MAX_FRAME_DT, Math.max(0.1, now - prevT));
+          prevT = now;
+          const ny = Math.max(tRestTop, Math.min(tRestBot, window.scrollY + v * dt));
           window.scrollTo({ top: ny, behavior: 'instant' });
-          v *= 0.94;
-          if (ny <= tRestTop || ny >= tRestBot || Math.abs(v) < 0.4) return;
+          v *= Math.exp(-dt / FLING_TAU);
+          if (ny <= tRestTop || ny >= tRestBot || Math.abs(v) < 0.024) return;
           momentumId = requestAnimationFrame(step);
         };
         momentumId = requestAnimationFrame(step);
