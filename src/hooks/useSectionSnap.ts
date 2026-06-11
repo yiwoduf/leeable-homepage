@@ -362,6 +362,11 @@ export function useSectionSnap(): void {
         stopTouchFollow();
         return;
       }
+      // Own the gesture from the VERY FIRST move. If the first (sub-slop) move
+      // is not cancelled, iOS claims the gesture as a native scroll and fires
+      // its own momentum on release — which then fights our fling loop and
+      // shakes the screen. Cancelable-guarded: no-op for forced native phases.
+      if (e.cancelable) e.preventDefault();
       const y = e.touches[0].clientY;
       const drag = tStartY - y; // + = finger up = scroll down
       const now = performance.now();
@@ -379,7 +384,6 @@ export function useSectionSnap(): void {
           tMode = (rangeSmall || tStartScroll >= tRestBot - EDGE_EPS) && tHasNext ? 'pull-down' : 'internal';
         else tMode = (rangeSmall || tStartScroll <= tRestTop + EDGE_EPS) && tHasPrev ? 'pull-up' : 'internal';
       }
-      e.preventDefault(); // own the scroll
       const raw = tStartScroll + drag;
       const commitPx = touchCommitPx();
 

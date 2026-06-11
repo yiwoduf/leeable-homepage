@@ -15,9 +15,11 @@ html {
   html { scroll-behavior: auto; }
 }
 /* Mobile: the section pager (useSectionSnap) owns vertical scrolling, so turn off
-   native vertical panning — pinch-zoom still works; reduced-motion stays native. */
+   native vertical panning — pinch-zoom still works; reduced-motion stays native.
+   Applied to BOTH html and body: iOS Safari only partially honors touch-action
+   on the root element for document scrolling. */
 @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  html { touch-action: pinch-zoom; overscroll-behavior: none; }
+  html, body { touch-action: pinch-zoom; overscroll-behavior: none; }
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }
