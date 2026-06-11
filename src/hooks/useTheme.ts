@@ -1,28 +1,38 @@
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from 'react';
+import type { ThemeMode } from '../types/design';
+import { siteConfig } from '../config/site';
 
-type Theme = "dark" | "light";
+const STORAGE_KEY = 'leeable:theme';
 
-const getInitialTheme = (): Theme => {
-  if (typeof window === "undefined") return "dark";
-  const stored = localStorage.getItem("theme") as Theme | null;
-  if (stored === "dark" || stored === "light") return stored;
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
-};
+function getInitialTheme(): ThemeMode {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'dark' || saved === 'light') return saved;
+  } catch {
+    /* localStorage unavailable (private mode, etc.) — fall through to default */
+  }
+  return siteConfig.defaultTheme;
+}
 
-export const useTheme = () => {
-  const [theme, setTheme] = useState<Theme>(getInitialTheme);
+/**
+ * Dark/light theme state. Initializes from a returning visitor's saved choice,
+ * else `siteConfig.defaultTheme`; reflects to `<html data-theme>` and persists.
+ */
+export function useTheme() {
+  const [theme, setTheme] = useState<ThemeMode>(getInitialTheme);
 
   useEffect(() => {
-    const root = document.documentElement;
-    if (theme === "dark") {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
+    document.documentElement.dataset.theme = theme;
+    try {
+      localStorage.setItem(STORAGE_KEY, theme);
+    } catch {
+      /* ignore persistence failures */
     }
-    localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const toggleTheme = () => setTheme((prev) => (prev === "dark" ? "light" : "dark"));
+  const toggle = useCallback(() => {
+    setTheme((prev) => (prev === 'dark' ? 'light' : 'dark'));
+  }, []);
 
-  return { theme, toggleTheme };
-};
+  return { theme, isDark: theme === 'dark', toggle } as const;
+}
