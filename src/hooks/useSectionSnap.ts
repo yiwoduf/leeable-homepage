@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { NAV } from '../config/navigation';
 import { isScrollLocked, smoothScrollTo } from '../lib/scrollController';
 import { sectionSnapTop, sectionSnapBottom } from '../lib/sectionMetrics';
 import { sectionElements, activeSectionIndex } from '../lib/sections';
@@ -33,6 +32,8 @@ const PULL_CURVE = 0.5; // <1 front-loads the indicator so it shows early in the
 const EDGE_EPS = 4; // px tolerance for "resting at a content edge"
 const MIN_INTERNAL = 40; // sections with less internal scroll than this just pull (no dead slack)
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
+const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
+const WHEEL_GLIDE_EASE = 0.16; // per-frame approach factor for the notchy-wheel glide
 
 export function useSectionSnap(): void {
   useEffect(() => {
@@ -74,8 +75,56 @@ export function useSectionSnap(): void {
       }, SPRING_DELAY);
     };
 
+    // ---- WHEEL GLIDE (smooths notchy mouse-wheel input) --------------------
+    // Trackpads emit a dense stream of small deltas — applying them 1:1 already
+    // feels smooth and stays untouched. Discrete mouse wheels emit one big step
+    // per notch, which reads as a hard tick; for those, accumulate notches into
+    // a target and ease toward it with rAF. Gesture/edge logic is unchanged —
+    // it simply judges from the glide TARGET (the effective position).
+    let wheelTarget: number | null = null;
+    let wheelGlideId = 0;
+
+    const stopWheelGlide = () => {
+      cancelAnimationFrame(wheelGlideId);
+      wheelTarget = null;
+    };
+
+    const stepWheelGlide = () => {
+      if (wheelTarget === null) return;
+      if (isScrollLocked()) {
+        // a section snap / nav glide took over — never fight it
+        stopWheelGlide();
+        return;
+      }
+      const cur = window.scrollY;
+      const diff = wheelTarget - cur;
+      if (Math.abs(diff) < 0.6) {
+        window.scrollTo({ top: wheelTarget, behavior: 'instant' });
+        wheelTarget = null;
+        return;
+      }
+      window.scrollTo({ top: cur + diff * WHEEL_GLIDE_EASE, behavior: 'instant' });
+      wheelGlideId = requestAnimationFrame(stepWheelGlide);
+    };
+
+    /** Move the section's internal scroll to `newY` — eased for notchy wheels. */
+    const scrollInternal = (newY: number, base: number, notchy: boolean) => {
+      if (newY === base) return;
+      if (notchy) {
+        wheelTarget = newY;
+        cancelAnimationFrame(wheelGlideId);
+        wheelGlideId = requestAnimationFrame(stepWheelGlide);
+      } else {
+        stopWheelGlide();
+        window.scrollTo({ top: newY, behavior: 'instant' });
+      }
+    };
+
     const onWheel = (e: WheelEvent) => {
       if (e.ctrlKey) return; // let pinch-zoom through
+      // Ignore events that originate inside an overlay (settings modal, chat widget).
+      const el = e.target instanceof Element ? e.target : null;
+      if (el?.closest('[data-overlay]')) return;
       e.preventDefault();
 
       const raw = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * vh() : e.deltaY;
@@ -114,6 +163,10 @@ export function useSectionSnap(): void {
       const restTop = clampScroll(sectionSnapTop(list[i]));
       const restBot = clampScroll(sectionSnapBottom(list[i]));
       const y = window.scrollY;
+      // Effective position: mid-glide, judge from where the glide is headed so
+      // consecutive notches accumulate instead of re-reading a lagging scrollY.
+      const eff = wheelTarget ?? y;
+      const notchy = e.deltaMode !== 0 || absRaw >= NOTCH_DELTA;
 
       if (dir > 0) {
         const next = list[i + 1];
@@ -121,57 +174,66 @@ export function useSectionSnap(): void {
         // that barely overflows has no real content to scroll, so it pulls at
         // once). Otherwise scroll the content and stop at the edge, closing the
         // gesture — so a hard scroll from mid-section settles instead of crossing.
-        const atEdge = restBot - restTop <= MIN_INTERNAL || y >= restBot - EDGE_EPS;
+        const atEdge = restBot - restTop <= MIN_INTERNAL || eff >= restBot - EDGE_EPS;
         if (gestureClosed || !next || !atEdge) {
-          const newY = Math.min(restBot, Math.max(restTop, y + dy));
-          if (newY !== y) window.scrollTo({ top: newY, behavior: 'instant' });
+          const newY = Math.min(restBot, Math.max(restTop, eff + dy));
+          scrollInternal(newY, eff, notchy);
           if (newY >= restBot - EDGE_EPS) gestureClosed = true;
           setPull('');
           window.clearTimeout(springId);
           return;
         }
+        // Rubber-band pull — the page position glides like the internal scroll
+        // (no per-notch jerk); the indicator and commit threshold respond to
+        // the pull TARGET so the gesture still feels immediate.
         const nextRest = clampScroll(sectionSnapTop(next));
-        const newY = Math.min(nextRest, Math.max(restBot, y + dy));
-        if (newY !== y) window.scrollTo({ top: newY, behavior: 'instant' });
+        const newY = Math.min(nextRest, Math.max(restBot, eff + dy));
         const over = newY - restBot;
         const dist = nextRest - restBot;
         if (dist > 0 && over / dist >= COMMIT) {
           gestureUsed = true;
           window.clearTimeout(springId);
           setPull('');
+          stopWheelGlide(); // hand the position to the snap glide
           smoothScrollTo(nextRest);
         } else if (over > 0 && dist > 0) {
-          setPull('down', over / dist / COMMIT, NAV[i + 1]?.label ?? '');
+          scrollInternal(newY, eff, notchy);
+          // The destination's data-screen-label carries the translated name.
+          setPull('down', over / dist / COMMIT, next.dataset.screenLabel ?? '');
           armSpring(restBot);
         } else {
+          scrollInternal(newY, eff, notchy);
           setPull('');
           window.clearTimeout(springId);
         }
       } else {
         const prev = list[i - 1];
-        const atEdge = restBot - restTop <= MIN_INTERNAL || y <= restTop + EDGE_EPS;
+        const atEdge = restBot - restTop <= MIN_INTERNAL || eff <= restTop + EDGE_EPS;
         if (gestureClosed || !prev || !atEdge) {
-          const newY = Math.max(restTop, Math.min(restBot, y + dy));
-          if (newY !== y) window.scrollTo({ top: newY, behavior: 'instant' });
+          const newY = Math.max(restTop, Math.min(restBot, eff + dy));
+          scrollInternal(newY, eff, notchy);
           if (newY <= restTop + EDGE_EPS) gestureClosed = true;
           setPull('');
           window.clearTimeout(springId);
           return;
         }
+        // Rubber-band pull — eased exactly like the downward branch above.
         const prevRest = clampScroll(sectionSnapBottom(prev));
-        const newY = Math.max(prevRest, Math.min(restTop, y + dy));
-        if (newY !== y) window.scrollTo({ top: newY, behavior: 'instant' });
+        const newY = Math.max(prevRest, Math.min(restTop, eff + dy));
         const over = restTop - newY;
         const dist = restTop - prevRest;
         if (dist > 0 && over / dist >= COMMIT) {
           gestureUsed = true;
           window.clearTimeout(springId);
           setPull('');
+          stopWheelGlide(); // hand the position to the snap glide
           smoothScrollTo(prevRest);
         } else if (over > 0 && dist > 0) {
-          setPull('up', over / dist / COMMIT, NAV[i - 1]?.label ?? '');
+          scrollInternal(newY, eff, notchy);
+          setPull('up', over / dist / COMMIT, prev.dataset.screenLabel ?? '');
           armSpring(restTop);
         } else {
+          scrollInternal(newY, eff, notchy);
           setPull('');
           window.clearTimeout(springId);
         }
@@ -193,6 +255,8 @@ export function useSectionSnap(): void {
     let tIndex = 0;
     let tHasNext = false;
     let tHasPrev = false;
+    let tNextLabel = '';
+    let tPrevLabel = '';
     let tReady = false; // pulled far enough to commit on release
     let momentumId = 0;
 
@@ -200,6 +264,10 @@ export function useSectionSnap(): void {
 
     const onTouchStart = (e: TouchEvent) => {
       stopMomentum();
+      stopWheelGlide(); // the finger takes over from any wheel glide
+      // Ignore touch inside an overlay — also gates onTouchMove via tActive = false.
+      const el = e.target instanceof Element ? e.target : null;
+      if (el?.closest('[data-overlay]')) { tActive = false; return; }
       if (e.touches.length !== 1 || isScrollLocked()) {
         tActive = false;
         return;
@@ -223,11 +291,16 @@ export function useSectionSnap(): void {
       tHasPrev = tIndex > 0;
       tNextRest = tHasNext ? clampScroll(sectionSnapTop(list[tIndex + 1])) : tRestBot;
       tPrevRest = tHasPrev ? clampScroll(sectionSnapBottom(list[tIndex - 1])) : tRestTop;
+      tNextLabel = tHasNext ? (list[tIndex + 1].dataset.screenLabel ?? '') : '';
+      tPrevLabel = tHasPrev ? (list[tIndex - 1].dataset.screenLabel ?? '') : '';
       tActive = true;
     };
 
     const onTouchMove = (e: TouchEvent) => {
       if (!tActive) return;
+      // Ignore moves inside an overlay (gesture started outside → bail now).
+      const el = e.target instanceof Element ? e.target : null;
+      if (el?.closest('[data-overlay]')) { tActive = false; setPull(''); return; }
       if (e.touches.length !== 1) {
         // a second finger (pinch) — bail out and let the browser handle it
         tActive = false;
@@ -261,12 +334,12 @@ export function useSectionSnap(): void {
         const fingerOver = Math.max(0, raw - tRestBot);
         window.scrollTo({ top: tRestBot + Math.min(tNextRest - tRestBot, fingerOver * TOUCH_RESIST), behavior: 'instant' });
         tReady = fingerOver >= commitPx;
-        setPull('down', fingerOver / commitPx, NAV[tIndex + 1]?.label ?? '');
+        setPull('down', fingerOver / commitPx, tNextLabel);
       } else if (tMode === 'pull-up') {
         const fingerOver = Math.max(0, tRestTop - raw);
         window.scrollTo({ top: tRestTop - Math.min(tRestTop - tPrevRest, fingerOver * TOUCH_RESIST), behavior: 'instant' });
         tReady = fingerOver >= commitPx;
-        setPull('up', fingerOver / commitPx, NAV[tIndex - 1]?.label ?? '');
+        setPull('up', fingerOver / commitPx, tPrevLabel);
       }
     };
 
@@ -307,6 +380,7 @@ export function useSectionSnap(): void {
       window.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('touchcancel', onTouchEnd);
       stopMomentum();
+      stopWheelGlide();
       window.clearTimeout(springId);
       setPull('');
     };
