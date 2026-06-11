@@ -50,14 +50,17 @@ Valid options are also the unions in `types/design.ts`.
 - **Browser tab title / SEO** — `index.html` (`<title>` + meta description).
 - **Section order / nav** — `config/navigation.ts` (`NAV`).
 
-## ⚠️ One exception: the hero intro tagline
+## 4. Korean content (`src/data/portfolio.ko.ts`)
 
-The sentence *"I build multi-agent AI systems that automate real-world workflows
-end to end."* is **hardcoded** in `components/sections/HeroSection.tsx` (so
-"multi-agent AI systems" can be bold). The `identity.tagline` field in
-`portfolio.ts` exists but is **currently unused**. If asked to make it editable
-from `portfolio.ts`, wire `identity.tagline` into HeroSection (e.g. parse `**…**`
-for the bold span) and drop the hardcoded copy.
+A complete `PortfolioData` object with Korean copy. Loaded automatically when the
+visitor's language is `ko`. Identity URLs, skills arrays, company/product names,
+and place names stay in English as per Korean dev-industry convention.
+
+## ⚠️ Tagline now flows from `identity.tagline`
+
+The tagline is no longer hardcoded in `HeroSection.tsx`. It is read from
+`identity.tagline` in `portfolio.ts` (EN) and `portfolio.ko.ts` (KO) and rendered
+via `renderRich()` so `**bold**` markers produce `<b>` tags. To update the tagline,
+edit the `tagline` field in the relevant portfolio file.
 
 Note: Instagram/X URLs default to the GitHub handle (`yiwoduf`) — update if different.
-GitHub handle (`yiwoduf`).

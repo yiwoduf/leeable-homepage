@@ -12,6 +12,12 @@ content object, a design-config object, and a set of focused hooks.
   `npm run typecheck` — types only. `npm run preview` — preview the build.
 - Deployment is configured separately; out of scope for these docs.
 
+## i18n and Settings
+
+`src/i18n/` provides a zero-dependency i18n system. `LanguageProvider` (wraps `<App/>` in `main.tsx`) manages `lang` state, persists to `localStorage`, and sets `document.documentElement.lang` + `dataset.lang`. `useI18n()` returns `{ lang, setLang, t, content }` where `t` is `UI_STRINGS[lang]` and `content` is the language-specific portfolio object (EN: `data/portfolio.ts`, KO: `data/portfolio.ko.ts`). A `resize` event is dispatched on language change so `useResizeRealign` re-aligns the viewport. `src/i18n/rich.tsx` provides `renderRich()` for lightweight `\n`/`*kw*`/`**bold**` markup in section titles and taglines.
+
+The `SettingsModal` (gear button in `TopBar`) lets visitors switch theme (dark/light) and language (EN/KO) instantly. It carries `data-overlay` on its backdrop so the scroll pager ignores wheel/touch events inside it.
+
 ## Boot sequence
 
 `index.html` → `src/main.tsx`:
