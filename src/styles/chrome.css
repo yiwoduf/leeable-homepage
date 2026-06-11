@@ -319,3 +319,6 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
 @media (max-width: 560px) {
   .modal-panel { width: calc(100vw - 24px); }
 }
+
+/* Native-scroll guard (mobile): drags on the modal must not pan the page. */
+.modal-backdrop { touch-action: none; }

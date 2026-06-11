@@ -5,6 +5,13 @@ before touching `useSectionSnap`, `useReveal`, `scrollController`, or the
 `.reveal` / scroll-hint CSS. **Verify changes empirically** (headless wheel/touch
 bursts) — the behavior is full of timing edge cases.
 
+> **Mobile is fully native.** The JS pager below is DESKTOP WHEEL ONLY.
+> Touch devices use CSS scroll snap (`base.css`: `scroll-snap-type: y
+> mandatory` + `scroll-snap-stop: always` per section) — JS-driven document
+> scrolling during touch flickers on iOS WebKit, so coarse pointers get the
+> platform's snap physics, which satisfies constraints #1/#2 natively. Reveals
+> on touch are reveal-once (no replay) for the same reason.
+
 ## Hard product constraints (do not regress)
 
 1. **Exactly ONE section per gesture**, desktop AND mobile. Multi-section

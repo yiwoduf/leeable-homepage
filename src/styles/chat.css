@@ -478,3 +478,10 @@
     transition: none;
   }
 }
+
+/* ---- Native-scroll guard (mobile) ----
+   With native document scrolling on touch devices, drags on the panel's
+   non-scrolling surfaces must not pan the page behind it. The messages list
+   keeps its own pan-y + overscroll containment. */
+.chat-launcher { touch-action: none; }
+.chat-panel { touch-action: none; }

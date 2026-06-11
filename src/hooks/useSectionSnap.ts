@@ -1,13 +1,11 @@
 import { useEffect } from 'react';
-import { isScrollLocked, smoothScrollTo, stopScrollGlide } from '../lib/scrollController';
+import { isScrollLocked, smoothScrollTo } from '../lib/scrollController';
 import { sectionSnapTop, sectionSnapBottom } from '../lib/sectionMetrics';
 import { sectionElements, activeSectionIndex } from '../lib/sections';
 import { clampScroll } from '../lib/viewport';
 
 /**
- * Full-screen section pager with rubber-band feedback. The input (wheel on
- * desktop, touch drag on mobile) is owned entirely, so there's no native
- * momentum to fight and the behaviour is identical on both.
+ * Full-screen section pager — DESKTOP WHEEL ONLY.
  *
  *   • inside a section taller than the viewport you scroll its content freely; a
  *     gesture that *starts* mid-section scrolls to the content edge and stops
@@ -18,40 +16,41 @@ import { clampScroll } from '../lib/viewport';
  *   • pull past ~COMMIT of the way → it eases onto the next section
  *   • let go before that → it springs back to the edge you're on
  *
- * One gesture advances at most one section. On wheel, a burst commits once and is
+ * One gesture advances at most one section: a wheel burst commits once and is
  * then ignored until the wheel falls quiet for `GESTURE_GAP`; reaching an edge
- * mid-gesture "closes" it. On touch, one finger press-drag-release is the
- * gesture: drag scrolls / pulls, release commits or springs (a flick inside a
- * tall section coasts to its edge). Keyboard / reduced-motion stay native.
+ * mid-gesture "closes" it. Keyboard / reduced-motion stay native.
+ *
+ * TOUCH DEVICES ARE INTENTIONALLY NATIVE: JS-driven document scrolling during
+ * touch flickers on iOS WebKit (compositor races), so coarse pointers use the
+ * platform's own CSS scroll-snap instead — `scroll-snap-type: y mandatory` +
+ * `scroll-snap-stop: always` in base.css gives the same model natively (free
+ * scrolling inside tall sections, magnetic rest at edges, no double-skips)
+ * with zero scroll hijacking. This hook simply does nothing on touch devices.
  */
 
 const GESTURE_GAP = 80; // ms of wheel silence that ends one gesture / starts the next
 const SPRING_DELAY = 320; // ms of stillness before an uncommitted wheel pull springs back
-const COMMIT = 0.26; // fraction of the transition a WHEEL pull must cover before it advances
+const COMMIT = 0.26; // fraction of the transition a pull must cover before it advances
 const PULL_CURVE = 0.5; // <1 front-loads the indicator so it shows early in the pull, not just near commit
 const EDGE_EPS = 4; // px tolerance for "resting at a content edge"
 const MIN_INTERNAL = 40; // sections with less internal scroll than this just pull (no dead slack)
-const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
 const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
 
-// All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
-// so convergence speed is identical at 60/90/120/144Hz (a fixed per-frame
-// factor would run twice as fast on a 120Hz screen). τ values are tuned to
-// match the intended feel at 60Hz.
+// The glide uses TIME-BASED exponential decay — `1 - exp(-dt / τ)` — so
+// convergence speed is identical at 60/90/120/144Hz (a fixed per-frame factor
+// would run twice as fast on a 120Hz screen).
 const WHEEL_GLIDE_TAU = 96; // ms — notchy-wheel glide time constant
-const TOUCH_FOLLOW_TAU = 24; // ms — finger-follow time constant (tight, no lag)
-const FLING_TAU = 270; // ms — fling friction time constant
-const FLING_MAX_V = 3.6; // px/ms — fling launch velocity cap
 const MAX_FRAME_DT = 64; // ms — clamp dt across tab-switch / hitch gaps
 
 export function useSectionSnap(): void {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    // Touch devices scroll natively with CSS scroll-snap (see base.css).
+    if (window.matchMedia('(pointer: coarse)').matches) return;
 
     const root = document.documentElement;
     const vh = () => window.innerHeight;
     const maxStep = () => Math.max(110, Math.round(vh() * 0.14));
-    const touchCommitPx = () => Math.max(64, Math.round(vh() * 0.14)); // finger drag past an edge to commit
 
     // publish pull state for <ScrollHint>: direction, 0–1 progress, and the
     // destination section's name (shown faintly toward the side you're pulling).
@@ -254,222 +253,10 @@ export function useSectionSnap(): void {
       }
     };
 
-    // ---- TOUCH (mobile) ----------------------------------------------------
-    let tActive = false;
-    let tStartY = 0;
-    let tStartScroll = 0;
-    let tLastY = 0;
-    let tLastT = 0;
-    let tVel = 0; // px/ms, + = scrolling down
-    let tMode: 'none' | 'internal' | 'pull-down' | 'pull-up' = 'none';
-    let tRestTop = 0;
-    let tRestBot = 0;
-    let tNextRest = 0;
-    let tPrevRest = 0;
-    let tIndex = 0;
-    let tHasNext = false;
-    let tHasPrev = false;
-    let tNextLabel = '';
-    let tPrevLabel = '';
-    let tReady = false; // pulled far enough to commit on release
-    let momentumId = 0;
-
-    const stopMomentum = () => cancelAnimationFrame(momentumId);
-
-    // ---- TOUCH FOLLOW (frame-coalesced finger tracking) --------------------
-    // Touch events fire at the digitizer rate (often 60Hz) while screens paint
-    // at up to 120Hz — writing scrollTo inside every touchmove makes alternate
-    // frames idle and reads as judder. Instead the handlers only record the
-    // finger's desired page position; a rAF loop applies it once per frame
-    // with a tight ease, so the page sticks to the finger but moves smoothly.
-    let tDesired: number | null = null;
-    let tFollowId = 0;
-    let tFollowPrevT = 0;
-
-    const stopTouchFollow = () => {
-      cancelAnimationFrame(tFollowId);
-      tDesired = null;
-    };
-
-    const stepTouchFollow = (now: number) => {
-      if (tDesired === null) return;
-      const dt = Math.min(MAX_FRAME_DT, Math.max(0.1, now - tFollowPrevT));
-      tFollowPrevT = now;
-      const cur = window.scrollY;
-      const diff = tDesired - cur;
-      if (Math.abs(diff) < 0.5) {
-        if (diff !== 0) window.scrollTo({ top: tDesired, behavior: 'instant' });
-      } else {
-        const k = 1 - Math.exp(-dt / TOUCH_FOLLOW_TAU);
-        window.scrollTo({ top: cur + diff * k, behavior: 'instant' });
-      }
-      tFollowId = requestAnimationFrame(stepTouchFollow);
-    };
-
-    const followTo = (target: number) => {
-      const wasIdle = tDesired === null;
-      tDesired = target;
-      if (wasIdle) {
-        tFollowPrevT = performance.now();
-        tFollowId = requestAnimationFrame(stepTouchFollow);
-      }
-    };
-
-    const onTouchStart = (e: TouchEvent) => {
-      stopMomentum();
-      stopWheelGlide(); // the finger takes over from any wheel glide
-      stopTouchFollow();
-      window.clearTimeout(springId); // defuse a pending wheel spring-back
-      // Ignore touch inside an overlay — also gates onTouchMove via tActive = false.
-      const el = e.target instanceof Element ? e.target : null;
-      if (el?.closest('[data-overlay]')) { tActive = false; return; }
-      if (e.touches.length !== 1) {
-        tActive = false;
-        return;
-      }
-      // A finger landing mid-glide GRABS the page (native feel). Rejecting the
-      // touch here would leave its moves uncancelled — the browser would claim
-      // the gesture, fire its own momentum on release, and fight the glide
-      // (the "screen shaking" bug on rapid successive flicks).
-      if (isScrollLocked()) stopScrollGlide();
-      const t = e.touches[0];
-      tStartY = tLastY = t.clientY;
-      tStartScroll = window.scrollY;
-      tLastT = performance.now();
-      tVel = 0;
-      tMode = 'none';
-      tReady = false;
-      const list = sectionElements();
-      if (!list.length) {
-        tActive = false;
-        return;
-      }
-      tIndex = activeSectionIndex(list);
-      tRestTop = clampScroll(sectionSnapTop(list[tIndex]));
-      tRestBot = clampScroll(sectionSnapBottom(list[tIndex]));
-      tHasNext = tIndex + 1 < list.length;
-      tHasPrev = tIndex > 0;
-      tNextRest = tHasNext ? clampScroll(sectionSnapTop(list[tIndex + 1])) : tRestBot;
-      tPrevRest = tHasPrev ? clampScroll(sectionSnapBottom(list[tIndex - 1])) : tRestTop;
-      tNextLabel = tHasNext ? (list[tIndex + 1].dataset.screenLabel ?? '') : '';
-      tPrevLabel = tHasPrev ? (list[tIndex - 1].dataset.screenLabel ?? '') : '';
-      tActive = true;
-    };
-
-    const onTouchMove = (e: TouchEvent) => {
-      if (!tActive) return;
-      // Ignore moves inside an overlay (gesture started outside → bail now).
-      const el = e.target instanceof Element ? e.target : null;
-      if (el?.closest('[data-overlay]')) { tActive = false; setPull(''); stopTouchFollow(); return; }
-      if (e.touches.length !== 1) {
-        // a second finger (pinch) — bail out and let the browser handle it
-        tActive = false;
-        setPull('');
-        stopTouchFollow();
-        return;
-      }
-      // Own the gesture from the VERY FIRST move. If the first (sub-slop) move
-      // is not cancelled, iOS claims the gesture as a native scroll and fires
-      // its own momentum on release — which then fights our fling loop and
-      // shakes the screen. Cancelable-guarded: no-op for forced native phases.
-      if (e.cancelable) e.preventDefault();
-      if (!e.cancelable && tMode === 'none') {
-        // The browser has already committed this gesture to native scrolling
-        // (non-cancelable moves before we established a mode) — withdraw
-        // completely instead of running our writers against native momentum.
-        tActive = false;
-        stopTouchFollow();
-        return;
-      }
-      const y = e.touches[0].clientY;
-      const drag = tStartY - y; // + = finger up = scroll down
-      const now = performance.now();
-      const dt = now - tLastT;
-      if (dt > 0) tVel = (tLastY - y) / dt;
-      tLastY = y;
-      tLastT = now;
-
-      // decide the gesture's mode once the drag shows intent (mirrors the wheel's
-      // edge rule: started at the edge → pull; started mid-section → internal)
-      if (tMode === 'none') {
-        if (Math.abs(drag) < 6) return;
-        const rangeSmall = tRestBot - tRestTop <= MIN_INTERNAL;
-        if (drag > 0)
-          tMode = (rangeSmall || tStartScroll >= tRestBot - EDGE_EPS) && tHasNext ? 'pull-down' : 'internal';
-        else tMode = (rangeSmall || tStartScroll <= tRestTop + EDGE_EPS) && tHasPrev ? 'pull-up' : 'internal';
-      }
-      const raw = tStartScroll + drag;
-      const commitPx = touchCommitPx();
-
-      if (tMode === 'internal') {
-        followTo(Math.max(tRestTop, Math.min(tRestBot, raw)));
-      } else if (tMode === 'pull-down') {
-        const fingerOver = Math.max(0, raw - tRestBot);
-        followTo(tRestBot + Math.min(tNextRest - tRestBot, fingerOver * TOUCH_RESIST));
-        tReady = fingerOver >= commitPx;
-        setPull('down', fingerOver / commitPx, tNextLabel);
-      } else if (tMode === 'pull-up') {
-        const fingerOver = Math.max(0, tRestTop - raw);
-        followTo(tRestTop - Math.min(tRestTop - tPrevRest, fingerOver * TOUCH_RESIST));
-        tReady = fingerOver >= commitPx;
-        setPull('up', fingerOver / commitPx, tPrevLabel);
-      }
-    };
-
-    const onTouchEnd = () => {
-      stopTouchFollow(); // freeze the follow loop; release logic owns the position
-      if (!tActive) return;
-      tActive = false;
-      const mode = tMode;
-      tMode = 'none';
-      setPull('');
-      if (mode === 'pull-down') {
-        smoothScrollTo(tReady ? tNextRest : tRestBot);
-      } else if (mode === 'pull-up') {
-        smoothScrollTo(tReady ? tPrevRest : tRestTop);
-      } else if (mode === 'internal') {
-        // fling: coast with friction, bounded to the section (parks at its
-        // edges). Velocity is px/ms and friction decays by elapsed time, so
-        // the coast feels identical at any refresh rate.
-        let v = Math.max(-FLING_MAX_V, Math.min(FLING_MAX_V, tVel));
-        if (Math.abs(v) < 0.036) return;
-        let prevT = performance.now();
-        const step = (now: number) => {
-          const dt = Math.min(MAX_FRAME_DT, Math.max(0.1, now - prevT));
-          prevT = now;
-          const ny = Math.max(tRestTop, Math.min(tRestBot, window.scrollY + v * dt));
-          window.scrollTo({ top: ny, behavior: 'instant' });
-          v *= Math.exp(-dt / FLING_TAU);
-          if (ny <= tRestTop || ny >= tRestBot || Math.abs(v) < 0.024) return;
-          momentumId = requestAnimationFrame(step);
-        };
-        momentumId = requestAnimationFrame(step);
-      } else {
-        // mode 'none' — e.g. a tap that grabbed a glide mid-transition. If the
-        // page was left resting between sections, settle onto the nearest rest.
-        const y0 = window.scrollY;
-        if (y0 > tRestBot + EDGE_EPS) {
-          smoothScrollTo(y0 - tRestBot < tNextRest - y0 ? tRestBot : tNextRest);
-        } else if (y0 < tRestTop - EDGE_EPS) {
-          smoothScrollTo(tRestTop - y0 < y0 - tPrevRest ? tRestTop : tPrevRest);
-        }
-      }
-    };
-
     window.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('touchstart', onTouchStart, { passive: true });
-    window.addEventListener('touchmove', onTouchMove, { passive: false });
-    window.addEventListener('touchend', onTouchEnd, { passive: true });
-    window.addEventListener('touchcancel', onTouchEnd, { passive: true });
     return () => {
       window.removeEventListener('wheel', onWheel);
-      window.removeEventListener('touchstart', onTouchStart);
-      window.removeEventListener('touchmove', onTouchMove);
-      window.removeEventListener('touchend', onTouchEnd);
-      window.removeEventListener('touchcancel', onTouchEnd);
-      stopMomentum();
       stopWheelGlide();
-      stopTouchFollow();
       window.clearTimeout(springId);
       setPull('');
     };

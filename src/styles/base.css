@@ -14,17 +14,25 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
-/* Mobile: the section pager (useSectionSnap) owns vertical scrolling, so turn off
-   native vertical panning — pinch-zoom still works; reduced-motion stays native.
-   Applied to BOTH html and body: iOS Safari only partially honors touch-action
-   on the root element for document scrolling. */
+/* Mobile: 100% NATIVE scrolling with CSS scroll snap. JS-driven document
+   scrolling during touch flickers on iOS WebKit, so coarse pointers get the
+   platform's own snap physics instead (the wheel pager in useSectionSnap is
+   desktop-only):
+     • free scrolling inside sections taller than the viewport (a snap area
+       larger than the snapport allows unrestricted scrolling within — spec)
+     • magnetic rest at section edges (y mandatory)
+     • a fling can never skip past a section (scroll-snap-stop: always)
+   Reduced-motion users keep fully native, snap-free scrolling. */
 @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  html, body {
-    touch-action: pinch-zoom;
-    overscroll-behavior: none;
-    /* All touch scrolling is JS-driven (instant writes) — disable the CSS
-       smooth engine entirely so no browser can ever animate alongside it. */
+  html {
+    scroll-snap-type: y mandatory;
     scroll-behavior: auto;
+    overscroll-behavior-y: none;
+  }
+  body { overscroll-behavior-y: none; }
+  .section {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
   }
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
