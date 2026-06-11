@@ -1,14 +1,17 @@
 import type { Experience } from '../../types/portfolio';
 import { Section, Kicker, SectionTitle, Chip } from '../ui';
 import { cssVars } from '../../lib/cssVars';
+import { useI18n } from '../../i18n';
+import { renderRich } from '../../i18n/rich';
 
 export function ExperienceSection({ experience }: { experience: Experience[] }) {
+  const { t } = useI18n();
+  const s = t.sections.experience;
+
   return (
-    <Section id="experience" alt label="Experience">
-      <Kicker idx="02">Experience</Kicker>
-      <SectionTitle>
-        Where I've <span className="kw">built</span>.
-      </SectionTitle>
+    <Section id="experience" alt label={s.screenLabel}>
+      <Kicker idx="02">{s.kicker}</Kicker>
+      <SectionTitle>{renderRich(s.title)}</SectionTitle>
       <div className="timeline">
         <span className="tl-line reveal" aria-hidden="true" />
         {experience.map((e, i) => (
@@ -29,8 +32,8 @@ export function ExperienceSection({ experience }: { experience: Experience[] }) 
               ))}
             </ul>
             <div className="tl-tags">
-              {e.tags.map((t) => (
-                <Chip key={t}>{t}</Chip>
+              {e.tags.map((tag) => (
+                <Chip key={tag}>{tag}</Chip>
               ))}
             </div>
           </div>

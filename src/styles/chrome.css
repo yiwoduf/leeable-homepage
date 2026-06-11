@@ -17,11 +17,11 @@
   font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em;
 }
 .brand .mark {
-  width: 30px; height: 30px; border-radius: 4px;
-  background: var(--accent); color: var(--accent-ink);
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--font-display); font-weight: 700; font-size: 16px;
+  height: 30px;
+  display: flex; align-items: center;
+  color: var(--text);
 }
+.brand .mark svg { height: 30px; width: auto; display: block; }
 .brand b { font-weight: 600; }
 .brand .dim { color: var(--text-faint); }
 .theme-toggle {
@@ -140,6 +140,11 @@
 .socialrail .vline { width: 1px; height: 46px; background: var(--border); margin: 4px 0; }
 @media (max-width: 560px) { .socialrail { display: none; } }
 
+/* ---- Chat-open: slide social rail off-screen so it never covers the panel ---- */
+.socialrail { transition: transform .35s cubic-bezier(.16,.84,.34,1), opacity .3s; }
+html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px); opacity: 0; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .socialrail { transition: none; } }
+
 /* ============================================================
    MOBILE BOTTOM NAV (replaces the side rail on small screens)
    ============================================================ */
@@ -232,4 +237,85 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .scroll-hint-bar .fill { animation: none; }
+}
+
+/* ============================================================
+   SETTINGS TOGGLE — icon-only gear button with same glass recipe as .theme-toggle
+   ============================================================ */
+.settings-toggle {
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 2px;
+  padding: 9px; background: color-mix(in oklab, var(--surface) 60%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  color: var(--text-dim); transition: color .2s, border-color .2s;
+}
+.settings-toggle:hover { color: var(--text); border-color: var(--border-strong); }
+.settings-toggle svg { width: 16px; height: 16px; }
+
+/* ============================================================
+   SETTINGS MODAL
+   ============================================================ */
+@keyframes modal-fade-in { from { opacity: 0; } to { opacity: 1; } }
+/* translateY only — scale() + backdrop-filter on one element shimmers on WebKit */
+@keyframes modal-panel-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 80;
+  display: grid; place-items: center;
+  background: color-mix(in oklab, var(--bg) 55%, transparent);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  animation: modal-fade-in .25s ease both;
+}
+
+.modal-panel {
+  background: color-mix(in oklab, var(--surface) 72%, transparent);
+  backdrop-filter: blur(14px) saturate(140%); -webkit-backdrop-filter: blur(14px) saturate(140%);
+  border: 1px solid var(--border-strong);
+  border-radius: 10px; box-shadow: var(--shadow);
+  width: min(420px, calc(100vw - 40px));
+  padding: 22px 24px;
+  outline: none;
+  animation: modal-panel-in .25s cubic-bezier(.16,.84,.34,1) both;
+}
+
+.modal-title-row {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 20px;
+}
+.modal-title {
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--text);
+}
+.modal-close {
+  width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 6px; background: transparent;
+  color: var(--text-faint); transition: color .2s, border-color .2s;
+}
+.modal-close:hover { color: var(--text); border-color: var(--border-strong); }
+.modal-close svg { width: 14px; height: 14px; }
+
+.modal-group { margin-top: 16px; }
+.modal-group-label {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em;
+  text-transform: uppercase; color: var(--text-faint); margin-bottom: 8px;
+}
+
+.seg { display: flex; gap: 8px; }
+.seg-btn {
+  font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.06em;
+  border: 1px solid var(--border); border-radius: 2px;
+  padding: 8px 14px; background: transparent; color: var(--text-dim);
+  transition: color .2s, border-color .2s, background .2s;
+}
+.seg-btn:hover { color: var(--text); border-color: var(--border-strong); }
+.seg-btn.active,
+.seg-btn[aria-pressed='true'] {
+  border-color: var(--accent); background: var(--accent-soft); color: var(--text);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .modal-backdrop, .modal-panel { animation: none; }
+}
+@media (max-width: 560px) {
+  .modal-panel { width: calc(100vw - 24px); }
 }

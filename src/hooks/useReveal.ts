@@ -25,14 +25,18 @@ import { maxScrollY } from '../lib/viewport';
  * rewrites it whenever a component's own classes change (e.g. an expanding
  * solution card toggling `open`), which would wipe an externally-added class.
  * React never touches attributes it didn't render, so the reveal survives.
+ *
+ * A MutationObserver keeps the observed set live: React RECREATES `.reveal`
+ * nodes when content swaps (language change) or a cascading re-render churns
+ * the tree (theme change) — freshly-mounted nodes are observed immediately and
+ * reconciled against the band, so they can never get stuck at opacity 0.
  */
 const REVEAL_LINE = 0.88; // reveal once an element's top rises past this fraction of the viewport
 const SETTLE_MS = 70;
 
 export function useReveal(): void {
   useEffect(() => {
-    const reveals = [...document.querySelectorAll<HTMLElement>('.reveal')];
-    if (!reveals.length) return;
+    const reveals = new Set<HTMLElement>(document.querySelectorAll<HTMLElement>('.reveal'));
 
     const inBand = (el: Element): boolean => {
       const r = el.getBoundingClientRect();
@@ -41,7 +45,16 @@ export function useReveal(): void {
       return r.top < limit && r.bottom > 0;
     };
     const setRevealed = (el: Element, on: boolean) => el.toggleAttribute('data-revealed', on);
-    const reconcile = () => reveals.forEach((el) => setRevealed(el, inBand(el)));
+    const reconcile = () =>
+      reveals.forEach((el) => {
+        if (!el.isConnected) {
+          // React replaced the node — stop tracking the orphan.
+          reveals.delete(el);
+          io.unobserve(el);
+          return;
+        }
+        setRevealed(el, inBand(el));
+      });
 
     const io = new IntersectionObserver(
       (entries) => {
@@ -51,6 +64,24 @@ export function useReveal(): void {
       { rootMargin: `0px 0px -${Math.round((1 - REVEAL_LINE) * 100)}% 0px` },
     );
     reveals.forEach((el) => io.observe(el));
+
+    // Track .reveal nodes mounted after this effect ran (content/theme swaps).
+    const track = (el: HTMLElement) => {
+      if (reveals.has(el)) return;
+      reveals.add(el);
+      io.observe(el);
+      setRevealed(el, inBand(el)); // already in the band → show right away
+    };
+    const mo = new MutationObserver((records) => {
+      for (const rec of records) {
+        for (const node of rec.addedNodes) {
+          if (!(node instanceof HTMLElement)) continue;
+          if (node.matches('.reveal')) track(node);
+          node.querySelectorAll<HTMLElement>('.reveal').forEach(track);
+        }
+      }
+    });
+    mo.observe(document.body, { childList: true, subtree: true });
 
     // publish scroll direction so directional reveals (e.g. the timeline line)
     // can draw from the edge you're entering — bottom-up when scrolling up.
@@ -72,6 +103,7 @@ export function useReveal(): void {
 
     return () => {
       io.disconnect();
+      mo.disconnect();
       window.removeEventListener('scroll', onScroll);
       window.clearTimeout(settleId);
     };

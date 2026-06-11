@@ -1,4 +1,4 @@
-import { portfolio } from './data/portfolio';
+import { useState } from 'react';
 import { siteConfig, motionFactor } from './config/site';
 import { useTheme } from './hooks/useTheme';
 import { useReveal } from './hooks/useReveal';
@@ -7,7 +7,9 @@ import { useSectionSnap } from './hooks/useSectionSnap';
 import { useHideOnScroll } from './hooks/useHideOnScroll';
 import { useResizeRealign } from './hooks/useResizeRealign';
 import { useContentRealign } from './hooks/useContentRealign';
-import { BackgroundField, TopBar, SideNav, SocialRail, MobileNav, ScrollHint } from './components/layout';
+import { useI18n } from './i18n';
+import { ChatWidget } from './components/chat';
+import { BackgroundField, TopBar, SideNav, SocialRail, MobileNav, ScrollHint, SettingsModal } from './components/layout';
 import {
   HeroSection,
   AboutSection,
@@ -20,28 +22,37 @@ import {
 
 /**
  * App shell — fixed chrome (background, top bar, side nav, social rail) plus the
- * stacked content sections. Design knobs come from `siteConfig`; only dark/light
- * is interactive (persisted by `useTheme`).
+ * stacked content sections. Design knobs come from `siteConfig`; theme and
+ * language are interactive via the settings modal (persisted by `useTheme` /
+ * `LanguageProvider`).
  */
 export function App() {
   const { isDark, toggle } = useTheme();
   const { active, progress } = useScrollSpy();
   const headerHidden = useHideOnScroll();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { lang, content } = useI18n();
   useReveal();
   useSectionSnap();
   useResizeRealign(active);
   useContentRealign(active);
 
-  const { identity } = portfolio;
+  const { identity } = content;
 
   return (
     <div className="app">
       <BackgroundField variant={siteConfig.background} />
-      <TopBar isDark={isDark} onToggleTheme={toggle} hidden={headerHidden} />
+      <TopBar hidden={headerHidden} onOpenSettings={() => setSettingsOpen(true)} />
       <SideNav active={active} progress={progress} navStyle={siteConfig.nav} boxed={siteConfig.navBoxed} />
       <MobileNav active={active} />
       <SocialRail identity={identity} />
       <ScrollHint />
+      <SettingsModal
+        open={settingsOpen}
+        onClose={() => setSettingsOpen(false)}
+        isDark={isDark}
+        onToggleTheme={toggle}
+      />
 
       <main>
         <HeroSection
@@ -52,13 +63,15 @@ export function App() {
           motion={motionFactor}
           dark={isDark}
         />
-        <AboutSection about={portfolio.about} />
-        <ExperienceSection experience={portfolio.experience} />
-        <SolutionsSection solutions={portfolio.solutions} />
-        <ProjectsSection projects={portfolio.projects} />
-        <SkillsSection skills={portfolio.skills} />
+        <AboutSection about={content.about} />
+        <ExperienceSection experience={content.experience} />
+        <SolutionsSection solutions={content.solutions} />
+        <ProjectsSection projects={content.projects} />
+        <SkillsSection skills={content.skills} />
         <ContactSection identity={identity} />
       </main>
+
+      <ChatWidget lang={lang} />
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { NAV, type SectionId } from '../../config/navigation';
 import { scrollToId } from '../../lib/scroll';
 import { cx } from '../../lib/cx';
 import { Icon } from '../ui/Icon';
+import { useI18n } from '../../i18n';
 
 interface SideNavProps {
   active: SectionId;
@@ -14,8 +15,10 @@ interface SideNavProps {
 
 /** Fixed left section nav with scroll-spy highlighting + progress. */
 export function SideNav({ active, progress, navStyle, boxed }: SideNavProps) {
+  const { t } = useI18n();
+
   return (
-    <nav className={cx('sidenav', boxed && 'boxed')} data-style={navStyle} aria-label="Sections">
+    <nav className={cx('sidenav', boxed && 'boxed')} data-style={navStyle} aria-label={t.navAria}>
       <div className="nav-progress">
         <div
           style={{
@@ -29,21 +32,24 @@ export function SideNav({ active, progress, navStyle, boxed }: SideNavProps) {
           }}
         />
       </div>
-      {NAV.map((n) => (
-        <button
-          key={n.id}
-          className={cx('navitem', active === n.id && 'active')}
-          onClick={() => scrollToId(n.id)}
-          aria-current={active === n.id ? 'true' : undefined}
-          aria-label={n.label}
-        >
-          <span className="ni-dot" />
-          <span className="ni-icon">
-            <Icon name={n.icon} />
-          </span>
-          <span className="lbl">{n.label}</span>
-        </button>
-      ))}
+      {NAV.map((n) => {
+        const label = t.nav[n.id];
+        return (
+          <button
+            key={n.id}
+            className={cx('navitem', active === n.id && 'active')}
+            onClick={() => scrollToId(n.id)}
+            aria-current={active === n.id ? 'true' : undefined}
+            aria-label={label}
+          >
+            <span className="ni-dot" />
+            <span className="ni-icon">
+              <Icon name={n.icon} />
+            </span>
+            <span className="lbl">{label}</span>
+          </button>
+        );
+      })}
     </nav>
   );
 }

@@ -69,6 +69,8 @@
 .hero-name .ln { display: block; }
 .hero-name .accent { color: var(--accent); }
 .hero-name .script {
+  /* Intentionally uses the literal font name: the hero renders the English last
+     name ("Lee") in both languages, so Korean script font must not apply here. */
   font-family: "Great Vibes", cursive;
   text-transform: none;
   font-weight: 400;

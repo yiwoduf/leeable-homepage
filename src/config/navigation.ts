@@ -12,16 +12,15 @@ export type SectionId =
 
 export interface NavItem {
   id: SectionId;
-  label: string;
   icon: IconName;
 }
 
 export const NAV: readonly NavItem[] = [
-  { id: 'hero', label: 'Index', icon: 'home' },
-  { id: 'about', label: 'About', icon: 'user' },
-  { id: 'experience', label: 'Experience', icon: 'briefcase' },
-  { id: 'solutions', label: 'Solutions', icon: 'cpu' },
-  { id: 'projects', label: 'Projects', icon: 'folder' },
-  { id: 'skills', label: 'Skills', icon: 'layers' },
-  { id: 'contact', label: 'Contact', icon: 'mail' },
+  { id: 'hero', icon: 'home' },
+  { id: 'about', icon: 'user' },
+  { id: 'experience', icon: 'briefcase' },
+  { id: 'solutions', icon: 'cpu' },
+  { id: 'projects', icon: 'folder' },
+  { id: 'skills', icon: 'layers' },
+  { id: 'contact', icon: 'mail' },
 ];

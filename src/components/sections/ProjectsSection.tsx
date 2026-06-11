@@ -1,8 +1,10 @@
 import type { Project } from '../../types/portfolio';
 import { Section, Kicker, SectionTitle, Card, Chip, Icon } from '../ui';
 import { cssVars } from '../../lib/cssVars';
+import { useI18n } from '../../i18n';
+import { renderRich } from '../../i18n/rich';
 
-function ProjectCard({ project, index }: { project: Project; index: number }) {
+function ProjectCard({ project, index, soon }: { project: Project; index: number; soon: string }) {
   const style = cssVars({ '--d': `${index * 0.05}s` });
   const body = (
     <>
@@ -13,7 +15,7 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
             <Icon name="github" />
           </span>
         ) : (
-          <span className="proj-nolink">soon</span>
+          <span className="proj-nolink">{soon}</span>
         )}
       </div>
       <div className="proj-name">{project.name}</div>
@@ -39,15 +41,16 @@ function ProjectCard({ project, index }: { project: Project; index: number }) {
 }
 
 export function ProjectsSection({ projects }: { projects: Project[] }) {
+  const { t } = useI18n();
+  const s = t.sections.projects;
+
   return (
-    <Section id="projects" alt label="Projects">
-      <Kicker idx="04">Projects</Kicker>
-      <SectionTitle>
-        Things I've <span className="kw">made</span>.
-      </SectionTitle>
+    <Section id="projects" alt label={s.screenLabel}>
+      <Kicker idx="04">{s.kicker}</Kicker>
+      <SectionTitle>{renderRich(s.title)}</SectionTitle>
       <div className="proj-grid">
         {projects.map((p, i) => (
-          <ProjectCard key={p.name} project={p} index={i} />
+          <ProjectCard key={p.name} project={p} index={i} soon={s.soon} />
         ))}
       </div>
     </Section>

@@ -5,6 +5,7 @@ import { Icon } from '../ui/Icon';
 import { cx } from '../../lib/cx';
 import { cssVars } from '../../lib/cssVars';
 import { glowHandlers } from '../../lib/cardGlow';
+import { useI18n } from '../../i18n';
 
 interface SolutionCardProps {
   solution: Solution;
@@ -13,6 +14,8 @@ interface SolutionCardProps {
 }
 
 export function SolutionCard({ solution, no }: SolutionCardProps) {
+  const { t } = useI18n();
+  const sc = t.solutionCard;
   const [open, setOpen] = useState(false);
   const [armed, setArmed] = useState(false); // gate the height transition until first interaction
   const innerRef = useRef<HTMLDivElement>(null);
@@ -51,7 +54,7 @@ export function SolutionCard({ solution, no }: SolutionCardProps) {
           <span className="sol-blurb">{solution.blurb}</span>
         </span>
         <span className={cx('sol-status', solution.status)}>
-          {solution.status === 'live' ? 'Live' : 'In progress'}
+          {solution.status === 'live' ? sc.live : sc.inProgress}
         </span>
         <span className="sol-toggle" aria-hidden="true">
           <Icon name="chevron" />
@@ -61,16 +64,16 @@ export function SolutionCard({ solution, no }: SolutionCardProps) {
         <div className="sol-bodyinner" ref={innerRef}>
           <div className="sol-cols">
             <div>
-              <div className="sol-section-l">The problem</div>
+              <div className="sol-section-l">{sc.problem}</div>
               <p className="sol-text">{solution.problem}</p>
             </div>
             <div>
-              <div className="sol-section-l">My role</div>
+              <div className="sol-section-l">{sc.role}</div>
               <p className="sol-text sol-role">{solution.role}</p>
             </div>
           </div>
           <div>
-            <div className="sol-section-l">System / workflow</div>
+            <div className="sol-section-l">{sc.system}</div>
             <div className="flow">
               {solution.flow.map((n, i) => (
                 <div className="flow-node" key={n.k} style={cssVars({ '--fd': `${i * 0.06}s` })}>
@@ -82,7 +85,7 @@ export function SolutionCard({ solution, no }: SolutionCardProps) {
           </div>
           {solution.metrics.length > 0 && (
             <div>
-              <div className="sol-section-l">Outcome</div>
+              <div className="sol-section-l">{sc.outcome}</div>
               <div className="sol-metrics">
                 {solution.metrics.map((m) => (
                   <div className="sol-metric" key={m.l}>

@@ -2,16 +2,19 @@ import type { MouseEvent } from 'react';
 import { scrollToId } from '../../lib/scroll';
 import { cx } from '../../lib/cx';
 import { Icon } from '../ui/Icon';
+import { PuzzleMark } from '../ui/PuzzleMark';
+import { useI18n } from '../../i18n';
 
 interface TopBarProps {
-  isDark: boolean;
-  onToggleTheme: () => void;
   /** Slide the bar up off-screen (driven by useHideOnScroll). */
   hidden?: boolean;
+  onOpenSettings: () => void;
 }
 
-/** Fixed top bar: brand mark + dark/light toggle. Hides while scrolling. */
-export function TopBar({ isDark, onToggleTheme, hidden }: TopBarProps) {
+/** Fixed top bar: brand mark + settings gear. Hides while scrolling. */
+export function TopBar({ hidden, onOpenSettings }: TopBarProps) {
+  const { t } = useI18n();
+
   const goHome = (e: MouseEvent<HTMLAnchorElement>) => {
     e.preventDefault();
     scrollToId('hero');
@@ -20,14 +23,18 @@ export function TopBar({ isDark, onToggleTheme, hidden }: TopBarProps) {
   return (
     <header className={cx('topbar', hidden && 'hidden')}>
       <a className="brand" href="#hero" onClick={goHome}>
-        <span className="mark">L</span>
+        <span className="mark"><PuzzleMark /></span>
         <span>
           <b>leeable</b>
           <span className="dim">.dev</span>
         </span>
       </a>
-      <button className="theme-toggle" onClick={onToggleTheme} aria-label="Toggle theme">
-        <Icon name={isDark ? 'sun' : 'moon'} /> {isDark ? 'Light' : 'Dark'}
+      <button
+        className="settings-toggle"
+        onClick={onOpenSettings}
+        aria-label={t.topbar.settingsAria}
+      >
+        <Icon name="gear" />
       </button>
     </header>
   );

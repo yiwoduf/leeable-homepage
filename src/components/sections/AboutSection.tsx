@@ -1,16 +1,17 @@
 import type { About } from '../../types/portfolio';
 import { Section, Kicker, SectionTitle, Stat } from '../ui';
 import { cssVars } from '../../lib/cssVars';
+import { useI18n } from '../../i18n';
+import { renderRich } from '../../i18n/rich';
 
 export function AboutSection({ about }: { about: About }) {
+  const { t } = useI18n();
+  const s = t.sections.about;
+
   return (
-    <Section id="about" label="About">
-      <Kicker idx="01">About</Kicker>
-      <SectionTitle>
-        From shipping software
-        <br />
-        to shipping <span className="kw">autonomy</span>.
-      </SectionTitle>
+    <Section id="about" label={s.screenLabel}>
+      <Kicker idx="01">{s.kicker}</Kicker>
+      <SectionTitle>{renderRich(s.title)}</SectionTitle>
       <div className="about-grid">
         <div>
           <p className="about-lead reveal">{about.lead}</p>

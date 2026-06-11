@@ -4,6 +4,8 @@ import { cssVars } from '../../lib/cssVars';
 import { SKILL_ICONS } from '../../config/skillIcons';
 import { CUSTOM_SKILL_ICONS } from '../../config/customSkillIcons';
 import { useSkillIcons } from '../../hooks/useSkillIcons';
+import { useI18n } from '../../i18n';
+import { renderRich } from '../../i18n/rich';
 
 function MarqueeRow({ group, items, index }: { group: string; items: string[]; index: number }) {
   // Repeat the base set until one "half" comfortably exceeds the viewport, then
@@ -45,15 +47,14 @@ function MarqueeRow({ group, items, index }: { group: string; items: string[]; i
 
 export function SkillsSection({ skills }: { skills: SkillGroup[] }) {
   useSkillIcons();
+  const { t } = useI18n();
+  const s = t.sections.skills;
+
   return (
-    <Section id="skills" label="Skills">
-      <Kicker idx="05">Skills / Stack</Kicker>
-      <SectionTitle>
-        The <span className="kw">toolkit</span>.
-      </SectionTitle>
-      <SectionLead>
-        The languages, frameworks, and AI tooling I reach for — grouped by where they live in the stack.
-      </SectionLead>
+    <Section id="skills" label={s.screenLabel}>
+      <Kicker idx="05">{s.kicker}</Kicker>
+      <SectionTitle>{renderRich(s.title)}</SectionTitle>
+      <SectionLead>{s.lead}</SectionLead>
       <div className="skill-marquee">
         {skills.map((row, i) => (
           <MarqueeRow key={row.group} group={row.group} items={row.items} index={i} />

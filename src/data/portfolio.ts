@@ -6,7 +6,7 @@ export const portfolio: PortfolioData = {
     name: 'Jaeyol Lee',
     nickname: 'Peter',
     role: 'AI Product Engineer',
-    tagline: 'I build multi-agent AI systems that automate real-world workflows end to end.',
+    tagline: 'I build **multi-agent AI systems** that automate real-world workflows end to end.',
     location: 'Dallas–Fort Worth, TX',
     resume: 'Jaeyol-Lee-Resume.pdf',
     email: 'yiwoduf@gmail.com',

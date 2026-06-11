@@ -3,12 +3,30 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <title>Jaeyol (Peter) Lee — AI Product Engineer</title>
   <meta name="description" content="Jaeyol (Peter) Lee — AI Product Engineer building multi-agent systems that automate real-world workflows end to end." />
 
+  <!-- Apply saved language/theme before first paint (mirrors LanguageProvider/useTheme logic) to avoid a font/theme flash. -->
+  <script>
+    (function () {
+      var d = document.documentElement;
+      try {
+        var t = localStorage.getItem('leeable:theme');
+        if (t === 'light' || t === 'dark') d.setAttribute('data-theme', t);
+        var l = localStorage.getItem('leeable:lang');
+        if (l !== 'en' && l !== 'ko') l = (navigator.language || '').indexOf('ko') === 0 ? 'ko' : 'en';
+        d.setAttribute('lang', l);
+        d.setAttribute('data-lang', l);
+      } catch (e) { /* storage unavailable — keep defaults */ }
+    })();
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&family=Albert+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;500;600;700&family=Albert+Sans:wght@400;500;600&family=Space+Mono:wght@400;700&family=Great+Vibes&family=Nanum+Brush+Script&display=swap" rel="stylesheet" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
 </head>
 <body>
   <div id="root"></div>

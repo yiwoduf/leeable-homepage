@@ -6,7 +6,10 @@ import { IconButton } from '../ui/IconButton';
 import { Icon } from '../ui/Icon';
 import { Hero3D } from './Hero3D';
 import { scrollToId } from '../../lib/scroll';
+import { useI18n } from '../../i18n';
+import { renderRich } from '../../i18n/rich';
 
+// Decorative tech labels — stay English in both languages (HW/AI jargon).
 const VARIANT_LABEL: Record<Hero3DVariant, string> = {
   puzzle: 'assembly',
   rubik: 'cube-matrix',
@@ -26,6 +29,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ identity, layout, hero3d, accent, motion, dark }: HeroSectionProps) {
+  const { t } = useI18n();
   const [first, ...restName] = identity.name.split(' ');
   const copyRef = useRef<HTMLDivElement>(null);
 
@@ -48,7 +52,7 @@ export function HeroSection({ identity, layout, hero3d, accent, motion, dark }: 
   }, [layout]);
 
   return (
-    <section className="section hero" id="hero" data-layout={layout} data-screen-label="Hero">
+    <section className="section hero" id="hero" data-layout={layout} data-screen-label={t.sections.hero.screenLabel}>
       <div className="hero-inner">
         <div className="hero-copy reveal in-view" ref={copyRef}>
           <div className="hero-handle">
@@ -63,11 +67,11 @@ export function HeroSection({ identity, layout, hero3d, accent, motion, dark }: 
             {identity.role}
           </div>
           <p className="hero-tag">
-            I build <b>multi-agent AI systems</b> that automate real-world workflows end to end.
+            {renderRich(identity.tagline)}
           </p>
           <div className="hero-cta">
             <Button variant="primary" href={identity.resume} target="_blank" rel="noopener">
-              <Icon name="download" /> Résumé
+              <Icon name="download" /> {t.hero.resume}
             </Button>
             <Button
               glow
@@ -77,7 +81,7 @@ export function HeroSection({ identity, layout, hero3d, accent, motion, dark }: 
                 scrollToId('contact');
               }}
             >
-              <span>Get in touch</span> <Icon name="arrow" />
+              <span>{t.hero.getInTouch}</span> <Icon name="arrow" />
             </Button>
             <div className="hero-social">
               <IconButton icon="github" label="GitHub" showLabel href={identity.github} target="_blank" rel="noopener" />

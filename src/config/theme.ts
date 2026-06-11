@@ -1,24 +1,29 @@
 import type { FontPair, FontPairKey } from '../types/design';
 import { siteConfig } from './site';
 
-/** Typographic pairings selectable via `siteConfig.fontPair`. */
+/**
+ * Typographic pairings selectable via `siteConfig.fontPair`.
+ * "Pretendard Variable" is inserted before the generic fallback in every stack
+ * so Hangul glyphs fall through to Pretendard while Latin glyphs stay with the
+ * primary font (per-glyph Unicode-range fallback handled by the browser).
+ */
 export const FONT_PAIRS: Record<FontPairKey, FontPair> = {
   modern: {
-    display: '"Space Grotesk", system-ui, sans-serif',
-    body: '"Manrope", system-ui, sans-serif',
-    mono: '"JetBrains Mono", ui-monospace, monospace',
+    display: '"Space Grotesk", "Pretendard Variable", system-ui, sans-serif',
+    body: '"Manrope", "Pretendard Variable", system-ui, sans-serif',
+    mono: '"JetBrains Mono", "Pretendard Variable", ui-monospace, monospace',
     label: 'Grotesk',
   },
   plex: {
-    display: '"IBM Plex Sans", system-ui, sans-serif',
-    body: '"IBM Plex Sans", system-ui, sans-serif',
-    mono: '"IBM Plex Mono", ui-monospace, monospace',
+    display: '"IBM Plex Sans", "Pretendard Variable", system-ui, sans-serif',
+    body: '"IBM Plex Sans", "Pretendard Variable", system-ui, sans-serif',
+    mono: '"IBM Plex Mono", "Pretendard Variable", ui-monospace, monospace',
     label: 'Plex',
   },
   editorial: {
-    display: '"Sora", system-ui, sans-serif',
-    body: '"Albert Sans", system-ui, sans-serif',
-    mono: '"Space Mono", ui-monospace, monospace',
+    display: '"Sora", "Pretendard Variable", system-ui, sans-serif',
+    body: '"Albert Sans", "Pretendard Variable", system-ui, sans-serif',
+    mono: '"Space Mono", "Pretendard Variable", ui-monospace, monospace',
     label: 'Sora',
   },
 };

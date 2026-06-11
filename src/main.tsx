@@ -1,6 +1,7 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+import { LanguageProvider } from './i18n';
 import { applyDesignTokens } from './config/theme';
 import './styles/index.css';
 
@@ -12,6 +13,8 @@ if (!rootEl) throw new Error('Root element #root not found');
 
 createRoot(rootEl).render(
   <StrictMode>
-    <App />
+    <LanguageProvider>
+      <App />
+    </LanguageProvider>
   </StrictMode>,
 );
