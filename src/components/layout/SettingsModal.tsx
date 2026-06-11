@@ -34,7 +34,7 @@ export function SettingsModal({ open, onClose, isDark, onToggleTheme }: Settings
     if (!open) return;
 
     previousFocusRef.current = document.activeElement;
-    panelRef.current?.focus();
+    panelRef.current?.focus({ preventScroll: true });
 
     const onKeyDown = (e: globalThis.KeyboardEvent) => {
       if (e.key === 'Escape') {
@@ -50,10 +50,10 @@ export function SettingsModal({ open, onClose, isDark, onToggleTheme }: Settings
         const active = document.activeElement;
         if (e.shiftKey && (active === first || active === panelRef.current)) {
           e.preventDefault();
-          last.focus();
+          last.focus({ preventScroll: true });
         } else if (!e.shiftKey && active === last) {
           e.preventDefault();
-          first.focus();
+          first.focus({ preventScroll: true });
         }
       }
     };
@@ -61,7 +61,7 @@ export function SettingsModal({ open, onClose, isDark, onToggleTheme }: Settings
     return () => {
       document.removeEventListener('keydown', onKeyDown);
       if (previousFocusRef.current instanceof HTMLElement) {
-        previousFocusRef.current.focus();
+        previousFocusRef.current.focus({ preventScroll: true });
       }
     };
   }, [open]);

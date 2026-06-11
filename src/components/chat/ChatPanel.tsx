@@ -71,9 +71,13 @@ export function ChatPanel({ lang, onClose }: ChatPanelProps): ReactElement {
 
   useAutoScroll(messages, messagesRef);
 
-  // Focus the composer textarea when the panel opens.
+  // Focus the composer when the panel opens — desktop only. On touch devices
+  // auto-focus would pop the virtual keyboard (and resize the viewport) the
+  // moment the panel opens, which is jarring; preventScroll keeps the page
+  // from being scrolled to the focused element.
   useEffect(() => {
-    composerRef.current?.focus();
+    if (window.matchMedia('(pointer: coarse)').matches) return;
+    composerRef.current?.focus({ preventScroll: true });
   }, []);
 
   // Probe the health endpoint when the panel first mounts (= panel open).

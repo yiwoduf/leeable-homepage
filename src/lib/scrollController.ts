@@ -15,6 +15,16 @@ let animId = 0;
 /** True while a programmatic scroll animation is running. */
 export const isScrollLocked = (): boolean => animating;
 
+/**
+ * Cancel an in-flight glide and release the lock — used when a touch gesture
+ * grabs the page mid-animation (native-feeling interrupt). The page simply
+ * stays where the glide left it; the new gesture owns it from there.
+ */
+export function stopScrollGlide(): void {
+  cancelAnimationFrame(animId);
+  animating = false;
+}
+
 /** Smoothly scroll to an absolute Y. */
 export function smoothScrollTo(target: number): void {
   cancelAnimationFrame(animId);

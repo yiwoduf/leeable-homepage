@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { isScrollLocked, smoothScrollTo } from '../lib/scrollController';
+import { isScrollLocked, smoothScrollTo, stopScrollGlide } from '../lib/scrollController';
 import { sectionSnapTop, sectionSnapBottom } from '../lib/sectionMetrics';
 import { sectionElements, activeSectionIndex } from '../lib/sections';
 import { clampScroll } from '../lib/viewport';
@@ -319,13 +319,19 @@ export function useSectionSnap(): void {
       stopMomentum();
       stopWheelGlide(); // the finger takes over from any wheel glide
       stopTouchFollow();
+      window.clearTimeout(springId); // defuse a pending wheel spring-back
       // Ignore touch inside an overlay — also gates onTouchMove via tActive = false.
       const el = e.target instanceof Element ? e.target : null;
       if (el?.closest('[data-overlay]')) { tActive = false; return; }
-      if (e.touches.length !== 1 || isScrollLocked()) {
+      if (e.touches.length !== 1) {
         tActive = false;
         return;
       }
+      // A finger landing mid-glide GRABS the page (native feel). Rejecting the
+      // touch here would leave its moves uncancelled — the browser would claim
+      // the gesture, fire its own momentum on release, and fight the glide
+      // (the "screen shaking" bug on rapid successive flicks).
+      if (isScrollLocked()) stopScrollGlide();
       const t = e.touches[0];
       tStartY = tLastY = t.clientY;
       tStartScroll = window.scrollY;
@@ -367,6 +373,14 @@ export function useSectionSnap(): void {
       // its own momentum on release — which then fights our fling loop and
       // shakes the screen. Cancelable-guarded: no-op for forced native phases.
       if (e.cancelable) e.preventDefault();
+      if (!e.cancelable && tMode === 'none') {
+        // The browser has already committed this gesture to native scrolling
+        // (non-cancelable moves before we established a mode) — withdraw
+        // completely instead of running our writers against native momentum.
+        tActive = false;
+        stopTouchFollow();
+        return;
+      }
       const y = e.touches[0].clientY;
       const drag = tStartY - y; // + = finger up = scroll down
       const now = performance.now();
@@ -430,6 +444,15 @@ export function useSectionSnap(): void {
           momentumId = requestAnimationFrame(step);
         };
         momentumId = requestAnimationFrame(step);
+      } else {
+        // mode 'none' — e.g. a tap that grabbed a glide mid-transition. If the
+        // page was left resting between sections, settle onto the nearest rest.
+        const y0 = window.scrollY;
+        if (y0 > tRestBot + EDGE_EPS) {
+          smoothScrollTo(y0 - tRestBot < tNextRest - y0 ? tRestBot : tNextRest);
+        } else if (y0 < tRestTop - EDGE_EPS) {
+          smoothScrollTo(tRestTop - y0 < y0 - tPrevRest ? tRestTop : tPrevRest);
+        }
       }
     };
 

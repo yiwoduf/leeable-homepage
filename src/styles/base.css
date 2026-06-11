@@ -19,7 +19,13 @@ html {
    Applied to BOTH html and body: iOS Safari only partially honors touch-action
    on the root element for document scrolling. */
 @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  html, body { touch-action: pinch-zoom; overscroll-behavior: none; }
+  html, body {
+    touch-action: pinch-zoom;
+    overscroll-behavior: none;
+    /* All touch scrolling is JS-driven (instant writes) — disable the CSS
+       smooth engine entirely so no browser can ever animate alongside it. */
+    scroll-behavior: auto;
+  }
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }
