@@ -1,0 +1,145 @@
+/* ============================================================
+   HERO
+   ============================================================ */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  align-items: center;
+  position: relative;
+  padding: clamp(80px, 12vh, 140px) clamp(24px, 6vw, 88px) clamp(60px, 9vh, 110px);
+  overflow: hidden;
+}
+.hero-inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  width: 100%;
+  display: grid;
+  gap: clamp(24px, 4vw, 56px);
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+/* layout: split (default) */
+.hero[data-layout="split"] .hero-inner { grid-template-columns: 1.05fr 0.95fr; }
+.hero[data-layout="reverse"] .hero-inner { grid-template-columns: 0.95fr 1.05fr; }
+.hero[data-layout="reverse"] .hero-copy { order: 2; }
+.hero[data-layout="reverse"] .hero-stage { order: 1; }
+.hero[data-layout="center"] .hero-inner { grid-template-columns: 1fr; text-align: center; }
+.hero[data-layout="center"] .hero-stage {
+  position: absolute; inset: -8% -4% 0 -4%; z-index: 0; opacity: 0.9;
+}
+.hero[data-layout="center"] .hero-copy { z-index: 2; }
+.hero[data-layout="center"] .hero-cta, .hero[data-layout="center"] .hero-handle { justify-content: center; }
+.hero[data-layout="center"] .hero-name { font-size: clamp(56px, 12vw, 150px); }
+
+@media (max-width: 880px) {
+  .hero[data-layout] .hero-inner { grid-template-columns: 1fr !important; }
+  .hero[data-layout] .hero-stage { order: 2 !important; }
+  .hero[data-layout] .hero-copy { order: 1 !important; }
+}
+
+.hero-handle {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 26px;
+}
+.hero-handle .ping {
+  width: 8px; height: 8px; border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 0 var(--accent);
+  animation: ping 2.4s ease-out infinite;
+}
+@keyframes ping {
+  0% { box-shadow: 0 0 0 0 var(--accent-soft); }
+  70%, 100% { box-shadow: 0 0 0 12px transparent; }
+}
+.hero-copy { min-width: 0; }
+.hero-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 0.92;
+  letter-spacing: -0.035em;
+  font-size: var(--name-size, clamp(60px, 11vw, 156px));
+  text-transform: uppercase;
+}
+.hero-name .ln { display: block; }
+.hero-name .accent { color: var(--accent); }
+.hero-name .script {
+  font-family: "Great Vibes", cursive;
+  text-transform: none;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 0.82;
+  font-size: var(--script-size, clamp(120px, 18vw, 250px));
+  margin-top: -0.14em;
+  margin-left: 0.04em;
+  position: relative;
+  z-index: 2;
+  pointer-events: none;
+}
+.hero-role {
+  font-family: var(--font-mono);
+  font-size: clamp(14px, 1.6vw, 18px);
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text);
+  margin-top: 22px;
+  display: inline-flex; align-items: center; gap: 12px;
+}
+.hero-role .bar { width: 34px; height: 2px; background: var(--accent); }
+.hero-tag {
+  font-size: var(--tag-size, clamp(19px, 2.4vw, 27px));
+  color: var(--text-dim);
+  max-width: 26ch;
+  margin-top: 20px;
+  line-height: 1.4;
+  text-wrap: balance;
+}
+.hero-tag b { color: var(--text); font-weight: 600; }
+
+.hero-cta { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; align-items: center; }
+.hero-social { display: flex; gap: 12px; align-items: center; }
+@media (max-width: 560px) {
+  /* the intro line uses the full column width on phones */
+  .hero-tag { max-width: none; }
+  /* the CTA row fills the container; Résumé + Get in touch split it 50/50 */
+  .hero-cta { gap: 14px; width: 100%; }
+  .hero-cta > .btn { flex: 1 1 0; justify-content: center; }
+  /* social links become full-width labeled rows, one button per row */
+  .hero-social { flex-basis: 100%; width: 100%; flex-direction: column; align-items: stretch; gap: 10px; }
+  .hero-social .iconbtn { width: 100%; height: 48px; gap: 10px; border-radius: 2px; }
+  .hero-social .iconbtn-label {
+    display: inline; font-family: var(--font-mono); font-size: 13px;
+    letter-spacing: 0.08em; text-transform: uppercase;
+  }
+}
+
+/* hero stage (3D) */
+.hero-stage {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  width: 100%;
+  max-width: 560px;
+  margin: 0 auto;
+}
+.hero-stage canvas { display: block; width: 100% !important; height: 100% !important; }
+.stage-frame { position: absolute; inset: 0; pointer-events: none; }
+.stage-frame .corner {
+  position: absolute; width: 18px; height: 18px;
+  border: 2px solid var(--accent);
+}
+.stage-frame .tl { top: 0; left: 0; border-right: 0; border-bottom: 0; }
+.stage-frame .tr { top: 0; right: 0; border-left: 0; border-bottom: 0; }
+.stage-frame .bl { bottom: 0; left: 0; border-right: 0; border-top: 0; }
+.stage-frame .br { bottom: 0; right: 0; border-left: 0; border-top: 0; }
+.stage-tag {
+  position: absolute; bottom: 10px; left: 10px;
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: var(--text-faint);
+}
+
+/* (the section-edge scroll cue lives in <ScrollHint> now) */

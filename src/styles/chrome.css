@@ -1,0 +1,235 @@
+/* ============================================================
+   TOP BAR (brand + theme)
+   ============================================================ */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 55;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px clamp(20px, 4vw, 44px);
+  pointer-events: none;
+  transition: transform .35s cubic-bezier(.16,.84,.34,1);
+}
+.topbar > * { pointer-events: auto; }
+/* hidden while scrolling (reappears on idle — see useHideOnScroll) */
+.topbar.hidden { transform: translateY(-100%); }
+@media (prefers-reduced-motion: reduce) { .topbar { transition: none; } }
+.brand {
+  display: flex; align-items: center; gap: 11px;
+  font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.06em;
+}
+.brand .mark {
+  width: 30px; height: 30px; border-radius: 4px;
+  background: var(--accent); color: var(--accent-ink);
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 16px;
+}
+.brand b { font-weight: 600; }
+.brand .dim { color: var(--text-faint); }
+.theme-toggle {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: 1px solid var(--border); border-radius: 2px;
+  padding: 8px 12px; background: color-mix(in oklab, var(--surface) 60%, transparent);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--text-dim); transition: color .2s, border-color .2s;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--border-strong); }
+.theme-toggle svg { width: 15px; height: 15px; }
+
+/* ============================================================
+   LEFT NAV
+   ============================================================ */
+.sidenav {
+  position: fixed;
+  left: clamp(14px, 2.2vw, 30px);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 60;
+  display: flex; flex-direction: column; gap: 6px;
+  padding: 8px;
+  border-radius: 6px;
+}
+.sidenav.boxed {
+  background: color-mix(in oklab, var(--surface) 72%, transparent);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  box-shadow: var(--shadow);
+}
+.navitem {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px; border-radius: 6px;
+  color: var(--text-faint);
+  border: 0; background: transparent;
+  transition: color .2s, background .2s;
+  position: relative;
+}
+.navitem:hover { color: var(--text); }
+.navitem.active { color: var(--accent); background: radial-gradient(circle at 50% 50%, var(--accent-soft), transparent 68%); border-radius: 8px; }
+.navitem .ni-icon { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; flex: none; }
+.navitem .ni-icon svg { width: 18px; height: 18px; }
+.navitem .ni-dot {
+  width: 8px; height: 8px; border-radius: 50%; margin: 6px;
+  border: 1.5px solid currentColor; flex: none; transition: all .25s;
+}
+.navitem.active .ni-dot { background: var(--accent); border-color: var(--accent); box-shadow: 0 0 0 4px var(--accent-soft); }
+.navitem .lbl {
+  font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.12em;
+  text-transform: uppercase; white-space: nowrap;
+}
+/* active accent bar */
+.navitem::before {
+  content: ""; position: absolute; left: -8px; top: 50%; transform: translateY(-50%) scaleY(0);
+  width: 2px; height: 18px; background: var(--accent); border-radius: 2px;
+  transition: transform .22s cubic-bezier(.16,.84,.34,1);
+}
+.navitem.active::before { transform: translateY(-50%) scaleY(1); }
+
+/* ---- style: icons (default) — icon + hover tooltip ---- */
+.sidenav[data-style="icons"] .ni-dot { display: none; }
+.sidenav[data-style="icons"] .lbl,
+.sidenav[data-style="dots"] .lbl {
+  position: absolute; left: calc(100% + 12px); top: 50%; transform: translateY(-50%) translateX(-6px);
+  background: var(--surface); border: 1px solid var(--border); padding: 5px 10px;
+  border-radius: 4px; opacity: 0; pointer-events: none;
+  transition: opacity .18s, transform .18s; box-shadow: var(--shadow); color: var(--text);
+}
+.sidenav[data-style="icons"] .navitem:hover .lbl,
+.sidenav[data-style="dots"] .navitem:hover .lbl { opacity: 1; transform: translateY(-50%); }
+
+/* ---- style: labels — icon + text always ---- */
+.sidenav[data-style="labels"] .ni-dot { display: none; }
+
+/* ---- style: dots — minimal dots + tooltip ---- */
+.sidenav[data-style="dots"] .ni-icon { display: none; }
+
+.nav-progress {
+  position: absolute; left: 0; top: 8px; bottom: 8px; width: 2px;
+  background: var(--border); border-radius: 2px;
+}
+.sidenav:not([data-style="labels"]) .nav-progress { display: none; }
+
+@media (max-width: 560px) {
+  .sidenav { display: none; }
+}
+
+/* ============================================================
+   RIGHT SOCIAL RAIL
+   ============================================================ */
+.socialrail {
+  position: fixed;
+  right: clamp(14px, 2vw, 26px);
+  top: 50%; transform: translateY(-50%);
+  z-index: 60;
+  display: flex; flex-direction: column; gap: 4px; align-items: center;
+}
+.socialrail a {
+  width: 38px; height: 38px; display: flex; align-items: center; justify-content: center;
+  color: var(--text-faint); transition: color .2s, transform .2s; position: relative;
+}
+.socialrail a:hover { color: var(--accent); transform: translateY(-2px); }
+.socialrail a svg { width: 17px; height: 17px; }
+.socialrail a[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute; right: calc(100% + 10px); top: 50%; transform: translateY(-50%) translateX(6px);
+  background: var(--surface); border: 1px solid var(--border); color: var(--text);
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 5px 9px; border-radius: 4px; white-space: nowrap; box-shadow: var(--shadow);
+  opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s;
+}
+.socialrail a:hover::after { opacity: 1; transform: translateY(-50%); }
+.socialrail .vline { width: 1px; height: 46px; background: var(--border); margin: 4px 0; }
+@media (max-width: 560px) { .socialrail { display: none; } }
+
+/* ============================================================
+   MOBILE BOTTOM NAV (replaces the side rail on small screens)
+   ============================================================ */
+.mobilenav { display: none; }
+@media (max-width: 560px) {
+  .mobilenav {
+    display: flex;
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+    align-items: center; justify-content: space-around; gap: 2px;
+    padding: 8px max(12px, env(safe-area-inset-left)) calc(8px + env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-right));
+    background: color-mix(in oklab, var(--surface) 82%, transparent);
+    -webkit-backdrop-filter: blur(16px) saturate(150%); backdrop-filter: blur(16px) saturate(150%);
+    border-top: 1px solid var(--border);
+  }
+  .mnav-item {
+    flex: 1 1 0; min-width: 0; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border: 0; background: transparent; color: var(--text-faint);
+    border-radius: 9px; transition: color .2s, background .2s;
+  }
+  .mnav-item svg { width: 21px; height: 21px; }
+  .mnav-item.active { color: var(--accent); background: var(--accent-soft); }
+}
+
+/* ============================================================
+   SCROLL HINT — the pull indicator (desktop wheel & mobile touch alike).
+   While you pull at a section edge the line STRETCHES toward the neighbour and
+   brightens, with a glowing head + the destination section's name fading in.
+   Driven by data-pull + --pull + --pull-label (set by useSectionSnap).
+   ============================================================ */
+.scroll-hint { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
+.scroll-hint-bar {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  width: 2px; height: 24px; border-radius: 2px;
+  background: color-mix(in oklab, var(--text) 12%, transparent);
+  overflow: hidden;
+  opacity: 0; transition: opacity 0.1s ease, height 0.08s ease, background 0.18s ease;
+}
+.scroll-hint-bar.up { top: 16px; }
+.scroll-hint-bar.down { bottom: 16px; }
+
+/* soft highlight that sweeps along the line (ECG-style) */
+.scroll-hint-bar .fill {
+  position: absolute; left: 0; top: 0; width: 100%; height: 70%;
+  background: linear-gradient(to bottom, transparent, var(--accent), transparent);
+  will-change: transform;
+}
+.scroll-hint-bar.down .fill { animation: hint-sweep-down 1.9s ease-in-out infinite; }
+.scroll-hint-bar.up .fill { animation: hint-sweep-up 1.9s ease-in-out infinite; }
+@keyframes hint-sweep-down { 0% { transform: translateY(-115%); } 100% { transform: translateY(160%); } }
+@keyframes hint-sweep-up { 0% { transform: translateY(160%); } 100% { transform: translateY(-115%); } }
+
+/* destination section name, faint, toward the side you're pulling */
+.hint-label {
+  position: fixed; left: 50%; transform: translateX(-50%);
+  font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
+  color: color-mix(in oklab, var(--accent) 72%, var(--text-faint));
+  white-space: nowrap; opacity: 0; transition: opacity 0.22s ease;
+}
+.hint-label.up { top: 118px; }
+.hint-label.down { bottom: 118px; }
+.hint-label::after { content: var(--pull-label, ""); }
+
+/* DESKTOP PULL — the line grows with --pull, brightens to accent, and glows;
+   the label fades up the harder you pull. */
+:root[data-pull="down"] .scroll-hint-bar.down,
+:root[data-pull="up"] .scroll-hint-bar.up {
+  opacity: 1;
+  height: calc(22px + var(--pull, 0) * 74px);
+  background: color-mix(in oklab, var(--accent) 16%, transparent);
+}
+:root[data-pull="down"] .scroll-hint-bar.down .fill,
+:root[data-pull="up"] .scroll-hint-bar.up .fill {
+  animation: none; transform: none; height: 100%;
+  box-shadow: 0 0 9px 1px color-mix(in oklab, var(--accent) 55%, transparent);
+}
+:root[data-pull="down"] .scroll-hint-bar.down .fill {
+  background: linear-gradient(to top, color-mix(in oklab, var(--accent) 20%, transparent), var(--accent));
+}
+:root[data-pull="up"] .scroll-hint-bar.up .fill {
+  background: linear-gradient(to bottom, color-mix(in oklab, var(--accent) 20%, transparent), var(--accent));
+}
+:root[data-pull="down"] .hint-label.down,
+:root[data-pull="up"] .hint-label.up { opacity: calc(0.2 + var(--pull, 0) * 0.7); }
+
+/* mobile: same pull indicator, lifted above the bottom tab bar */
+@media (max-width: 560px) {
+  .scroll-hint-bar.down { bottom: calc(60px + env(safe-area-inset-bottom)); }
+  .hint-label.down { bottom: calc(60px + env(safe-area-inset-bottom) + 102px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .scroll-hint-bar .fill { animation: none; }
+}

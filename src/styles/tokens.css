@@ -1,0 +1,56 @@
+/* ---- Design tokens : DARK (default) ---- */
+:root {
+  --accent: #FF5A1F;
+  --accent-soft: color-mix(in oklab, var(--accent) 18%, transparent);
+  --accent-ink: #0a0a0b;
+
+  --bg: #0a0a0b;
+  --bg-2: #101014;
+  --surface: #141417;
+  --surface-2: #1a1a1f;
+  --surface-hi: #202027;
+  --border: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --grid-line: rgba(255, 255, 255, 0.075);
+  --dot: rgba(255, 255, 255, 0.11);
+
+  --text: #f3f3f1;
+  --text-dim: rgba(243, 243, 241, 0.58);
+  --text-faint: rgba(243, 243, 241, 0.34);
+
+  --shadow: 0 24px 60px -24px rgba(0, 0, 0, 0.7);
+
+  --font-display: "Space Grotesk", system-ui, sans-serif;
+  --font-body: "Manrope", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  --maxw: 1180px;
+  --nav-w: 184px;
+
+  --reveal-shift: 22px;
+  --reveal-dur: 0.7s;
+  --parallax: 1;
+
+  color-scheme: dark;
+}
+
+/* ---- Design tokens : LIGHT ---- */
+[data-theme="light"] {
+  --accent-ink: #fff;
+  --bg: #f4f2ee;
+  --bg-2: #f3f2ef;
+  --surface: #ffffff;
+  --surface-2: #f6f6f4;
+  --surface-hi: #efefec;
+  --border: rgba(0, 0, 0, 0.10);
+  --border-strong: rgba(0, 0, 0, 0.18);
+  --grid-line: rgba(0, 0, 0, 0.032);
+  --dot: rgba(0, 0, 0, 0.06);
+
+  --text: #16160f;
+  --text-dim: rgba(22, 22, 15, 0.62);
+  --text-faint: rgba(22, 22, 15, 0.40);
+
+  --shadow: 0 24px 60px -28px rgba(0, 0, 0, 0.28);
+  color-scheme: light;
+}

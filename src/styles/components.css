@@ -1,0 +1,40 @@
+/* ---- Buttons ---- */
+.btn {
+  display: inline-flex; align-items: center; gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 13px; letter-spacing: 0.08em; text-transform: uppercase;
+  padding: 13px 20px;
+  border: 1px solid var(--border-strong);
+  border-radius: 2px;
+  color: var(--text);
+  background: transparent;
+  overflow: hidden;
+  transition: border-color .2s, background .2s, color .2s, transform .2s;
+}
+.btn:hover { border-color: var(--text); transform: translateY(-2px); }
+.btn.primary {
+  background: var(--accent); color: var(--accent-ink); border-color: var(--accent);
+}
+.btn.primary:hover { background: color-mix(in oklab, var(--accent) 86%, #000); border-color: transparent; }
+.btn svg { width: 15px; height: 15px; }
+
+/* ---- Icon buttons (social) ---- */
+.iconbtn {
+  width: 42px; height: 42px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border: 1px solid var(--border); border-radius: 2px;
+  color: var(--text-dim); background: transparent;
+  overflow: hidden;
+  transition: all .2s;
+}
+.iconbtn:hover { color: var(--text); border-color: var(--text); transform: translateY(-2px); }
+.iconbtn svg { width: 18px; height: 18px; }
+/* Visible label is opt-in (via showLabel) and revealed only in responsive layouts. */
+.iconbtn-label { display: none; }
+
+/* ---- Chip (tech tag) ---- */
+.chip {
+  font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em;
+  padding: 4px 9px; border: 1px solid var(--border); border-radius: 2px;
+  color: var(--text-dim); background: var(--surface); white-space: nowrap;
+}

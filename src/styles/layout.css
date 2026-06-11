@@ -1,0 +1,89 @@
+/* ---- Background field variants ---- */
+.bgfield {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+}
+.bgfield[data-variant="plain"] { opacity: 0; }
+.bgfield[data-variant="grid"] {
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 88px 88px;
+}
+.bgfield[data-variant="dots"] {
+  background-image: radial-gradient(var(--dot) 1.2px, transparent 1.3px);
+  background-size: 30px 30px;
+}
+.bgfield[data-variant="glow"] {
+  background:
+    radial-gradient(60% 50% at 78% 8%, var(--accent-soft), transparent 70%),
+    radial-gradient(50% 40% at 12% 92%, var(--accent-soft), transparent 70%);
+}
+
+/* ---- App shell ---- */
+.app { position: relative; z-index: 1; }
+@media (min-width: 561px) {
+  .app .section { padding-left: clamp(92px, 8vw, 124px); padding-right: clamp(92px, 8vw, 124px); }
+  .app .hero { padding-left: clamp(92px, 8vw, 124px); padding-right: clamp(92px, 8vw, 124px); }
+}
+
+/* ---- Section shell ---- */
+.section {
+  position: relative;
+  min-height: 100vh;
+  display: flex; flex-direction: column; justify-content: center;
+  padding: clamp(80px, 10vh, 128px) clamp(24px, 6vw, 88px);
+}
+/* extra scroll room top + bottom so scrolling feels free, not rigid; the snap
+   targets the content (not this padding) so the title still lands nicely */
+.section:not(.hero):not(.contact) {
+  min-height: 100vh;
+  padding-top: clamp(130px, 20vh, 280px);
+  padding-bottom: clamp(130px, 20vh, 280px);
+}
+/* AI Solutions: extra breathing room top + bottom */
+#solutions { padding-top: clamp(130px, 20vh, 280px); padding-bottom: clamp(130px, 20vh, 280px); }
+.section-inner { max-width: var(--maxw); margin: 0 auto; width: 100%; }
+.section.alt { background: var(--bg-2); }
+.section.alt::before, .section.alt::after { content: none; }
+
+/* ---- Kicker / section label ---- */
+.kicker {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.kicker .idx { color: var(--accent); }
+.kicker::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+  max-width: 120px;
+}
+.kicker.center { justify-content: center; }
+.kicker.center::after { content: none; }
+
+.sec-title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.02;
+  font-size: clamp(34px, 5.2vw, 60px);
+  margin-top: 22px;
+}
+.sec-lead {
+  color: var(--text-dim);
+  font-size: clamp(17px, 1.6vw, 20px);
+  max-width: 60ch;
+  margin-top: 18px;
+  text-wrap: pretty;
+}
