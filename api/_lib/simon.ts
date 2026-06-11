@@ -1,4 +1,4 @@
-import type { ValidLang } from './validate';
+import type { ValidLang } from './validate.js';
 
 /**
  * Build the system prompt for Simon, Peter's portfolio assistant.

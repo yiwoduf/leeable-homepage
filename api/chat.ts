@@ -1,11 +1,14 @@
-import { validateBody } from './_lib/validate';
-import { buildSystemPrompt } from './_lib/simon';
+// NOTE: relative imports carry the .js extension — the project is ESM
+// ("type": "module") and Vercel compiles api/*.ts file-by-file, so Node's
+// ESM resolver needs explicit extensions at runtime.
+import { validateBody } from './_lib/validate.js';
+import { buildSystemPrompt } from './_lib/simon.js';
 import {
   isRedisConfigured,
   checkRateLimit,
   getClientId,
   type RateLimitResult,
-} from './_lib/ratelimit';
+} from './_lib/ratelimit.js';
 
 /** Vercel Function max duration (seconds). */
 export const maxDuration = 30;
