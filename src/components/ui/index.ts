@@ -1,5 +1,6 @@
 export { Icon } from './Icon';
 export type { IconName, IconProps } from './Icon';
+export { PuzzleMark } from './PuzzleMark';
 export { Button } from './Button';
 export type { ButtonProps } from './Button';
 export { IconButton } from './IconButton';
