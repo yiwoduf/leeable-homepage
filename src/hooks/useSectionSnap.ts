@@ -262,9 +262,43 @@ export function useSectionSnap(): void {
 
     const stopMomentum = () => cancelAnimationFrame(momentumId);
 
+    // ---- TOUCH FOLLOW (frame-coalesced finger tracking) --------------------
+    // Touch events fire at the digitizer rate (often 60Hz) while screens paint
+    // at up to 120Hz — writing scrollTo inside every touchmove makes alternate
+    // frames idle and reads as judder. Instead the handlers only record the
+    // finger's desired page position; a rAF loop applies it once per frame
+    // with a tight ease, so the page sticks to the finger but moves smoothly.
+    let tDesired: number | null = null;
+    let tFollowId = 0;
+    const TOUCH_FOLLOW_EASE = 0.5; // tight — cushions event-rate steps without lag
+
+    const stopTouchFollow = () => {
+      cancelAnimationFrame(tFollowId);
+      tDesired = null;
+    };
+
+    const stepTouchFollow = () => {
+      if (tDesired === null) return;
+      const cur = window.scrollY;
+      const diff = tDesired - cur;
+      if (Math.abs(diff) < 0.5) {
+        if (diff !== 0) window.scrollTo({ top: tDesired, behavior: 'instant' });
+      } else {
+        window.scrollTo({ top: cur + diff * TOUCH_FOLLOW_EASE, behavior: 'instant' });
+      }
+      tFollowId = requestAnimationFrame(stepTouchFollow);
+    };
+
+    const followTo = (target: number) => {
+      const wasIdle = tDesired === null;
+      tDesired = target;
+      if (wasIdle) tFollowId = requestAnimationFrame(stepTouchFollow);
+    };
+
     const onTouchStart = (e: TouchEvent) => {
       stopMomentum();
       stopWheelGlide(); // the finger takes over from any wheel glide
+      stopTouchFollow();
       // Ignore touch inside an overlay — also gates onTouchMove via tActive = false.
       const el = e.target instanceof Element ? e.target : null;
       if (el?.closest('[data-overlay]')) { tActive = false; return; }
@@ -300,11 +334,12 @@ export function useSectionSnap(): void {
       if (!tActive) return;
       // Ignore moves inside an overlay (gesture started outside → bail now).
       const el = e.target instanceof Element ? e.target : null;
-      if (el?.closest('[data-overlay]')) { tActive = false; setPull(''); return; }
+      if (el?.closest('[data-overlay]')) { tActive = false; setPull(''); stopTouchFollow(); return; }
       if (e.touches.length !== 1) {
         // a second finger (pinch) — bail out and let the browser handle it
         tActive = false;
         setPull('');
+        stopTouchFollow();
         return;
       }
       const y = e.touches[0].clientY;
@@ -329,21 +364,22 @@ export function useSectionSnap(): void {
       const commitPx = touchCommitPx();
 
       if (tMode === 'internal') {
-        window.scrollTo({ top: Math.max(tRestTop, Math.min(tRestBot, raw)), behavior: 'instant' });
+        followTo(Math.max(tRestTop, Math.min(tRestBot, raw)));
       } else if (tMode === 'pull-down') {
         const fingerOver = Math.max(0, raw - tRestBot);
-        window.scrollTo({ top: tRestBot + Math.min(tNextRest - tRestBot, fingerOver * TOUCH_RESIST), behavior: 'instant' });
+        followTo(tRestBot + Math.min(tNextRest - tRestBot, fingerOver * TOUCH_RESIST));
         tReady = fingerOver >= commitPx;
         setPull('down', fingerOver / commitPx, tNextLabel);
       } else if (tMode === 'pull-up') {
         const fingerOver = Math.max(0, tRestTop - raw);
-        window.scrollTo({ top: tRestTop - Math.min(tRestTop - tPrevRest, fingerOver * TOUCH_RESIST), behavior: 'instant' });
+        followTo(tRestTop - Math.min(tRestTop - tPrevRest, fingerOver * TOUCH_RESIST));
         tReady = fingerOver >= commitPx;
         setPull('up', fingerOver / commitPx, tPrevLabel);
       }
     };
 
     const onTouchEnd = () => {
+      stopTouchFollow(); // freeze the follow loop; release logic owns the position
       if (!tActive) return;
       tActive = false;
       const mode = tMode;
@@ -381,6 +417,7 @@ export function useSectionSnap(): void {
       window.removeEventListener('touchcancel', onTouchEnd);
       stopMomentum();
       stopWheelGlide();
+      stopTouchFollow();
       window.clearTimeout(springId);
       setPull('');
     };
