@@ -11,7 +11,8 @@ import { maxScrollY } from '../lib/viewport';
  * and scrolling back up reveals them bottom-to-top (reverse stagger) because each
  * re-enters from the top edge. Leaving the viewport clears it again, so the
  * entrance always replays — there's no "already rendered" stale state when you
- * return to a section.
+ * return to a section. (Desktop only — touch devices reveal once and keep it;
+ * see the `replay` flag below.)
  *
  *   • io       — live-toggles each element as it crosses the band, EXCEPT during
  *     a programmatic snap glide (deferred to settle, so a section's stagger plays
@@ -38,13 +39,25 @@ export function useReveal(): void {
   useEffect(() => {
     const reveals = new Set<HTMLElement>(document.querySelectorAll<HTMLElement>('.reveal'));
 
+    // Touch devices: reveal ONCE and keep it. The desktop "clear on exit so the
+    // entrance replays" choreography strobes on a phone — a fast flick moves a
+    // full viewport in ~300ms, so outgoing content un-reveals instantly while
+    // incoming content is still mid-fade → whole-screen blackout flicker.
+    // The band also moves to the viewport edge so a flick can't outrun it.
+    const coarse = window.matchMedia('(pointer: coarse)').matches;
+    const replay = !coarse;
+    const line = coarse ? 0.97 : REVEAL_LINE;
+
     const inBand = (el: Element): boolean => {
       const r = el.getBoundingClientRect();
       // at the very bottom nothing can rise further, so the whole viewport counts
-      const limit = window.innerHeight * (window.scrollY >= maxScrollY() - 4 ? 1 : REVEAL_LINE);
+      const limit = window.innerHeight * (window.scrollY >= maxScrollY() - 4 ? 1 : line);
       return r.top < limit && r.bottom > 0;
     };
-    const setRevealed = (el: Element, on: boolean) => el.toggleAttribute('data-revealed', on);
+    const setRevealed = (el: Element, on: boolean) => {
+      if (!on && !replay) return; // reveal-once on touch — never strip it back
+      el.toggleAttribute('data-revealed', on);
+    };
     const reconcile = () =>
       reveals.forEach((el) => {
         if (!el.isConnected) {
@@ -61,7 +74,7 @@ export function useReveal(): void {
         if (isScrollLocked()) return; // defer glide-time toggles to settle
         for (const e of entries) setRevealed(e.target, e.isIntersecting);
       },
-      { rootMargin: `0px 0px -${Math.round((1 - REVEAL_LINE) * 100)}% 0px` },
+      { rootMargin: `0px 0px -${Math.round((1 - line) * 100)}% 0px` },
     );
     reveals.forEach((el) => io.observe(el));
 
