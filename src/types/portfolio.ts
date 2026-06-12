@@ -16,7 +16,6 @@ export interface Identity {
   githubLabel: string;
   linkedin: string;
   linkedinLabel: string;
-  instagram: string;
   x: string;
 }
 

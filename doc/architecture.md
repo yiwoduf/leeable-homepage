@@ -10,7 +10,10 @@ content object, a design-config object, and a set of focused hooks.
   `noUnusedParameters`, `noImplicitOverride`), **three 0.137.5**.
 - `npm run dev` — dev server. `npm run build` — `tsc --noEmit && vite build`.
   `npm run typecheck` — types only. `npm run preview` — preview the build.
-- Deployment is configured separately; out of scope for these docs.
+- Deployed on Vercel (`leeable.dev`); the chat backend is a Vercel Function
+  (`api/chat.ts` — env vars and security model in `SETUP.md`). API code compiles
+  with `tsc -p api` as part of `typecheck`/`build`; its relative imports carry
+  explicit `.js` extensions (ESM at runtime — gotchas.md §8).
 
 ## i18n and Settings
 
@@ -30,11 +33,11 @@ The `SettingsModal` (gear button in `TopBar`) lets visitors switch theme (dark/l
 
 ```
 useTheme()            → isDark, toggle           (persists <html data-theme>)
-useScrollSpy()        → active, progress         (nav highlight + progress bar)
-useHideOnScroll()     → headerHidden             (slides the TopBar away)
+useScrollSpy()        → active                   (nav highlight; progress published as --nav-progress)
+useHideOnScroll()     → headerHidden             (smart header: hero-pinned, direction-aware, hover-summon)
 useReveal()           → (side effect)            per-element reveal-on-scroll
 useSectionSnap()      → (side effect)            the wheel+touch section pager
-useResizeRealign(active)  → re-frame on window resize
+useResizeRealign(active)  → re-frame on viewport change (window resize / container RO / pageshow)
 useContentRealign(active) → re-frame on content collapse (card close)
 
 <BackgroundField/> <TopBar/> <SideNav/> <MobileNav/> <SocialRail/> <ScrollHint/>
@@ -53,10 +56,10 @@ src/
   data/portfolio.ts        ★ ALL content (text) — single source of truth
   config/
     site.ts                ★ design knobs (accent, hero3d, fonts, layout, motion)
-    theme.ts               FONT_PAIRS, ACCENTS_*, applyDesignTokens()
+    theme.ts               FONT_PAIRS, applyDesignTokens()
     navigation.ts          NAV array (id, label, icon) — section order
     skillIcons.ts          skill label → Simple Icons slug (fetched at runtime)
-    customSkillIcons.tsx   inline SVGs for skills with no brand mark (OpenClaw)
+    customSkillIcons.tsx   inline SVGs for skills with no usable CDN mark (Java, OpenClaw, Codex)
 
   types/
     portfolio.ts           content model (PortfolioData, Identity, …)

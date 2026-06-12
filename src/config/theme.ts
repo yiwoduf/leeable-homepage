@@ -28,10 +28,6 @@ export const FONT_PAIRS: Record<FontPairKey, FontPair> = {
   },
 };
 
-/** Curated accent options — set `siteConfig.accent` to any of these (or your own hex). */
-export const ACCENTS_CLASSIC = ['#2A6FDB', '#FF5A1F', '#10B981', '#7C5CFF', '#E5484D'] as const;
-export const ACCENTS_NEON = ['#FF6A00', '#39FF14', '#00E5FF', '#C026FF', '#FF2D78'] as const;
-
 /**
  * Apply the static, non-theme design tokens (accent, fonts, motion-derived
  * reveal timing) to the document root. Run once at startup; the dark/light

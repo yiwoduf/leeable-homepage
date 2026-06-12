@@ -10,7 +10,7 @@ Single content object (`portfolio: PortfolioData`, typed by `types/portfolio.ts`
 | To change… | Field |
 |---|---|
 | Name, role, location, email, résumé filename | `identity` |
-| Social links (GitHub / LinkedIn / Instagram / X) | `identity.github` / `.linkedin` / `.instagram` / `.x` |
+| Social links (GitHub / LinkedIn / X) | `identity.github` / `.linkedin` / `.x` |
 | About two paragraphs | `about.lead`, `about.body` |
 | About facts (Based in, Languages, …) | `about.facts` — `{ k: label, v: value }` |
 | About stat tiles (5+, 2,259+, …) | `about.stats` — `{ n: number, l: caption }` |
@@ -32,7 +32,7 @@ square.
 
 | Knob | Values |
 |---|---|
-| `accent` | any hex (curated sets in `config/theme.ts`) |
+| `accent` | any hex |
 | `hero3d` | `'puzzle' | 'rubik' | 'network' | 'crystal' | 'core'` |
 | `defaultTheme` | `'dark' | 'light'` (a returning visitor's saved choice wins) |
 | `fontPair` | `'modern' | 'plex' | 'editorial'` |
@@ -56,11 +56,8 @@ A complete `PortfolioData` object with Korean copy. Loaded automatically when th
 visitor's language is `ko`. Identity URLs, skills arrays, company/product names,
 and place names stay in English as per Korean dev-industry convention.
 
-## ⚠️ Tagline now flows from `identity.tagline`
+## Tagline
 
-The tagline is no longer hardcoded in `HeroSection.tsx`. It is read from
-`identity.tagline` in `portfolio.ts` (EN) and `portfolio.ko.ts` (KO) and rendered
-via `renderRich()` so `**bold**` markers produce `<b>` tags. To update the tagline,
-edit the `tagline` field in the relevant portfolio file.
-
-Note: Instagram/X URLs default to the GitHub handle (`yiwoduf`) — update if different.
+The hero tagline is read from `identity.tagline` in `portfolio.ts` (EN) and
+`portfolio.ko.ts` (KO) and rendered via `renderRich()` — `**bold**` markers
+produce `<b>` tags, `*word*` produces the script-font `.kw` accent.

@@ -15,7 +15,7 @@ plain (BEM-ish but loose); components attach classes, CSS owns the look.
 | File | Holds |
 |---|---|
 | `tokens.css` | **Design tokens** as CSS custom properties: dark theme on `:root`, light overrides under `[data-theme="light"]`. Colors (`--bg*`, `--surface*`, `--text*`, `--border*`, `--grid-line`, `--dot`), `--accent` family, fonts, `--maxw`, `--nav-w`, `--reveal-shift`/`--reveal-dur` (motion-tuned, overwritten by `applyDesignTokens`). |
-| `base.css` | Reset, `<html>`/`<body>` base, hidden scrollbars, `::selection`. **`@media (pointer: coarse)` sets `touch-action: pinch-zoom; overscroll-behavior: none`** so the touch pager owns vertical panning (reduced-motion stays native). |
+| `base.css` | Reset (incl. `text-size-adjust: 100%` — gotchas.md §2), `<html>`/`<body>` base, hidden scrollbars, `::selection`. **`@media (pointer: coarse)`: html/body `overflow: hidden`, `<main>` becomes the fixed scroll container** with `touch-action: pinch-zoom; overscroll-behavior: none` so the touch pager owns vertical panning (reduced-motion stays native). |
 | `utilities.css` | `.reveal` (the reveal-on-scroll primitive — opacity + translateY(`--reveal-shift`), transition `--reveal-dur`, delay `--d`; shown via `.reveal.in-view` or `.reveal[data-revealed]`), and `.glow`/`.glow-p` (spinning comet border + pointer glow). |
 | `components.css` | `ui/` primitives (buttons, chips, icon buttons, stat tiles, responsive label rules). |
 | `layout.css` | Fixed chrome (top bar, side nav, social rail, mobile nav, background field). |
@@ -29,7 +29,6 @@ plain (BEM-ish but loose); components attach classes, CSS owns the look.
   under `[data-theme="light"]`. `useTheme` flips `<html data-theme>` and persists.
 - `--accent` is set at runtime by `applyDesignTokens()` from `siteConfig.accent`
   (so changing the config recolors everything: links, highlights, glow, 3D).
-  Curated palettes: `ACCENTS_CLASSIC` / `ACCENTS_NEON` in `config/theme.ts`.
 - Fonts come from `FONT_PAIRS[siteConfig.fontPair]`, written to `--font-*`.
   (Web fonts themselves are loaded in `index.html`.)
 
@@ -41,8 +40,9 @@ plain (BEM-ish but loose); components attach classes, CSS owns the look.
   switch this to a class**; React would wipe it on components with dynamic
   classNames.
 - `.reveal.in-view` force-shows always-on bits (the hero copy).
-- The timeline line is the one special case: `.tl-line.reveal` grows via `scaleY`
-  (not the generic fade) and flips `transform-origin` on `:root[data-scrolldir="up"]`.
+- The timeline line is the one special case: an unclipped `.tl-line` sensor wraps
+  `.tl-line-draw`, which draws via `clip-path` and flips direction on
+  `:root[data-scrolldir="up"]` (see gotchas.md §4–5 for why it's structured this way).
 
 ## Responsive
 

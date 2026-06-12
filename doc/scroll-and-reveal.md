@@ -109,30 +109,36 @@ so an attribute survives. CSS: `.reveal[data-revealed] { opacity:1; transform:no
 `cssVars`), plus natural per-element entry timing on scroll.
 
 **Direction:** `useReveal` publishes `data-scrolldir` (`up`/`down`) on `<html>`.
-The Experience **timeline line** (`.tl-line`, a scaleY-from-top grow) flips its
-`transform-origin` to `bottom` when `data-scrolldir="up"`, so coming back UP into
-Experience (you land at its bottom) it draws bottom-up and is visible immediately,
-instead of growing from an off-screen top.
+The Experience **timeline line** draws top-down scrolling down, bottom-up coming
+back up. It is split into an unclipped sensor (`.tl-line`, what the observers
+measure) and an inner `.tl-line-draw` that animates `clip-path` — clipping the
+observed element itself collapsed its visible area and made the reveal oscillate
+forever on upward nav jumps (see gotchas.md §4); the hidden-state rule for "up"
+is scoped `:not([data-revealed])` to avoid a specificity trap (§5).
 
 ## Dynamic section height — `useContentRealign`
 
 A `SolutionCard` expand/collapse changes the section's height under a fixed
-scroll position, which can strand you between sections. A ResizeObserver on
-`document.body` re-frames the active section (smooth) **on collapse only** (growth
-is left alone — the new content is right there). Window resizes are ignored here
-(`useResizeRealign` owns those, instant). Both are desktop-only (touch "resize"
-fires from the mobile URL bar).
+scroll position, which can strand you between sections. A ResizeObserver
+(host-agnostic: it watches the container's children — the sections — on touch,
+`document.body` on desktop) re-frames the active section (smooth) **on collapse
+only** (growth is left alone — the new content is right there). Window/viewport
+resizes are owned by `useResizeRealign`: window `resize` on desktop, a
+ResizeObserver on the fixed container on touch (rotation, split view — the URL
+bar can never fire it), plus a `pageshow(persisted)` realign for bfcache returns.
 
 ## How to verify (headless)
 
-Spin up `npm i -D playwright && npx playwright install chromium`, drive the dev
-server, and dispatch synthetic input. Patterns that have caught regressions:
+No automation deps are installed — system Chrome headless against the dev server
+has been the working recipe (commands and caveats in gotchas.md §12). Patterns
+that have caught regressions:
 - **Wheel:** dispatch a burst of `WheelEvent`s; assert separate bursts each
   advance exactly 1 (never 2), and a hard burst from a TALL section's middle
   stays put at the edge.
-- **Touch:** mobile context (`hasTouch, isMobile`), dispatch `Touch`/`TouchEvent`
-  sequences; assert idx advances ≤1 per swipe and reaches the ends both ways.
 - **Reveal:** check `data-revealed` toggles per element, the footer reveals at
-  max-scroll, the tl-line reveals with `transform-origin: bottom` on the way up.
+  max-scroll, and the tl-line reveals ONCE and stays revealed after a nav jump
+  from below (poll the attribute — an on/off oscillation is the §4 bug).
+- **rAF glides don't run under `--virtual-time-budget`** — use `--timeout` plus
+  a load-holding image when the journey needs real time.
 
 Playwright is only needed for these checks — it's a dev-only dependency.
