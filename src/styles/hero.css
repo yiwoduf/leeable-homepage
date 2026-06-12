@@ -145,3 +145,9 @@
 }
 
 /* (the section-edge scroll cue lives in <ScrollHint> now) */
+
+/* Touch devices: the 3D object is decorative only — pointer interaction off
+   so touches over the stage scroll the page instead of grabbing the canvas. */
+@media (pointer: coarse) {
+  .hero-stage { pointer-events: none; }
+}

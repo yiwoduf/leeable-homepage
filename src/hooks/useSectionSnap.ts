@@ -85,10 +85,14 @@ export function useSectionSnap(): void {
 
       const innerOf = (el: HTMLElement): HTMLElement =>
         el.querySelector<HTMLElement>('.section-inner, .hero-inner, .contact-inner') ?? el;
+      // 'fit' up to a 5% overflow: marginally-tall content (e.g. the stacked
+      // hero) reads as ONE card — an intermediate bottom-stop a few px below
+      // the top-stop would force a pointless second flick and let the
+      // backstop "bounce" a legitimate section change back.
       const tag = () => {
         for (const el of sectionElements()) {
           const fits =
-            innerOf(el).getBoundingClientRect().height <= window.innerHeight * 0.76;
+            innerOf(el).getBoundingClientRect().height <= window.innerHeight * 1.05;
           el.dataset.snap = fits ? 'fit' : 'tall';
         }
       };
@@ -99,13 +103,20 @@ export function useSectionSnap(): void {
 
       // All legal rest positions, in document order — mirrors the CSS snap
       // stops exactly (fit → one centered rest; tall → top and bottom rests;
-      // the first section anchors at 0 per the CSS first-child rule).
+      // the first section anchors at 0 per the CSS first-child rule). Stops
+      // closer than ~a third of a viewport are coalesced into one: they are
+      // visually the same rest and must count as ONE step for the backstop.
       const restsOf = (): number[] => {
-        const out: number[] = [];
+        const raw: number[] = [];
         sectionElements().forEach((el, idx) => {
-          out.push(idx === 0 ? 0 : clampScroll(sectionSnapTop(el)));
-          if (el.dataset.snap === 'tall') out.push(clampScroll(sectionSnapBottom(el)));
+          raw.push(idx === 0 ? 0 : clampScroll(sectionSnapTop(el)));
+          if (el.dataset.snap === 'tall') raw.push(clampScroll(sectionSnapBottom(el)));
         });
+        const minGap = window.innerHeight * 0.3;
+        const out: number[] = [];
+        for (const r of raw) {
+          if (!out.length || r - out[out.length - 1] >= minGap) out.push(r);
+        }
         return out;
       };
       const nearestRest = (rests: number[], y: number): number => {
@@ -116,19 +127,39 @@ export function useSectionSnap(): void {
         return best;
       };
 
-      // One-step-per-gesture backstop.
-      let gestureRestIdx = -1;
+      // One-step-PER-GESTURE backstop. `committedIdx` is the last rest the
+      // page settled on; `gestures` counts touchstarts since then, so two
+      // quick flicks legitimately advance two rests (each gesture owns one
+      // step) while a single mega-fling that WebKit lets overshoot gets one
+      // corrective jump. `armed` gates the pull indicator to gesture time so
+      // the snap's tiny arrival bounce can't flash the NEXT gap's label.
+      let committedY = -1; // last settled rest POSITION (value, not index —
+      // indices drift when content growth changes the rest list)
+      let gestures = 0;
       let touching = false;
+      let armed = false;
       let settleId = 0;
       const onSettle = () => {
-        if (touching || 'snapJump' in root.dataset || gestureRestIdx < 0) return;
+        if (touching || 'snapJump' in root.dataset) return;
         const rests = restsOf();
         const arrived = nearestRest(rests, scrollerY());
-        const from = gestureRestIdx;
-        gestureRestIdx = -1; // one-shot per gesture
-        if (Math.abs(arrived - from) > 1) {
-          nativeJumpTo(rests[from + Math.sign(arrived - from)]);
+        if (committedY >= 0 && gestures > 0) {
+          const from = nearestRest(rests, committedY);
+          const delta = arrived - from;
+          if (Math.abs(delta) > gestures) {
+            const target = from + Math.sign(delta) * gestures;
+            committedY = rests[target];
+            gestures = 0;
+            armed = false;
+            setPull('');
+            nativeJumpTo(rests[target]);
+            return;
+          }
         }
+        committedY = rests[arrived];
+        gestures = 0;
+        armed = false;
+        setPull('');
       };
       const armSettle = () => {
         window.clearTimeout(settleId);
@@ -136,8 +167,13 @@ export function useSectionSnap(): void {
       };
       const onTouchStart = () => {
         touching = true;
+        armed = true;
         window.clearTimeout(settleId);
-        gestureRestIdx = nearestRest(restsOf(), scrollerY());
+        if (committedY < 0) {
+          const rests = restsOf();
+          committedY = rests[nearestRest(rests, scrollerY())];
+        }
+        gestures += 1;
       };
       const onTouchEnd = () => {
         touching = false;
@@ -146,8 +182,10 @@ export function useSectionSnap(): void {
 
       const onScroll = () => {
         if (!touching) armSettle();
-        // No indicator while a nav jump flies through several sections.
-        if ('snapJump' in root.dataset) {
+        // Indicator only during a gesture (touch → settle) and never during a
+        // nav jump — the snap's arrival bounce outside gesture time would
+        // otherwise flash the next gap's label.
+        if (!armed || 'snapJump' in root.dataset) {
           setPull('');
           return;
         }
@@ -185,10 +223,15 @@ export function useSectionSnap(): void {
           return;
         }
         // Direction comes from the live scroll direction (set by useReveal).
+        // A minimum progress filters out snap-arrival micro-bounces.
         if (root.dataset.scrolldir === 'up') {
-          setPull('up', (gapHi - y) / dist, upper.dataset.screenLabel ?? '');
+          const p = (gapHi - y) / dist;
+          if (p < 0.06) setPull('');
+          else setPull('up', p, upper.dataset.screenLabel ?? '');
         } else {
-          setPull('down', (y - gapLo) / dist, lower.dataset.screenLabel ?? '');
+          const p = (y - gapLo) / dist;
+          if (p < 0.06) setPull('');
+          else setPull('down', p, lower.dataset.screenLabel ?? '');
         }
       };
 
