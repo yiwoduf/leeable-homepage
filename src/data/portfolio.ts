@@ -28,10 +28,10 @@ export const portfolio: PortfolioData = {
       { k: 'Focus', v: 'Multi-agent systems · Workflow automation' },
     ],
     stats: [
-      { n: '15+', l: 'agents orchestrated' },
-      { n: '2,000+', l: 'records routed daily' },
+      { n: '5+', l: 'agents orchestrated' },
+      { n: '2,259+', l: 'jobs processed' },
       { n: '~2 yrs', l: 'production software' },
-      { n: '100%', l: 'unattended pipelines' },
+      { n: 'Daily', l: 'unattended runs' },
     ],
   },
 
@@ -43,8 +43,8 @@ export const portfolio: PortfolioData = {
       period: 'Apr 2026 — Present',
       now: true,
       points: [
-        'Designed and built a production multi-agent AI system (15+ agents, orchestrator → specialist hierarchy) on the Pi/OpenClaw runtime, with a plugin-based harness layer (PreToolUse/PostToolUse hooks) and MCP integrations (Notion, Google Workspace).',
-        'Shipped a fully autonomous pipeline that crawls, scores, and routes 2,000+ records daily with zero manual intervention.',
+        'Designed and built a production multi-agent AI system (orchestrator → specialist hierarchy) on the Pi/OpenClaw runtime, with a plugin-based harness layer (PreToolUse/PostToolUse hooks) and MCP integrations (Notion, Google Workspace).',
+        'Shipped a fully autonomous pipeline that crawls, scores, and routes job postings daily — 2,259+ processed to date with zero manual intervention.',
       ],
       tags: ['Multi-agent', 'OpenClaw', 'n8n', 'MCP', 'Supabase'],
     },
@@ -67,7 +67,7 @@ export const portfolio: PortfolioData = {
       org: 'University of Kansas · Lawrence, KS',
       period: 'Jan 2023 — Aug 2024',
       points: [
-        'Rapidly built and iterated MVP healthcare web apps for diabetes management with a UI/UX faculty researcher — turning real patient-survey feedback into user-focused interfaces (Next.js, React, Vercel).',
+        'Rapidly built and iterated MVP healthcare web apps for diabetes management with a UI/UX faculty researcher — turning real patient-survey feedback into user-focused interfaces through design thinking (Next.js, React, Vercel).',
       ],
       tags: ['Next.js', 'React', 'Vercel'],
     },
@@ -101,7 +101,7 @@ export const portfolio: PortfolioData = {
         { k: 'Discord', d: 'Alert + digest' },
       ],
       metrics: [
-        { n: '1,689+', l: 'postings auto-scored' },
+        { n: '2,259+', l: 'postings auto-scored' },
         { n: 'Daily', l: 'unattended runs' },
         { n: 'Auto', l: 'résumé + cover-letter tailoring' },
       ],
@@ -137,10 +137,16 @@ export const portfolio: PortfolioData = {
       link: null,
     },
     {
-      name: 'LooHouse',
-      desc: 'Machine-learning hackathon project focused on model training — built end to end with a small team under time pressure.',
-      stack: ['Python', 'ML', 'Model training'],
-      link: 'https://github.com/yiwoduf/LooHouse',
+      name: 'Argon MS — Online Game Server',
+      desc: 'A from-scratch online game server I built and ran as a teenager — Java server backend, MySQL/MariaDB database, JavaScript NPC scripting, and client reverse engineering. Handled server ops, content, and live debugging end to end.',
+      stack: ['Java', 'MySQL', 'JavaScript', 'Reverse Engineering'],
+      link: 'https://github.com/yiwoduf/Argon-MS',
+    },
+    {
+      name: 'leeable.dev — Portfolio',
+      desc: 'This site — a multilingual (EN/KO) portfolio with an AI assistant chatbot, dark mode, and a prompt-injection-resistant system prompt. Built with React, TypeScript, and Vite.',
+      stack: ['React', 'TypeScript', 'i18n', 'AI Chatbot'],
+      link: 'https://github.com/yiwoduf/leeable-homepage',
     },
   ],
 

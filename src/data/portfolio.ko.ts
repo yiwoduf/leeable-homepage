@@ -32,10 +32,10 @@ export const portfolioKo: PortfolioData = {
       { k: '집중 분야', v: '멀티 에이전트 시스템 · 워크플로우 자동화' },
     ],
     stats: [
-      { n: '15+', l: '운영 에이전트' },
-      { n: '2,000+', l: '일일 처리 레코드' },
+      { n: '5+', l: '운영 에이전트' },
+      { n: '2,259+', l: '누적 처리 작업' },
       { n: '약 2년', l: '프로덕션 경력' },
-      { n: '100%', l: '무인 자율 파이프라인' },
+      { n: '매일', l: '무인 자동 실행' },
     ],
   },
 
@@ -47,8 +47,8 @@ export const portfolioKo: PortfolioData = {
       period: '2026년 4월 — 현재',
       now: true,
       points: [
-        'Pi/OpenClaw 런타임 위에 프로덕션 멀티 에이전트 AI 시스템을 직접 설계하고 구축했습니다. 오케스트레이터 → 전문 에이전트 15개 이상의 계층 구조, 플러그인 기반 하네스(PreToolUse/PostToolUse 훅), MCP 통합(Notion, Google Workspace)을 모두 포함합니다.',
-        '매일 2,000건 이상의 레코드를 크롤링·스코어링·라우팅하는 완전 자율 파이프라인을 구축했습니다. 사람 개입 없이 24시간 운영 중입니다.',
+        'Pi/OpenClaw 런타임 위에 프로덕션 멀티 에이전트 AI 시스템을 직접 설계하고 구축했습니다. 오케스트레이터 → 전문 에이전트 계층 구조, 플러그인 기반 하네스(PreToolUse/PostToolUse 훅), MCP 통합(Notion, Google Workspace)을 모두 포함합니다.',
+        '채용 공고를 매일 크롤링·스코어링·라우팅하는 완전 자율 파이프라인을 구축했습니다. 지금까지 2,259건 이상을 사람 개입 없이 처리했습니다.',
       ],
       tags: ['Multi-agent', 'OpenClaw', 'n8n', 'MCP', 'Supabase'],
     },
@@ -71,7 +71,7 @@ export const portfolioKo: PortfolioData = {
       org: 'University of Kansas · Lawrence, KS',
       period: '2023년 1월 — 2024년 8월',
       points: [
-        'UI/UX 연구자 교수와 협력해 당뇨병 관리용 헬스케어 웹 앱 MVP를 빠르게 구축하고 반복했습니다. 실제 환자 설문 피드백을 사용자 중심 인터페이스로 구현했습니다 (Next.js, React, Vercel).',
+        'UI/UX 연구자 교수와 협력해 당뇨병 관리용 헬스케어 웹 앱 MVP를 빠르게 구축하고 반복했습니다. 실제 환자 설문 피드백을 디자인 씽킹 과정을 거쳐 사용자 중심 인터페이스로 구현했습니다 (Next.js, React, Vercel).',
       ],
       tags: ['Next.js', 'React', 'Vercel'],
     },
@@ -105,7 +105,7 @@ export const portfolioKo: PortfolioData = {
         { k: 'Discord', d: '알림 + 요약 전송' },
       ],
       metrics: [
-        { n: '1,689+', l: '스코어링된 공고' },
+        { n: '2,259+', l: '스코어링된 공고' },
         { n: '매일', l: '무인 자동 실행' },
         { n: '자동', l: '이력서 · 커버레터 맞춤화' },
       ],
@@ -141,10 +141,16 @@ export const portfolioKo: PortfolioData = {
       link: null,
     },
     {
-      name: 'LooHouse',
-      desc: '소규모 팀, 제한된 시간 안에 엔드투엔드로 완성한 머신러닝 해커톤 프로젝트.',
-      stack: ['Python', 'ML', 'Model training'],
-      link: 'https://github.com/yiwoduf/LooHouse',
+      name: 'Argon MS — Online Game Server',
+      desc: '10대 시절 밑바닥부터 직접 만들고 운영한 온라인 게임 서버. Java 서버 백엔드, MySQL/MariaDB 데이터베이스, JavaScript NPC 스크립팅, 클라이언트 리버스 엔지니어링까지 — 서버 운영, 콘텐츠, 라이브 디버깅을 전부 혼자 담당했습니다.',
+      stack: ['Java', 'MySQL', 'JavaScript', 'Reverse Engineering'],
+      link: 'https://github.com/yiwoduf/Argon-MS',
+    },
+    {
+      name: 'leeable.dev — Portfolio',
+      desc: '지금 보고 계신 이 사이트. EN/KO 다국어, AI 비서 챗봇, 다크 모드, 프롬프트 인젝션에 강한 시스템 프롬프트까지 — React, TypeScript, Vite로 만들었습니다.',
+      stack: ['React', 'TypeScript', 'i18n', 'AI Chatbot'],
+      link: 'https://github.com/yiwoduf/leeable-homepage',
     },
   ],
 

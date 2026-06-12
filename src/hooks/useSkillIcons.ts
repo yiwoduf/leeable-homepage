@@ -1,7 +1,9 @@
 import { useEffect } from 'react';
 import { SKILL_ICONS } from '../config/skillIcons';
 
-// Monochrome brand marks → recolor to follow the theme text color.
+// Monochrome (black) brand marks → recolor to follow the theme text color so
+// they stay visible in dark mode. (GitHub/X/Codex/OpenClaw render from inline
+// currentColor SVGs already; colorful brand marks keep their own colors.)
 const ADAPT = new Set(['nextdotjs', 'vercel']);
 
 // Session cache so re-mounting the Skills section doesn't refetch.
@@ -124,10 +126,12 @@ export function useSkillIcons(): void {
           }
 
           if (ADAPT.has(slug)) {
-            // Recolor fill attributes so monochrome icons follow theme text color.
+            // The CDN's SVGs carry no fill at all (SVG default = black), so a
+            // [fill] selector matches nothing — set currentColor on the root
+            // and override any explicit hex fills below it.
+            svgEl.setAttribute('fill', 'currentColor');
             svgEl.querySelectorAll('[fill]').forEach((el) => {
-              const fill = el.getAttribute('fill') ?? '';
-              if (/^#[0-9a-fA-F]{3,6}$/.test(fill)) {
+              if (el.getAttribute('fill') !== 'none') {
                 el.setAttribute('fill', 'currentColor');
               }
             });

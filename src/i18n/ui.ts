@@ -67,6 +67,7 @@ export interface UiStrings {
   social: {
     github: string;
     linkedin: string;
+    x: string;
     email: string;
     resumePdf: string;
     resume: string;
@@ -90,6 +91,7 @@ export interface UiStrings {
   /** Footer. */
   footer: {
     builtInPublic: string;
+    forkMe: string;
   };
 }
 
@@ -140,7 +142,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
         kicker: 'Contact',
         bigLine1: "Let's build",
         kwWord: 'something',
-        lead: 'Open for personal inquiries and AI-solution consulting — I help teams introduce new AI systems into their everyday tasks and workflows. The fastest way to reach me:',
+        lead: 'Open to full-time AI Product Engineer / Applied AI Engineer roles — and to AI-solution consulting, helping teams bring AI into how they actually work. The fastest way to reach me:',
         screenLabel: 'Contact',
       },
     },
@@ -164,6 +166,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
     social: {
       github: 'GitHub',
       linkedin: 'LinkedIn',
+      x: 'X',
       email: 'Email',
       resumePdf: 'Résumé (PDF)',
       resume: 'Résumé',
@@ -181,6 +184,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
     },
     footer: {
       builtInPublic: 'Built in public · leeable.dev',
+      forkMe: 'Fork me',
     },
   },
 
@@ -229,7 +233,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
         kicker: '연락처',
         bigLine1: '다음 솔루션의',
         kwWord: '시작',
-        lead: '개인 문의와 AI 솔루션 컨설팅을 열어 두고 있습니다. 팀의 실제 업무 흐름에 AI를 들여놓는 일을 돕습니다. 가장 빠른 연락 방법:',
+        lead: 'AI Product Engineer / Applied AI Engineer 풀타임 포지션을 찾고 있습니다 — 팀의 실제 업무 흐름에 AI를 도입하는 AI 솔루션 컨설팅 의뢰도 환영합니다. 가장 빠른 연락 방법:',
         screenLabel: '연락처',
       },
     },
@@ -253,6 +257,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
     social: {
       github: 'GitHub',
       linkedin: 'LinkedIn',
+      x: 'X',
       email: '이메일',
       resumePdf: '이력서 (PDF)',
       resume: '이력서',
@@ -270,6 +275,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
     },
     footer: {
       builtInPublic: '공개 개발 중 · leeable.dev',
+      forkMe: 'Fork me',
     },
   },
 };

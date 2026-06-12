@@ -4,6 +4,9 @@ import { cssVars } from '../../lib/cssVars';
 import { EmailCopy } from './EmailCopy';
 import { useI18n } from '../../i18n';
 
+/** Public repo of this site — the footer "Fork me" link target. */
+const SITE_REPO_URL = 'https://github.com/yiwoduf/leeable-homepage';
+
 export function ContactSection({ identity }: { identity: Identity }) {
   const { t } = useI18n();
   const s = t.sections.contact;
@@ -35,6 +38,9 @@ export function ContactSection({ identity }: { identity: Identity }) {
         <Button href={identity.linkedin} target="_blank" rel="noopener">
           <Icon name="linkedin" /> {t.social.linkedin}
         </Button>
+        <Button href={identity.x} target="_blank" rel="noopener">
+          <Icon name="x" /> {t.social.x}
+        </Button>
         <Button variant="primary" href={identity.resume} target="_blank" rel="noopener">
           <Icon name="download" /> {t.social.resume}
         </Button>
@@ -42,6 +48,15 @@ export function ContactSection({ identity }: { identity: Identity }) {
       <div className="footer reveal" style={cssVars({ '--d': '.33s' })}>
         <span>
           © {year} {identity.name} — {identity.role}
+          <a
+            className="fork-link"
+            href={SITE_REPO_URL}
+            target="_blank"
+            rel="noopener"
+            aria-label="Fork this site on GitHub"
+          >
+            <Icon name="fork" /> {t.footer.forkMe}
+          </a>
         </span>
         <span>{t.footer.builtInPublic}</span>
       </div>

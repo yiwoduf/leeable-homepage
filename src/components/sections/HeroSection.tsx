@@ -86,7 +86,6 @@ export function HeroSection({ identity, layout, hero3d, accent, motion, dark }: 
             <div className="hero-social">
               <IconButton icon="github" label="GitHub" showLabel href={identity.github} target="_blank" rel="noopener" />
               <IconButton icon="linkedin" label="LinkedIn" showLabel href={identity.linkedin} target="_blank" rel="noopener" />
-              <IconButton icon="instagram" label="Instagram" showLabel href={identity.instagram} target="_blank" rel="noopener" />
               <IconButton icon="x" label="X" showLabel href={identity.x} target="_blank" rel="noopener" />
             </div>
           </div>

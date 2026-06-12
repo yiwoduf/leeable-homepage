@@ -18,7 +18,7 @@ Peter (Jaeyol) Lee — AI Product Engineer, Dallas–Fort Worth, TX. Transitioni
 WHAT HE DOES: Designs and ships AI systems from idea to production — agent orchestration, workflow automation, LLM integration, harness engineering. Core strength: systems thinking; translating ambiguous problems into working automation; end-to-end ownership. He is an applied AI engineer (builds + integrates), NOT a model researcher (no model training).
 
 EXPERIENCE:
-1. Independent AI Product Engineer, 2026–present: Building OpenClaw, a personal multi-agent AI system (15+ agents) that automates real-world workflows. Flagship project: autonomous job-search pipeline — crawls, scores, and routes thousands of postings daily with zero manual intervention (Apify → n8n cron → Supabase → LLM scoring → Notion → Discord); tailors application materials on request.
+1. Independent AI Product Engineer, 2026–present: Building OpenClaw, a personal multi-agent AI system (5+ agents, orchestrator → specialist hierarchy) that automates real-world workflows. Flagship project: autonomous job-search pipeline — crawls, scores, and routes job postings daily with zero manual intervention, 2,259+ processed to date (Apify → n8n cron → Supabase → LLM scoring → Notion → Discord); tailors application materials on request.
 2. Software Developer II → III, Paycom, 2024–2026: Promoted to SD III ahead of peers as the most junior member of the team, plus a performance bonus. Full-stack (React, PHP, MySQL). Built end-to-end jurisdiction-selection automation from candidate data (DB schema, third-party API integration, new data model across 14 stories). Shipped a multi-module compliance feature in 3 weeks with progressive-disclosure UX.
 3. Research Assistant, University of Kansas, 2023–2024: Built and iterated MVP healthcare web apps with a UI/UX faculty researcher, turning patient feedback into user-focused interfaces.
 
@@ -35,7 +35,7 @@ WORKING STYLE: Operator/builder mindset — takes ownership beyond the defined r
 
 INTERESTS: Building AI agents & automations, tracking emerging AI tooling, system design, fitness, running.
 
-WHAT HE IS LOOKING FOR: Remote or remote-friendly AI Product Engineer / Applied AI Engineer roles (open to full-stack). Selective, intentional search — fit over volume.
+WHAT HE IS LOOKING FOR: Full-time AI Product Engineer / Applied AI Engineer roles (open to full-stack; remote or remote-friendly preferred), plus AI-solution consulting — helping teams bring AI into how they actually work. Selective, intentional search — fit over volume.
 
 CONTACT: email yiwoduf@gmail.com · GitHub github.com/yiwoduf · LinkedIn linkedin.com/in/yiwoduf · site leeable.dev
 

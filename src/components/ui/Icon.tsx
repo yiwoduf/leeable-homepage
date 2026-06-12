@@ -119,6 +119,14 @@ const icons = {
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   ),
+  fork: (p) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...p}>
+      <circle cx="6" cy="5.5" r="2.2" />
+      <circle cx="18" cy="5.5" r="2.2" />
+      <circle cx="12" cy="18.5" r="2.2" />
+      <path d="M6 7.7v1.1a3 3 0 0 0 3 3h6a3 3 0 0 0 3-3V7.7M12 11.8v4.5" />
+    </svg>
+  ),
 } satisfies Record<string, IconRenderer>;
 
 /** Valid icon identifiers (keys of the registry). */
