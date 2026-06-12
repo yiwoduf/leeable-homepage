@@ -18,7 +18,7 @@ export const portfolioKo: PortfolioData = {
     githubLabel: 'github.com/yiwoduf',
     linkedin: 'https://linkedin.com/in/yiwoduf',
     linkedinLabel: 'linkedin.com/in/yiwoduf',
-    instagram: 'https://instagram.com/yiwoduf',
+    instagram: 'https://instagram.com/o2.27.o2',
     x: 'https://x.com/yiwoduf',
   },
 

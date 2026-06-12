@@ -4,6 +4,13 @@
 .hero {
   min-height: 100vh;
   display: grid;
+  /* Explicit definite track. With the implicit `auto` track, .hero-inner's
+     width:100% is cyclic and resolves as fit-content (its auto margins also
+     opt it out of stretch) — so the hero shrink-wrapped to the TEXT's
+     max-content width, which differs per language (Korean copy is narrower →
+     the whole hero rendered smaller in KO). 100% pins the track to the
+     padding box; .hero-inner then gets a deterministic min(100%, --maxw). */
+  grid-template-columns: 100%;
   align-items: center;
   position: relative;
   padding: clamp(80px, 12vh, 140px) clamp(24px, 6vw, 88px) clamp(60px, 9vh, 110px);
@@ -127,6 +134,10 @@
   width: 100%;
   max-width: 560px;
   margin: 0 auto;
+  /* Keep the canvas's intrinsic width (clientWidth × dpr from
+     renderer.setSize) out of the fr track's automatic minimum, so the stage
+     column can never steal width from .hero-copy on a relayout. */
+  min-width: 0;
 }
 .hero-stage canvas { display: block; width: 100% !important; height: 100% !important; }
 .stage-frame { position: absolute; inset: 0; pointer-events: none; }

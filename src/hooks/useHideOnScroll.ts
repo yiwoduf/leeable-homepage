@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
-import { onScrollerScroll, scrollerY } from '../lib/scroller';
+import { onScrollerScroll, scrollerViewHeight, scrollerY } from '../lib/scroller';
 
 /**
- * Smart-header visibility: VISIBLE when scrolling UP (and always at the very
- * top), hidden when scrolling down — and hidden again after `idleMs` of
- * stillness following an upward reveal.
+ * Smart-header visibility: VISIBLE when scrolling UP (and always while the
+ * hero section dominates the viewport), hidden when scrolling down — and
+ * hidden again after `idleMs` of stillness following an upward reveal.
  *
  * @returns `true` when the element should be hidden.
  */
@@ -19,8 +19,8 @@ export function useHideOnScroll(idleMs = 600): boolean {
       const dy = y - lastY;
       lastY = y;
 
-      if (y < 8) {
-        // pinned at the top — always visible
+      if (y < scrollerViewHeight() * 0.5) {
+        // still on the hero (sections are viewport-tall) — always visible
         window.clearTimeout(timer);
         setHidden(false);
         return;
