@@ -126,26 +126,47 @@ fix):** a VERY hard swipe stops at the edge, then advances to the next section b
   detector saw "momentum rising = new finger" mid-tail, re-opened the closed gesture, and the
   still-strong tail blew through the 12px slop and the 26% commit → self-advance (v3).
 
-**Fix (two principles, `useSectionSnap.ts` — no per-quirk timing rules):**
+**The decisive realization:** boundary heuristics can NEVER be fully trusted — event
+queueing/merging under load can fake >`GESTURE_GAP` creation-time holes in the middle of a
+strong tail, and the old `gap > GESTURE_GAP` reset then handed the still-strong tail a fresh
+gesture: it blew through any slop and the 26% commit on its own (the self-advance). So intent
+is decided POSITIVELY at the only point that matters — building a pull from rest. The gesture
+flags only make the pull branch *reachable*; they are allowed to be wrong.
 
-1. **Stream physics on VELOCITY (px/ms), never raw deltas.** Velocity is invariant to event
-   coalescing — double delta over double creation-time gap is the same px/ms. Momentum
-   velocity only ever decays: `TAIL_DECAY_MIN` consecutive decreasing velocities confirm a
-   tail, and a clear FAST rise inside one (≥1.3× previous AND ≥ `INTENT_VEL` 0.35px/ms — which
-   tail-end quantization noise never reaches) is physically a new finger → fresh gesture.
-   Gap timing uses `e.timeStamp` (creation time) so delivery hitches can't fake a pause.
-2. **Input slop.** A wheel pull from rest engages only after `PULL_SLOP` (12px) of accumulated
-   travel — below it nothing moves and no indicator shows. Whatever the classifier can't decide
-   per-event (sparse remnants, zero-delta-faked pauses, accidental brushes) dies in the slop.
-   A pull already visibly in progress resumes freely.
+**The model (`useSectionSnap.ts`):** all signals derive from SPAN VELOCITY — |deltaY| over the
+full `e.timeStamp` gap (merge-correct by construction; any divisor clamp inflates merges into
+fake evidence — learned the hard way). A pull from rest is built only by FINGER EVIDENCE:
 
-Verified by simulating the full decision flow, including 200 randomized coalescing patterns on
-a violent tail: zero self-advances, zero ghost indicators, zero false gesture boundaries; real
-re-swipes, flick-flick, mouse notches, and the mid-swipe edge stop all behave.
+- **(a) a sustained ramp** — `RISE_MIN` (3) strictly consecutive ≥`RISE_PX` (8px) velocity
+  rises ending ≥ `INTENT_VEL`. Momentum only decelerates; merging fakes at most TWO consecutive
+  rises (a post-merge recovery + an early-stamped inflation — the next event always inherits
+  the merge's span and reads deflated). Sub-8px deltas are excluded because tail-end ±1px
+  quantization fakes ±25% jumps.
+- **(b) input after true silence once the momentum world is dead** — gap > `GESTURE_GAP` AND
+  the envelope has decayed below `INTENT_VEL`. `tailEnv` is a decaying max of stream velocity
+  with `TAIL_ENV_TAU` (900ms) slower than any physical tail (~150–400ms), so a tail can never
+  exceed its own envelope; only dense events (≤`ENV_DENSE_GAP`) feed it — mouse notches are
+  sparse, leave no momentum, and so are never blocked by their own history.
+
+Supporting state, all sticky-until-gesture-boundary: `fingersLifted` (a `TAIL_DECAY_MIN` decay
+run proved the touch ended — re-arms a closed gesture when evidence arrives, e.g. flick-flick),
+`fingerProven` (evidence anywhere in a gesture owns the whole gesture — ultra-gentle sub-8px
+pulls keep accumulating after their first proof), `VEL_SANE` (12px/ms; faster events are merge
+artifacts, not input), and `PULL_SLOP` (12px of finger-owned travel before anything moves or
+indicates).
+
+Verified by simulating the full decision flow against a coalescing/jank adversary (latest-
+timestamp merging, 7–12-event freezes, violent+medium flicks, normal+floaty tails — 2,000
+randomized runs): **zero self-advances, zero ghost indicators**, while gentle re-swipes,
+flick-flick, post-pause re-swipes, mouse notch pulls, ultra-gentle pulls, and the mid-swipe
+edge stop all behave. (An earliest-timestamp merge model can still defeat ramp detection in
+theory; real browsers stamp coalesced events with the latest input. If a symptom ever returns,
+load the site with `?wheellog` and read the per-event physics from the console — don't guess.)
 
 **Invariant:** no single wheel event carries enough information to be classified as intent —
-only streams do, and only in VELOCITY terms (per-event deltas lie under coalescing). If a new
-input quirk appears, extend one of the two principles; do not add another timing threshold.
+only streams do, in span-velocity terms, and the PULL GATE (not the gesture boundary) is where
+intent must be enforced. If a new input quirk appears, extend the evidence definition; never
+add another timing threshold to the boundary.
 
 ## 13. Headless-Chrome verification recipes (used throughout this repo's history)
 

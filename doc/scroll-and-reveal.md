@@ -48,17 +48,19 @@ ignored until the wheel falls quiet for `GESTURE_GAP` (80ms). Key state:
   fresh delta spike (`absRaw > lastAbsDy + 16`) so a NEW flick breaks a stale
   trackpad-momentum lock. **Never reset it mid-glide** (`isScrollLocked()`), or
   one flick double-commits.
-- `gestureClosed` — this gesture ran into an edge via internal scroll. NOT reset
-  on a spike — one long swipe can't roll into a pull. A clear VELOCITY rise
-  inside a confirmed momentum tail (`TAIL_DECAY_MIN` decreasing velocities,
-  rise ≥1.3× and ≥`INTENT_VEL`) starts a fresh gesture: momentum only ever
-  decelerates, so acceleration is physically a new finger. Velocity (px/ms over
-  `e.timeStamp` gaps), never raw deltas — the browser coalesces wheel events
-  under load and merged deltas fake per-event rises (gotchas.md §12).
-- **Pull slop** — a wheel pull from rest engages only after `PULL_SLOP` (12px)
-  of accumulated travel; below it nothing moves and no indicator shows, so
-  sparse tail remnants and accidental brushes can't ghost-tug a parked page.
-  A pull already visibly in progress resumes without re-arming (gotchas.md §12).
+- `gestureClosed` — this gesture ran into an edge via internal scroll. Re-armed
+  only by a true gap or by finger evidence after `fingersLifted` (a decay run
+  proved the touch ended) — never by a bare spike, so one long swipe can't roll
+  into a pull.
+- **The pull gate** — gesture flags only make the pull branch *reachable* (they
+  may be wrong under event-merge distortion); a pull from rest is BUILT solely
+  by finger-evidence events: a sustained velocity ramp (`RISE_MIN`×`RISE_PX`),
+  or post-silence input once the momentum envelope (`tailEnv`, `TAIL_ENV_TAU`)
+  has died. Evidence anywhere in a gesture owns the whole gesture
+  (`fingerProven`), and `PULL_SLOP` (12px) of finger-owned travel must
+  accumulate before anything moves or indicates. Full physics, the merge-
+  artifact taxonomy, and the verification harness: gotchas.md §12. Debug a real
+  device with `?wheellog` (per-event console dump).
 - A section with `restBot - restTop <= MIN_INTERNAL` (40px) has no real internal
   scroll, so it pulls immediately (no dead slack — fixes the hero's ~15px slop).
 
@@ -78,9 +80,9 @@ fills the indicator by finger travel; release past `touchCommitPx()`
 **Tuning constants** (top of the file): `COMMIT 0.26` (wheel: fraction of the gap
 to pull before crossing — raise = less sensitive), `PULL_CURVE 0.5` (front-loads
 the indicator so it shows early, not just near commit), `SPRING_DELAY`,
-`GESTURE_GAP`, `EDGE_EPS`, `MIN_INTERNAL`, `TOUCH_RESIST`, `touchCommitPx`,
-`TAIL_DECAY_MIN` (momentum-tail confirmation), `INTENT_VEL` (new-finger velocity
-floor), `PULL_SLOP` (engage-from-rest slop).
+`GESTURE_GAP`, `EDGE_EPS`, `MIN_INTERNAL`, `TOUCH_RESIST`, `touchCommitPx`, and
+the momentum/intent set (`TAIL_DECAY_MIN`, `RISE_MIN`, `RISE_PX`, `TAIL_ENV_TAU`,
+`ENV_DENSE_GAP`, `VEL_SANE`, `INTENT_VEL`, `PULL_SLOP` — see gotchas.md §12).
 
 ## The pull indicator — `ScrollHint` + chrome.css
 
