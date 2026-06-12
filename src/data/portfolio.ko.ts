@@ -27,7 +27,7 @@ export const portfolioKo: PortfolioData = {
     body: '실제 업무를 자동화하는 멀티 에이전트 시스템을 만듭니다. 에이전트가 레버리지를 가장 크게 낼 수 있는 지점을 찾아내고, 사람 손 없이 돌아가는 자율 파이프라인을 끝까지 완성합니다. 12살부터 독학으로 시스템을 쌓아 온, 만드는 것 자체가 목표인 엔지니어입니다.',
     facts: [
       { k: '거주지', v: 'Dallas–Fort Worth, TX' },
-      { k: '언어', v: 'English · 한국어' },
+      { k: '언어', v: '영어, 한국어' },
       { k: '학력', v: 'B.S. Computer Science, University of Kansas' },
       { k: '집중 분야', v: '멀티 에이전트 시스템 · 워크플로우 자동화' },
     ],
@@ -71,7 +71,7 @@ export const portfolioKo: PortfolioData = {
       org: 'University of Kansas · Lawrence, KS',
       period: '2023년 1월 — 2024년 8월',
       points: [
-        'UI/UX 연구자 교수와 협력해 당뇨병 관리용 헬스케어 웹 앱 MVP를 빠르게 구축하고 반복했습니다. 실제 환자 설문 피드백을 디자인 씽킹 과정을 거쳐 사용자 중심 인터페이스로 구현했습니다 (Next.js, React, Vercel).',
+        'UI/UX 디자인 교수와 협업해 당뇨 관리 헬스케어 웹앱 MVP를 빠르게 만들고 반복 개선 — 실제 환자 설문 피드백을 디자인 사고 기반으로 사용자 중심 인터페이스에 녹였습니다 (Next.js, React, Vercel).',
       ],
       tags: ['Next.js', 'React', 'Vercel'],
     },
