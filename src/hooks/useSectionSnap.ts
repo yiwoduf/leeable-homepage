@@ -44,19 +44,25 @@ const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a
 // A trackpad keeps emitting decaying "momentum tail" deltas for up to ~1s after
 // the fingers lift, so wheel silence (GESTURE_GAP) alone cannot delimit
 // gestures — and NO single event can be classified by itself: a dying tail's
-// sparse remnant (1–3px, 30–90ms apart) and a gentle new swipe's first delta
-// are identical. Two principles handle every case, instead of per-quirk timing
-// rules:
-//   1. STREAM PHYSICS — momentum only ever decays. TAIL_DECAY_MIN consecutive
-//      strictly-decreasing deltas confirm a tail; the first clear RISE inside a
-//      confirmed tail is physically a new finger → a fresh gesture (re-arms
-//      edge pulls; catches pause-free flick-flick rhythm scrolling).
+// sparse remnant and a gentle new swipe's first delta are identical. Two
+// principles handle every case, instead of per-quirk timing rules:
+//   1. STREAM PHYSICS, measured as VELOCITY (px/ms), never raw deltas. The
+//      browser coalesces wheel events under load — two tail events merge into
+//      one with ~double the delta — so per-event deltas "rise" mid-tail and
+//      faked a new finger (the page then pulled or even advanced by itself off
+//      a strong tail). Velocity is invariant to merging: double delta over
+//      double gap is the same px/ms. Momentum velocity only ever decays;
+//      TAIL_DECAY_MIN consecutive decreasing velocities confirm a tail, and a
+//      clear FAST rise inside a confirmed tail (≥ 1.3× previous AND above
+//      INTENT_VEL, which tail-end quantization noise never reaches) is
+//      physically a new finger → a fresh gesture.
 //   2. INPUT SLOP — a pull from rest engages only after PULL_SLOP px of
 //      accumulated travel; below that nothing moves and no indicator shows.
 //      Whatever the classifier can't decide per-event (sparse tail remnants,
 //      zero-delta-faked pauses, accidental brushes) dies inside the slop
 //      instead of ghost-tugging a parked page.
-const TAIL_DECAY_MIN = 6; // consecutive strictly-decreasing |deltaY|s that confirm a momentum tail
+const TAIL_DECAY_MIN = 6; // consecutive decreasing velocities that confirm a momentum tail
+const INTENT_VEL = 0.35; // px/ms — minimum velocity that can register as a new finger (≈350px/s)
 const PULL_SLOP = 12; // px a wheel pull from rest must accumulate before it engages (moves / indicates)
 
 // All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
@@ -97,7 +103,8 @@ export function useSectionSnap(): void {
     // ---- WHEEL (trackpad / mouse) ------------------------------------------
     let lastT = 0;
     let lastAbsDy = 0;
-    let decayStreak = 0; // consecutive strictly-decreasing |deltaY|s — the momentum-tail signature
+    let lastVel = 0; // previous event's velocity (px/ms) — the coalescing-proof stream metric
+    let decayStreak = 0; // consecutive decreasing velocities — the momentum-tail signature
     let gestureUsed = false; // a section change already fired in the current gesture
     let gestureClosed = false; // this gesture ran into a content edge → no pulling until it lifts
     let pullAcc = 0; // slop accumulator: px pulled past the edge before the pull engages
@@ -182,14 +189,18 @@ export function useSectionSnap(): void {
       const gap = now - lastT;
       lastT = now;
 
-      // Momentum-tail bookkeeping (constants above): strict decreases build the
-      // streak, a meaningful rise is evidence of a new finger, plateaus and
-      // sub-threshold jitter leave it untouched (so a slow new swipe's tiny
-      // first deltas don't consume the streak before its real rise arrives).
-      const risen = absRaw - lastAbsDy > Math.max(2, lastAbsDy * 0.2);
+      // Momentum-tail bookkeeping (constants above) — on VELOCITY, not raw
+      // deltas, so browser event-coalescing can't fake rises. Decreasing
+      // velocities build the streak; a clear fast rise is evidence of a new
+      // finger; plateaus and sub-INTENT jitter (tail-end quantization, e.g.
+      // 2px/16ms ↔ 3px/24ms) leave the streak untouched, so a slow new swipe's
+      // tiny first deltas don't consume it before the real rise arrives.
+      const vel = absRaw / Math.min(64, Math.max(4, gap));
+      const velRisen = vel > lastVel * 1.3 && vel >= INTENT_VEL;
       const tailConfirmed = decayStreak >= TAIL_DECAY_MIN;
       const trackStream = () => {
-        decayStreak = absRaw < lastAbsDy ? decayStreak + 1 : risen ? 0 : decayStreak;
+        decayStreak = vel < lastVel * 0.98 ? decayStreak + 1 : velRisen ? 0 : decayStreak;
+        lastVel = vel;
         lastAbsDy = absRaw;
       };
 
@@ -201,13 +212,13 @@ export function useSectionSnap(): void {
       }
 
       // Gesture boundaries. A true pause starts a fresh gesture, and so does a
-      // clear rise inside a confirmed momentum tail — momentum only ever
-      // decays, so that rise is physically a new finger even though the tail
-      // kept `gap` alive (principle 1 above). A bare delta spike only breaks
-      // the commit lock (keeps rhythm hops responsive); it must NOT start a
-      // fresh gesture, or mid-swipe acceleration would roll a closed gesture
-      // through the edge it just stopped at.
-      if (gap > GESTURE_GAP || (tailConfirmed && risen)) {
+      // clear velocity rise inside a confirmed momentum tail — momentum only
+      // ever decelerates, so acceleration is physically a new finger even
+      // though the tail kept `gap` alive (principle 1 above). A bare delta
+      // spike only breaks the commit lock (keeps rhythm hops responsive); it
+      // must NOT start a fresh gesture, or mid-swipe acceleration would roll
+      // a closed gesture through the edge it just stopped at.
+      if (gap > GESTURE_GAP || (tailConfirmed && velRisen)) {
         gestureUsed = false;
         gestureClosed = false;
         decayStreak = 0;

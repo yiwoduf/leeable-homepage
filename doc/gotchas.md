@@ -112,31 +112,40 @@ frame on phones.
 
 **Symptom v1:** trackpad only — swipe from mid-section to the content edge, swipe again:
 nothing moves until ~1s of stillness ("wiggling the mouse" fixed it — it just made you pause).
-**Symptom v2 (after a timing-rule fix for v1):** a hard swipe stops cleanly at the edge, then a
-beat later the page tugs itself a few px and the pull indicator flashes on and off.
+**Symptom v2 (after a timing-rule fix):** a hard swipe stops at the edge, then a beat later the
+page tugs itself a few px and the pull indicator flashes. **Symptom v3 (after a delta-rise
+fix):** a VERY hard swipe stops at the edge, then advances to the next section by itself.
 
-**Cause:** a trackpad keeps emitting decaying momentum-tail deltas for up to ~1s after the
-fingers lift, so `GESTURE_GAP` (80ms of true silence) never elapses between two quick swipes —
-the second swipe was judged part of the first, still-closed gesture (v1). And near its end a
-tail goes sparse and tiny (1–3px, 30–90ms apart) — **indistinguishable per event** from a
-gentle new touch — so a "40ms void = new touch" timing rule misread those remnants, re-opened
-the gesture, and let them start a pull that the spring then snapped back (v2).
+**Causes, in order discovered:**
+- A trackpad keeps emitting decaying momentum-tail deltas for up to ~1s after the fingers
+  lift, so `GESTURE_GAP` (80ms of true silence) never elapses between two quick swipes (v1).
+- Near its end a tail goes sparse and tiny — indistinguishable *per event* from a gentle new
+  touch — so a "40ms void = new touch" timing rule misread remnants and let them pull (v2).
+- The browser **coalesces wheel events under load** (reveals + glide rAF jank during a hard
+  scroll): two tail events merge into one with ~double the delta, so a *per-event delta* rise
+  detector saw "momentum rising = new finger" mid-tail, re-opened the closed gesture, and the
+  still-strong tail blew through the 12px slop and the 26% commit → self-advance (v3).
 
 **Fix (two principles, `useSectionSnap.ts` — no per-quirk timing rules):**
 
-1. **Stream physics.** Momentum only ever decays. `TAIL_DECAY_MIN` consecutive strictly-
-   decreasing deltas confirm a tail; the first clear RISE inside a confirmed tail is physically
-   a new finger → treated as a fully fresh gesture (re-arms edge pulls; catches pause-free
-   flick-flick rhythm scrolling). Gap timing uses `e.timeStamp` (creation time) so delivery
-   hitches can't fake a pause.
+1. **Stream physics on VELOCITY (px/ms), never raw deltas.** Velocity is invariant to event
+   coalescing — double delta over double creation-time gap is the same px/ms. Momentum
+   velocity only ever decays: `TAIL_DECAY_MIN` consecutive decreasing velocities confirm a
+   tail, and a clear FAST rise inside one (≥1.3× previous AND ≥ `INTENT_VEL` 0.35px/ms — which
+   tail-end quantization noise never reaches) is physically a new finger → fresh gesture.
+   Gap timing uses `e.timeStamp` (creation time) so delivery hitches can't fake a pause.
 2. **Input slop.** A wheel pull from rest engages only after `PULL_SLOP` (12px) of accumulated
    travel — below it nothing moves and no indicator shows. Whatever the classifier can't decide
-   per-event (sparse remnants, zero-delta-faked pauses, accidental brushes) dies in the slop
-   instead of ghost-tugging a parked page. A pull already visibly in progress resumes freely.
+   per-event (sparse remnants, zero-delta-faked pauses, accidental brushes) dies in the slop.
+   A pull already visibly in progress resumes freely.
+
+Verified by simulating the full decision flow, including 200 randomized coalescing patterns on
+a violent tail: zero self-advances, zero ghost indicators, zero false gesture boundaries; real
+re-swipes, flick-flick, mouse notches, and the mid-swipe edge stop all behave.
 
 **Invariant:** no single wheel event carries enough information to be classified as intent —
-only streams do. If a new input quirk appears, extend one of the two principles; do not add
-another timing threshold.
+only streams do, and only in VELOCITY terms (per-event deltas lie under coalescing). If a new
+input quirk appears, extend one of the two principles; do not add another timing threshold.
 
 ## 13. Headless-Chrome verification recipes (used throughout this repo's history)
 
