@@ -102,6 +102,16 @@
 @media (max-width: 760px) { .sol-cols { grid-template-columns: 1fr; } }
 .sol-text { color: var(--text-dim); font-size: 15.5px; text-wrap: pretty; }
 .sol-role { font-size: 14px; color: var(--text); }
+/* THE SOLUTION while still in progress: muted copy + a small badge echoing
+   the card's IN PROGRESS pill, so planned work never reads as shipped. */
+.sol-planned .sol-text { color: var(--text-faint); }
+.sol-planned-tag {
+  font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--accent); background: var(--accent-soft);
+  padding: 2.5px 8px; border-radius: 999px; margin-left: 8px;
+  display: inline-flex; align-items: center; gap: 5px; vertical-align: middle;
+}
+.sol-planned-tag::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
 
 /* flow diagram */
 .flow { display: flex; flex-wrap: wrap; align-items: stretch; gap: 0; margin-top: 18px; }
@@ -236,7 +246,24 @@ html[data-lang='ko'] .contact-big .kw { font-size: 1.4em; line-height: .85; }
 .contact-big .kw { display: inline-block; font-size: 1.5em; margin-top: -0.14em; line-height: 0.8; white-space: nowrap; position: relative; }
 .contact-big .kw .kw-word { position: relative; z-index: 2; }
 .contact-big .kw .kw-dot { position: absolute; left: 100%; bottom: 0.16em; transform: translateX(-0.36em); z-index: 1; font-family: var(--font-display); font-style: normal; font-weight: 700; color: var(--text); font-size: 0.46em; letter-spacing: normal; }
-.contact-mail-wrap { display: inline-flex; align-items: center; gap: 12px; margin-top: 34px; }
+/* terminal-style codebox: monospace email on a graph-paper surface, with the
+   copy button living inside the box. Grid lines + surface come from theme
+   tokens, so contrast holds in both light and dark mode. */
+.contact-mail-wrap {
+  display: inline-flex; align-items: center; gap: 10px; margin-top: 34px;
+  padding: 13px 12px 13px 18px;
+  border: 1px solid var(--border-strong); border-radius: 8px;
+  background:
+    linear-gradient(var(--grid-line) 1px, transparent 1px) 0 0 / 16px 16px,
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px) 0 0 / 16px 16px,
+    var(--surface);
+}
+.contact-mail-wrap::before {
+  content: "$";
+  font-family: var(--font-mono); font-weight: 600;
+  font-size: clamp(15px, 1.7vw, 19px);
+  color: var(--accent);
+}
 .email-plain {
   display: inline-flex; align-items: center; gap: 10px;
   font-family: var(--font-mono); font-size: clamp(15px, 1.7vw, 19px); letter-spacing: 0.02em;

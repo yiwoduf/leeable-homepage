@@ -90,6 +90,7 @@ export const portfolio: PortfolioData = {
       status: 'live',
       blurb: 'A self-running pipeline that crawls, scores, and routes job postings every morning — no human in the loop.',
       problem: "After a layoff, manual job search was slow and opportunities slipped through the cracks. Searching, filtering, and tailoring applications by hand didn't scale.",
+      solution: 'A self-running multi-agent pipeline that scores and routes only the best-fit roles into a daily digest — turning hours of manual searching into minutes of review.',
       role: 'System design · agent orchestration · TypeScript plugins · harness engineering',
       flow: [
         { k: 'Apify', d: 'Crawl postings' },
@@ -101,7 +102,7 @@ export const portfolio: PortfolioData = {
         { k: 'Discord', d: 'Alert + digest' },
       ],
       metrics: [
-        { n: '2,259+', l: 'postings auto-scored' },
+        { n: '2,259+', l: 'LLM evaluations' },
         { n: 'Daily', l: 'unattended runs' },
         { n: 'Auto', l: 'résumé + cover-letter tailoring' },
       ],
@@ -112,6 +113,7 @@ export const portfolio: PortfolioData = {
       status: 'in-progress',
       blurb: "A scheduled agent that gathers, de-duplicates, and summarizes the day's AI news into a single briefing.",
       problem: 'Keeping current with AI moves too fast to track by hand. The goal: a concise, trustworthy daily briefing assembled automatically.',
+      solution: "Will consolidate the day's AI news into a single de-duplicated briefing — replacing scattered manual reading with one daily digest.",
       role: 'In active development — architecture and source curation underway.',
       flow: [
         { k: 'Sources', d: 'RSS + APIs' },
@@ -152,9 +154,9 @@ export const portfolio: PortfolioData = {
 
   skills: [
     { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP'] },
-    { group: 'Frontend', items: ['React', 'Next.js'] },
-    { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'NoSQL', 'Vector DB'] },
-    { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'Codex'] },
+    { group: 'Frontend', items: ['React', 'Next.js', 'Vite', 'TailwindCSS'] },
+    { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'MongoDB'] },
+    { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'OpenCode', 'Codex'] },
     { group: 'Infra & Tools', items: ['Docker', 'Git', 'Vercel', 'Google Cloud'] },
   ],
 };

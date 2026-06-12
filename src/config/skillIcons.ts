@@ -10,16 +10,20 @@ export const SKILL_ICONS: Record<string, string> = {
   PHP: 'php',
   React: 'react',
   'Next.js': 'nextdotjs',
+  Vite: 'vite',
+  TailwindCSS: 'tailwindcss',
   'Node.js': 'nodedotjs',
   PostgreSQL: 'postgresql',
   MySQL: 'mysql',
   Supabase: 'supabase',
+  MongoDB: 'mongodb',
   Docker: 'docker',
   Git: 'git',
   Vercel: 'vercel',
   'Google Cloud': 'googlecloud',
   Claude: 'claude',
   n8n: 'n8n',
+  OpenCode: 'opencode',
   // Codex and OpenClaw render from CUSTOM_SKILL_ICONS (inline, no fetch) —
   // their marks are missing/blocked on the Simple Icons CDN.
 };

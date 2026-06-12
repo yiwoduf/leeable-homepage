@@ -66,6 +66,8 @@ export interface Solution {
   status: SolutionStatus;
   blurb: string;
   problem: string;
+  /** The shipped outcome (live) or intended outcome (in-progress). */
+  solution: string;
   role: string;
   flow: FlowNode[];
   metrics: Metric[];

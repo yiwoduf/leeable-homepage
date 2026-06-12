@@ -94,6 +94,7 @@ export const portfolioKo: PortfolioData = {
       status: 'live',
       blurb: '매일 아침 구직 공고를 수집·평가·분류해 최적의 기회를 정렬해 주는 완전 자율 파이프라인.',
       problem: '이직 준비 중 수작업 구직은 느리고 기회를 놓치기 쉬웠습니다. 공고 검색부터 지원서 맞춤화까지 일일이 처리하는 방식으로는 속도가 나지 않았습니다.',
+      solution: '여러 에이전트가 협업해 가장 적합한 공고만 매일 정리해 주는 자율 파이프라인 — 몇 시간의 수동 검색을 몇 분의 검토로 줄였습니다.',
       role: '시스템 설계 · 에이전트 오케스트레이션 · TypeScript 플러그인 · 하네스 엔지니어링',
       flow: [
         { k: 'Apify', d: '공고 크롤링' },
@@ -105,7 +106,7 @@ export const portfolioKo: PortfolioData = {
         { k: 'Discord', d: '알림 + 요약 전송' },
       ],
       metrics: [
-        { n: '2,259+', l: '스코어링된 공고' },
+        { n: '2,259+', l: 'LLM 평가 수행' },
         { n: '매일', l: '무인 자동 실행' },
         { n: '자동', l: '이력서 · 커버레터 맞춤화' },
       ],
@@ -116,6 +117,7 @@ export const portfolioKo: PortfolioData = {
       status: 'in-progress',
       blurb: 'AI 뉴스를 수집·중복 제거·요약해 매일 하나의 브리핑으로 자동 전달하는 스케줄 에이전트.',
       problem: 'AI 분야는 속도가 너무 빨라 수작업으로는 따라가기 어렵습니다. 직접 만든 에이전트가 매일 신뢰할 수 있는 브리핑을 알아서 구성하도록 설계했습니다.',
+      solution: '흩어진 AI 뉴스를 매일 하나의 중복 제거된 브리핑으로 정리 — 여러 곳을 직접 찾아 읽던 과정을 하나의 요약으로 대체합니다.',
       role: '현재 개발 중 — 아키텍처 설계와 소스 선별 진행 중.',
       flow: [
         { k: 'Sources', d: 'RSS + API' },
@@ -157,9 +159,9 @@ export const portfolioKo: PortfolioData = {
   // Skills arrays are identical to EN — tech terms stay in English.
   skills: [
     { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP'] },
-    { group: 'Frontend', items: ['React', 'Next.js'] },
-    { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'NoSQL', 'Vector DB'] },
-    { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'Codex'] },
+    { group: 'Frontend', items: ['React', 'Next.js', 'Vite', 'TailwindCSS'] },
+    { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'MongoDB'] },
+    { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'OpenCode', 'Codex'] },
     { group: 'Infra & Tools', items: ['Docker', 'Git', 'Vercel', 'Google Cloud'] },
   ],
 };

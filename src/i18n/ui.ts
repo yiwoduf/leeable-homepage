@@ -51,6 +51,7 @@ export interface UiStrings {
     live: string;
     inProgress: string;
     problem: string;
+    solution: string;
     role: string;
     system: string;
     outcome: string;
@@ -153,6 +154,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       live: 'Live',
       inProgress: 'In progress',
       problem: 'The problem',
+      solution: 'The solution',
       role: 'My role',
       system: 'System / workflow',
       outcome: 'Outcome',
@@ -243,6 +245,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       live: '운영 중',
       inProgress: '개발 중',
       problem: '문제 상황',
+      solution: '해결 방식',
       role: '담당 역할',
       system: '시스템 / 워크플로우',
       outcome: '결과',
