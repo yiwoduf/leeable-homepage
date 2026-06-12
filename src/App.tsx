@@ -28,7 +28,7 @@ import {
  */
 export function App() {
   const { isDark, toggle } = useTheme();
-  const { active, progress } = useScrollSpy();
+  const { active } = useScrollSpy();
   const headerHidden = useHideOnScroll();
   const [settingsOpen, setSettingsOpen] = useState(false);
   const { lang, content } = useI18n();
@@ -43,7 +43,7 @@ export function App() {
     <div className="app">
       <BackgroundField variant={siteConfig.background} />
       <TopBar hidden={headerHidden} onOpenSettings={() => setSettingsOpen(true)} />
-      <SideNav active={active} progress={progress} navStyle={siteConfig.nav} boxed={siteConfig.navBoxed} />
+      <SideNav active={active} navStyle={siteConfig.nav} boxed={siteConfig.navBoxed} />
       <MobileNav active={active} />
       <SocialRail identity={identity} />
       <ScrollHint />

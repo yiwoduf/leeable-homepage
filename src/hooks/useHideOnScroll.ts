@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { onScrollerScroll, scrollerY } from '../lib/scroller';
 
 /**
- * Chrome visibility driver: VISIBLE while scrolling (and always at the very
- * top of the page), hidden again once scrolling has been idle for `idleMs`.
+ * Smart-header visibility: VISIBLE when scrolling UP (and always at the very
+ * top), hidden when scrolling down — and hidden again after `idleMs` of
+ * stillness following an upward reveal.
  *
  * @returns `true` when the element should be hidden.
  */
@@ -12,14 +13,30 @@ export function useHideOnScroll(idleMs = 600): boolean {
 
   useEffect(() => {
     let timer = 0;
+    let lastY = scrollerY();
     const onScroll = () => {
-      setHidden(false); // activity → show
-      window.clearTimeout(timer);
-      if (scrollerY() < 8) return; // pinned at the top — stay visible
-      timer = window.setTimeout(() => setHidden(true), idleMs);
+      const y = scrollerY();
+      const dy = y - lastY;
+      lastY = y;
+
+      if (y < 8) {
+        // pinned at the top — always visible
+        window.clearTimeout(timer);
+        setHidden(false);
+        return;
+      }
+      if (dy > 1) {
+        // moving down → hide
+        window.clearTimeout(timer);
+        setHidden(true);
+      } else if (dy < -1) {
+        // moving up → show, then auto-hide once things go still
+        setHidden(false);
+        window.clearTimeout(timer);
+        timer = window.setTimeout(() => setHidden(true), idleMs);
+      }
     };
     const off = onScrollerScroll(onScroll);
-    onScroll();
     return () => {
       off();
       window.clearTimeout(timer);

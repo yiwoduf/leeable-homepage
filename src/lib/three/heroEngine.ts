@@ -554,7 +554,7 @@ export function makeHero(container: HTMLElement, opts: HeroOptions = {}): HeroCo
   let curX = 0;
   let curY = 0;
   function loop(now: number) {
-    if (!running) return;
+    if (!running || !visible) return;
     raf = requestAnimationFrame(loop);
     const dt = Math.min(0.05, (now - t0) / 1000);
     t0 = now;
@@ -599,6 +599,23 @@ export function makeHero(container: HTMLElement, opts: HeroOptions = {}): HeroCo
   const ro = new ResizeObserver(resize);
   ro.observe(container);
 
+  // Pause rendering while the hero is off-screen — the loop would otherwise
+  // keep burning CPU/GPU during every scroll through the other sections
+  // (a real jank source on phones).
+  let visible = true;
+  const vio = new IntersectionObserver((entries) => {
+    const on = entries[0]?.isIntersecting ?? true;
+    if (on === visible) return;
+    visible = on;
+    if (on && running) {
+      t0 = performance.now(); // avoid a huge dt right after the pause
+      raf = requestAnimationFrame(loop);
+    } else {
+      cancelAnimationFrame(raf);
+    }
+  });
+  vio.observe(container);
+
   return {
     setAccent(hex: string) {
       accent = hex;
@@ -622,6 +639,7 @@ export function makeHero(container: HTMLElement, opts: HeroOptions = {}): HeroCo
       running = false;
       cancelAnimationFrame(raf);
       ro.disconnect();
+      vio.disconnect();
       window.removeEventListener('pointermove', onMove);
       renderer.domElement.removeEventListener('pointerdown', onDragDown);
       window.removeEventListener('pointermove', onDragMove);

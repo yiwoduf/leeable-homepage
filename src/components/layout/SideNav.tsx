@@ -7,14 +7,16 @@ import { useI18n } from '../../i18n';
 
 interface SideNavProps {
   active: SectionId;
-  /** Scroll progress 0–1 (drives the labels-mode progress bar). */
-  progress: number;
   navStyle: NavStyle;
   boxed: boolean;
 }
 
-/** Fixed left section nav with scroll-spy highlighting + progress. */
-export function SideNav({ active, progress, navStyle, boxed }: SideNavProps) {
+/**
+ * Fixed left section nav with scroll-spy highlighting + progress. The
+ * progress fill height comes straight from the `--nav-progress` CSS variable
+ * (written by useScrollSpy) — no per-scroll React re-render.
+ */
+export function SideNav({ active, navStyle, boxed }: SideNavProps) {
   const { t } = useI18n();
 
   return (
@@ -26,7 +28,7 @@ export function SideNav({ active, progress, navStyle, boxed }: SideNavProps) {
             top: 0,
             left: 0,
             width: '100%',
-            height: `${progress * 100}%`,
+            height: 'var(--nav-progress, 0%)',
             background: 'var(--accent)',
             transition: 'height .1s linear',
           }}

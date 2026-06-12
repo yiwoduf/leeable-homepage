@@ -45,7 +45,7 @@ const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a
 // factor would run twice as fast on a 120Hz screen). τ values are tuned to
 // match the intended feel at 60Hz.
 const WHEEL_GLIDE_TAU = 96; // ms — notchy-wheel glide time constant
-const TOUCH_FOLLOW_TAU = 24; // ms — finger-follow time constant (tight, no lag)
+const TOUCH_FOLLOW_TAU = 17; // ms — finger-follow time constant (tight, no lag)
 const FLING_TAU = 270; // ms — fling friction time constant
 const FLING_MAX_V = 3.6; // px/ms — fling launch velocity cap
 const MAX_FRAME_DT = 64; // ms — clamp dt across tab-switch / hitch gaps
