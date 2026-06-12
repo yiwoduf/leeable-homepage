@@ -10,6 +10,12 @@ html {
   overflow-x: clip;
   scrollbar-width: none;
   -ms-overflow-style: none;
+  /* Kill iOS Safari's text autosizing. Its heuristic inflates small text
+     blocks (project-card descriptions were the prime target) and re-evaluates
+     on rotation and on returning from another tab — which uniformly grew the
+     cards, then clipped them when the boost factor changed back. */
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
