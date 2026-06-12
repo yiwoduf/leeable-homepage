@@ -88,34 +88,5 @@
   text-wrap: pretty;
 }
 
-/* ============================================================
-   TOUCH CARD MODEL (the scroller lives on <main> — see base.css)
-   Every section is exactly one container-height card with one snap
-   stop; taller content scrolls natively INSIDE the card. The desktop
-   edge rules (start mid-content → stop at the edge; start at the edge
-   → advance) are reproduced by useSectionSnap via overscroll handoff.
-   ============================================================ */
-@media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  .section,
-  .section:not(.hero):not(.contact),
-  #solutions {
-    height: 100%;
-    min-height: 0;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    padding: clamp(72px, 10vh, 110px) clamp(20px, 6vw, 44px) clamp(80px, 11vh, 124px);
-  }
-  .section-inner,
-  .hero-inner,
-  .contact-inner {
-    max-height: 100%;
-    min-height: 0;
-    overflow-y: auto;
-    overscroll-behavior-y: contain;
-    touch-action: pan-y;
-    scrollbar-width: none;
-  }
-  .section-inner::-webkit-scrollbar,
-  .hero-inner::-webkit-scrollbar,
-  .contact-inner::-webkit-scrollbar { width: 0; height: 0; display: none; }
-}
+/* (Touch devices keep the same continuous section flow as desktop — the
+   pager scrolls the fixed <main> container; see base.css + useSectionSnap.) */

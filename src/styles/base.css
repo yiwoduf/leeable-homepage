@@ -14,16 +14,14 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
-/* Mobile: THE CARD MODEL — 100% native scrolling, shorts-style.
-   JS-driven document scrolling during touch flickers on iOS WebKit, and iOS
-   momentum snapping is only reliable in its optimal configuration: a fixed
-   scroll container with ONE uniform snap stop per full-height card. So on
-   coarse pointers the document never scrolls at all — <main> is a fixed,
-   viewport-sized scroll container; every section is exactly one card with a
-   single snap stop; content taller than its card scrolls INSIDE the card
-   (see layout.css for the card geometry and useSectionSnap for the
-   overscroll handoff that reproduces the desktop edge rules).
-   Reduced-motion users keep fully native, snap-free scrolling. */
+/* Mobile: the JS pager drives a fixed CONTAINER, not the document.
+   The document never scrolls on coarse pointers — <main> is a fixed,
+   viewport-sized scroll container, so the browser bar never moves and
+   geometry never drifts. The pager (useSectionSnap) owns all vertical
+   panning through that container: touch-action allows only pinch-zoom,
+   every touchmove is cancelled from its first event, and positions are
+   written by frame-coalesced, time-based rAF loops — one writer, always.
+   Reduced-motion users keep fully native scrolling. */
 @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
   html, body {
     overflow: hidden;
@@ -34,16 +32,12 @@ html {
     position: fixed;
     inset: 0;
     overflow-y: auto;
-    scroll-snap-type: y mandatory;
+    touch-action: pinch-zoom;
     scroll-behavior: auto;
     overscroll-behavior-y: none;
     scrollbar-width: none;
   }
   main::-webkit-scrollbar { width: 0; height: 0; display: none; }
-  /* Nav jumps disable snap for the flight (lib/scroll.ts sets the attribute):
-     iOS aborts a native smooth scroll at the first snap-stop otherwise, so
-     multi-section jumps would never arrive. Snap re-engages on landing. */
-  html[data-snap-jump] main { scroll-snap-type: none; }
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }

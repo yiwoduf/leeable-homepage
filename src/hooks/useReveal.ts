@@ -98,7 +98,9 @@ export function useReveal(): void {
               .forEach((el) => el.toggleAttribute('data-revealed', true));
           }
         },
-        { root: scrollContainer(), threshold: 0.34 },
+        // Low threshold so even sections several viewports tall (max ratio
+        // ~1/N) trigger as soon as they meaningfully enter.
+        { root: scrollContainer(), threshold: 0.2 },
       );
       sectionElements().forEach((sec) => secIO?.observe(sec));
     }

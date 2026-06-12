@@ -5,16 +5,16 @@ before touching `useSectionSnap`, `useReveal`, `scrollController`, or the
 `.reveal` / scroll-hint CSS. **Verify changes empirically** (headless wheel/touch
 bursts) — the behavior is full of timing edge cases.
 
-> **Mobile is fully native.** The JS pager below is DESKTOP WHEEL ONLY.
-> On coarse pointers the DOCUMENT never scrolls: `<main>` becomes a fixed,
-> viewport-sized scroll container with CSS snap inside (`base.css`) — JS-driven
-> document scrolling flickers on iOS WebKit, and root-scroller snap is
-> unreliable (browser-bar vh drift, flaky multi-stop/snap-stop handling).
-> All scroll consumers go through `lib/scroller.ts`, which resolves to the
-> window on desktop and the container on touch. useSectionSnap's touch branch
-> only instruments passively (fit/tall tagging, the pull indicator, and a
-> one-step-per-gesture backstop that corrects AFTER momentum settles). Reveals
-> on touch are reveal-once and fire as a group at scroll settle.
+> **One pager, two hosts.** The SAME JS engine drives wheel (desktop) and
+> touch (mobile); all scroll I/O goes through `lib/scroller.ts`, which
+> resolves to the window on desktop and to a fixed, viewport-sized `<main>`
+> container on coarse pointers (`base.css`). The container keeps the browser
+> bar frozen so geometry never drifts, and the document itself never scrolls
+> on mobile. The pager owns every gesture (touch-action pinch-zoom + first-move
+> preventDefault) and writes positions with frame-coalesced, TIME-BASED rAF
+> loops — exactly one scroll writer at any moment. Reveals on touch are
+> reveal-once and fire per-section as it enters (no replay), with shortened
+> motion (`applyDesignTokens` scales `--reveal-*` on coarse pointers).
 
 ## Hard product constraints (do not regress)
 
