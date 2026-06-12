@@ -90,12 +90,21 @@ export function useSectionSnap(): void {
       window.addEventListener('resize', tag);
 
       const onScroll = () => {
+        // No indicator while a nav jump flies through several sections.
+        if ('snapJump' in root.dataset) {
+          setPull('');
+          return;
+        }
         const list = sectionElements();
         if (!list.length) return;
         const i = activeSectionIndex(list);
         const restTop = clampScroll(sectionSnapTop(list[i]));
         const restBot = clampScroll(sectionSnapBottom(list[i]));
         const y = window.scrollY;
+        // Generous rest tolerance: CSS vh (large viewport) and JS innerHeight
+        // (visual viewport) disagree by the browser-bar height on mobile, so
+        // a legit snap rest can sit tens of px away from the computed bounds.
+        const eps = Math.max(24, window.innerHeight * 0.08);
 
         // Identify the inter-section gap we're inside (if any) — its bounds
         // and the sections on either side of it.
@@ -103,12 +112,12 @@ export function useSectionSnap(): void {
         let gapHi = 0;
         let lower: HTMLElement | undefined;
         let upper: HTMLElement | undefined;
-        if (y > restBot + EDGE_EPS && list[i + 1]) {
+        if (y > restBot + eps && list[i + 1]) {
           gapLo = restBot;
           gapHi = clampScroll(sectionSnapTop(list[i + 1]));
           upper = list[i];
           lower = list[i + 1];
-        } else if (y < restTop - EDGE_EPS && list[i - 1]) {
+        } else if (y < restTop - eps && list[i - 1]) {
           gapLo = clampScroll(sectionSnapBottom(list[i - 1]));
           gapHi = restTop;
           upper = list[i - 1];

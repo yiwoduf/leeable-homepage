@@ -37,8 +37,49 @@ export function scrollToId(id: string): void {
   if (target === null) return;
 
   if (window.matchMedia('(pointer: coarse)').matches) {
-    window.scrollTo({ top: clampScroll(target), behavior: 'smooth' });
+    nativeJump(clampScroll(target));
     return;
   }
   smoothScrollTo(target);
+}
+
+/**
+ * Touch-device nav jump: suspend CSS snap for the flight, scroll natively,
+ * re-engage snap on landing. With `scroll-snap-stop: always` active, iOS
+ * aborts a native smooth scroll at the first snap position it passes — so
+ * jumps further than one section would never arrive without this.
+ */
+function nativeJump(target: number): void {
+  const root = document.documentElement;
+  root.dataset.snapJump = '';
+
+  let settleId = 0;
+  let failsafeId = 0;
+  const done = () => {
+    delete root.dataset.snapJump; // snap re-engages exactly at the rest we chose
+    window.removeEventListener('scrollend', done);
+    window.removeEventListener('touchstart', done);
+    window.clearInterval(settleId);
+    window.clearTimeout(failsafeId);
+  };
+
+  // Arrival detection: scrollend where supported, settle-polling as fallback,
+  // and a hard failsafe. A touch mid-flight hands control back immediately.
+  window.addEventListener('scrollend', done, { once: true });
+  window.addEventListener('touchstart', done, { once: true, passive: true });
+  let lastY = -1;
+  let still = 0;
+  settleId = window.setInterval(() => {
+    const y = window.scrollY;
+    if (Math.abs(y - lastY) < 1) {
+      still += 1;
+      if (still >= 3) done();
+    } else {
+      still = 0;
+    }
+    lastY = y;
+  }, 120);
+  failsafeId = window.setTimeout(done, 1800);
+
+  window.scrollTo({ top: target, behavior: 'smooth' });
 }

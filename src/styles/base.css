@@ -30,6 +30,10 @@ html {
     overscroll-behavior-y: none;
   }
   body { overscroll-behavior-y: none; }
+  /* Nav jumps disable snap for the flight (lib/scroll.ts sets the attribute):
+     iOS aborts a native smooth scroll at the first snap-stop otherwise, so
+     multi-section jumps would never arrive. Snap re-engages on landing. */
+  html[data-snap-jump] { scroll-snap-type: none; }
 
   /* Snap geometry mirrors the desktop pager's resting positions exactly
      (see lib/sectionMetrics.ts). useSectionSnap tags each section with
@@ -39,9 +43,11 @@ html {
      so a fling from mid-section stops at the content edge instead of
      crossing into the neighbor, and the bottom of a long section is a
      legitimate resting position. */
-  .section[data-snap='fit'] .section-inner,
-  .section[data-snap='fit'] .hero-inner,
-  .section[data-snap='fit'] .contact-inner {
+  /* FIT sections snap by their BOX (≥100vh), not their content: the box
+     centered always covers the viewport (no neighbor background peeking on
+     iPad, where CSS vh and the visual viewport disagree), and the section's
+     symmetric padding keeps the content visually centered anyway. */
+  .section[data-snap='fit'] {
     scroll-snap-align: center;
     scroll-snap-stop: always;
   }
