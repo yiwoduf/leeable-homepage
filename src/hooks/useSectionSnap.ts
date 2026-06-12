@@ -40,16 +40,24 @@ const MIN_INTERNAL = 40; // sections with less internal scroll than this just pu
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
 const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
 
-// Trackpads keep emitting decaying "momentum tail" deltas for up to ~1s after
-// the fingers lift, so GESTURE_GAP alone never elapses between two quick
-// swipes — a gesture that closed at a content edge stayed closed and the page
-// froze until true silence ("works again after wiggling the mouse"). Only a
-// NEW touch produces these two stream signatures, so either re-opens a closed
-// gesture (they re-arm `gestureClosed` ONLY — never `gestureUsed`, so a single
-// gesture still can't commit twice):
-const CLOSED_GAP = 40; // ms — a void this long in a fine-delta stream means new touch (tails emit every ~8–16ms without pause)
-const TAIL_DECAY_MIN = 6; // consecutive strictly-decreasing |deltaY|s that confirm a momentum tail is playing
-const TOUCH_START_MAX = 12; // px — a new touch's first delta is small; excludes jank-merged tail deltas from the CLOSED_GAP test
+// ---- Momentum vs intent ------------------------------------------------------
+// A trackpad keeps emitting decaying "momentum tail" deltas for up to ~1s after
+// the fingers lift, so wheel silence (GESTURE_GAP) alone cannot delimit
+// gestures — and NO single event can be classified by itself: a dying tail's
+// sparse remnant (1–3px, 30–90ms apart) and a gentle new swipe's first delta
+// are identical. Two principles handle every case, instead of per-quirk timing
+// rules:
+//   1. STREAM PHYSICS — momentum only ever decays. TAIL_DECAY_MIN consecutive
+//      strictly-decreasing deltas confirm a tail; the first clear RISE inside a
+//      confirmed tail is physically a new finger → a fresh gesture (re-arms
+//      edge pulls; catches pause-free flick-flick rhythm scrolling).
+//   2. INPUT SLOP — a pull from rest engages only after PULL_SLOP px of
+//      accumulated travel; below that nothing moves and no indicator shows.
+//      Whatever the classifier can't decide per-event (sparse tail remnants,
+//      zero-delta-faked pauses, accidental brushes) dies inside the slop
+//      instead of ghost-tugging a parked page.
+const TAIL_DECAY_MIN = 6; // consecutive strictly-decreasing |deltaY|s that confirm a momentum tail
+const PULL_SLOP = 12; // px a wheel pull from rest must accumulate before it engages (moves / indicates)
 
 // All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
 // so convergence speed is identical at 60/90/120/144Hz (a fixed per-frame
@@ -92,12 +100,17 @@ export function useSectionSnap(): void {
     let decayStreak = 0; // consecutive strictly-decreasing |deltaY|s — the momentum-tail signature
     let gestureUsed = false; // a section change already fired in the current gesture
     let gestureClosed = false; // this gesture ran into a content edge → no pulling until it lifts
+    let pullAcc = 0; // slop accumulator: px pulled past the edge before the pull engages
+    let pullDir = 0; // direction the slop is accumulating in (+1 down / -1 up)
+    let pullEngaged = false; // this gesture's pull cleared PULL_SLOP and is live
     let springId = 0;
 
     const armSpring = (target: number) => {
       window.clearTimeout(springId);
       springId = window.setTimeout(() => {
         setPull('');
+        pullAcc = 0;
+        pullEngaged = false;
         if (!isScrollLocked()) smoothScrollTo(target);
       }, SPRING_DELAY);
     };
@@ -187,24 +200,21 @@ export function useSectionSnap(): void {
         return;
       }
 
-      // Gesture boundaries. A real pause starts a fresh gesture; a delta spike
-      // only breaks a stale momentum lock so a new flick can respond without
-      // waiting the old tail out. `gestureClosed` is deliberately stickier (one
-      // long swipe must not roll through an edge into a pull), so it re-opens
-      // only on the two NEW-TOUCH signatures described at the constants: a
-      // CLOSED_GAP void in the fine-delta stream, or a clear rise after a
-      // confirmed decay run (momentum only ever decays — a rise IS a finger).
-      if (gap > GESTURE_GAP) {
+      // Gesture boundaries. A true pause starts a fresh gesture, and so does a
+      // clear rise inside a confirmed momentum tail — momentum only ever
+      // decays, so that rise is physically a new finger even though the tail
+      // kept `gap` alive (principle 1 above). A bare delta spike only breaks
+      // the commit lock (keeps rhythm hops responsive); it must NOT start a
+      // fresh gesture, or mid-swipe acceleration would roll a closed gesture
+      // through the edge it just stopped at.
+      if (gap > GESTURE_GAP || (tailConfirmed && risen)) {
         gestureUsed = false;
         gestureClosed = false;
         decayStreak = 0;
-      } else {
-        if (absRaw > lastAbsDy + 16) gestureUsed = false;
-        if (gestureClosed) {
-          const newTouchPause = e.deltaMode === 0 && absRaw <= TOUCH_START_MAX && gap > CLOSED_GAP;
-          const newTouchRise = tailConfirmed && risen;
-          if (newTouchPause || newTouchRise) gestureClosed = false;
-        }
+        pullAcc = 0;
+        pullEngaged = false;
+      } else if (absRaw > lastAbsDy + 16) {
+        gestureUsed = false;
       }
       trackStream();
       if (gestureUsed) return;
@@ -243,7 +253,27 @@ export function useSectionSnap(): void {
         // (no per-notch jerk); the indicator and commit threshold respond to
         // the pull TARGET so the gesture still feels immediate.
         const nextRest = clampScroll(sectionSnapTop(next));
-        const newY = Math.min(nextRest, Math.max(restBot, eff + dy));
+        // Input slop (principle 2): from rest the pull engages only after
+        // PULL_SLOP px of accumulated travel — residue that slipped past the
+        // classifier dies here, unmoved and unindicated. A pull already in
+        // progress (page visibly past the edge) resumes without re-arming, and
+        // the engaging event carries its post-slop remainder.
+        let step = dy;
+        if (!pullEngaged) {
+          if (eff > restBot + 0.5) {
+            pullEngaged = true;
+          } else {
+            if (pullDir !== 1) {
+              pullDir = 1;
+              pullAcc = 0;
+            }
+            pullAcc += dy;
+            if (pullAcc <= PULL_SLOP) return;
+            pullEngaged = true;
+            step = pullAcc - PULL_SLOP;
+          }
+        }
+        const newY = Math.min(nextRest, Math.max(restBot, eff + step));
         const over = newY - restBot;
         const dist = nextRest - restBot;
         if (dist > 0 && over / dist >= COMMIT) {
@@ -273,9 +303,25 @@ export function useSectionSnap(): void {
           window.clearTimeout(springId);
           return;
         }
-        // Rubber-band pull — eased exactly like the downward branch above.
+        // Rubber-band pull — eased exactly like the downward branch above,
+        // with the same engage-after-slop gate accumulating upward travel.
         const prevRest = clampScroll(sectionSnapBottom(prev));
-        const newY = Math.max(prevRest, Math.min(restTop, eff + dy));
+        let step = dy;
+        if (!pullEngaged) {
+          if (eff < restTop - 0.5) {
+            pullEngaged = true;
+          } else {
+            if (pullDir !== -1) {
+              pullDir = -1;
+              pullAcc = 0;
+            }
+            pullAcc += -dy;
+            if (pullAcc <= PULL_SLOP) return;
+            pullEngaged = true;
+            step = -(pullAcc - PULL_SLOP);
+          }
+        }
+        const newY = Math.max(prevRest, Math.min(restTop, eff + step));
         const over = restTop - newY;
         const dist = restTop - prevRest;
         if (dist > 0 && over / dist >= COMMIT) {

@@ -49,12 +49,16 @@ ignored until the wheel falls quiet for `GESTURE_GAP` (80ms). Key state:
   trackpad-momentum lock. **Never reset it mid-glide** (`isScrollLocked()`), or
   one flick double-commits.
 - `gestureClosed` — this gesture ran into an edge via internal scroll. NOT reset
-  on a spike — one long swipe can't roll into a pull. Besides the true gap, it
-  re-opens on two NEW-TOUCH stream signatures (a `CLOSED_GAP` void in the
-  fine-delta stream, or a delta rise after `TAIL_DECAY_MIN` strict decreases),
-  because a trackpad's momentum tail keeps the raw gap alive for up to ~1s and
-  froze the page at the edge otherwise (gotchas.md §12). Gap timing uses
-  `e.timeStamp` (creation time) so delivery hitches can't fake a pause.
+  on a spike — one long swipe can't roll into a pull. A clear delta RISE inside
+  a confirmed momentum tail (`TAIL_DECAY_MIN` strict decreases) starts a fresh
+  gesture: momentum only ever decays, so a rise is physically a new finger —
+  without this, a trackpad's ~1s tail kept `gap` alive and froze the page at
+  the edge. Gap timing uses `e.timeStamp` (creation time) so delivery hitches
+  can't fake a pause.
+- **Pull slop** — a wheel pull from rest engages only after `PULL_SLOP` (12px)
+  of accumulated travel; below it nothing moves and no indicator shows, so
+  sparse tail remnants and accidental brushes can't ghost-tug a parked page.
+  A pull already visibly in progress resumes without re-arming (gotchas.md §12).
 - A section with `restBot - restTop <= MIN_INTERNAL` (40px) has no real internal
   scroll, so it pulls immediately (no dead slack — fixes the hero's ~15px slop).
 
@@ -74,7 +78,8 @@ fills the indicator by finger travel; release past `touchCommitPx()`
 **Tuning constants** (top of the file): `COMMIT 0.26` (wheel: fraction of the gap
 to pull before crossing — raise = less sensitive), `PULL_CURVE 0.5` (front-loads
 the indicator so it shows early, not just near commit), `SPRING_DELAY`,
-`GESTURE_GAP`, `EDGE_EPS`, `MIN_INTERNAL`, `TOUCH_RESIST`, `touchCommitPx`.
+`GESTURE_GAP`, `EDGE_EPS`, `MIN_INTERNAL`, `TOUCH_RESIST`, `touchCommitPx`,
+`TAIL_DECAY_MIN` (momentum-tail confirmation), `PULL_SLOP` (engage-from-rest slop).
 
 ## The pull indicator — `ScrollHint` + chrome.css
 

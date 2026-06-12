@@ -108,30 +108,35 @@ Continuous scroll values must not live in React state — the nav progress bar r
 actual section change. Keep it that way; a per-pixel `setState` re-rendered the whole app every
 frame on phones.
 
-## 12. Trackpad momentum tail freezes a closed gesture at the section edge
+## 12. Trackpad momentum tail vs gesture boundaries (edge freeze → ghost pulls)
 
-**Symptom:** trackpad only — swipe from mid-section to the content edge, swipe again: nothing
-moves. Mouse wheel fine. "Wiggling the mouse" before re-scrolling made it work again.
+**Symptom v1:** trackpad only — swipe from mid-section to the content edge, swipe again:
+nothing moves until ~1s of stillness ("wiggling the mouse" fixed it — it just made you pause).
+**Symptom v2 (after a timing-rule fix for v1):** a hard swipe stops cleanly at the edge, then a
+beat later the page tugs itself a few px and the pull indicator flashes on and off.
 
-**Cause:** `gestureClosed` (set when a gesture runs into a content edge) resets on
-`GESTURE_GAP` (80ms) of wheel silence. But a trackpad keeps emitting decaying momentum-tail
-deltas for up to ~1s after the fingers lift, so the gap never elapses between two quick
-swipes — the second swipe was judged part of the first, still-closed gesture and its deltas
-were clamped at the edge (a no-op). Wiggling the mouse just made the user pause >80ms.
+**Cause:** a trackpad keeps emitting decaying momentum-tail deltas for up to ~1s after the
+fingers lift, so `GESTURE_GAP` (80ms of true silence) never elapses between two quick swipes —
+the second swipe was judged part of the first, still-closed gesture (v1). And near its end a
+tail goes sparse and tiny (1–3px, 30–90ms apart) — **indistinguishable per event** from a
+gentle new touch — so a "40ms void = new touch" timing rule misread those remnants, re-opened
+the gesture, and let them start a pull that the spring then snapped back (v2).
 
-**Fix:** the wheel path recognizes two stream signatures that ONLY a new touch produces and
-re-opens `gestureClosed` (never `gestureUsed` — rule "one gesture, one section" stays intact):
+**Fix (two principles, `useSectionSnap.ts` — no per-quirk timing rules):**
 
-1. **A `CLOSED_GAP` (40ms) void in the fine-delta stream.** Tails emit continuously every
-   ~8–16ms; even a 40ms hole in *event-creation* time (`e.timeStamp`, immune to delivery
-   hitches) means the tail died or a new touch killed it. Gated to small first deltas
-   (`TOUCH_START_MAX`) so jank-merged tail events can't qualify; notchy mice are excluded.
-2. **A delta rise after a confirmed decay run** (`TAIL_DECAY_MIN` strict decreases). Momentum
-   only ever decays — a rising delta inside a tail is physically a fresh finger. This catches
-   pause-free flick-flick rhythm scrolling, where no gap of any size ever appears.
+1. **Stream physics.** Momentum only ever decays. `TAIL_DECAY_MIN` consecutive strictly-
+   decreasing deltas confirm a tail; the first clear RISE inside a confirmed tail is physically
+   a new finger → treated as a fully fresh gesture (re-arms edge pulls; catches pause-free
+   flick-flick rhythm scrolling). Gap timing uses `e.timeStamp` (creation time) so delivery
+   hitches can't fake a pause.
+2. **Input slop.** A wheel pull from rest engages only after `PULL_SLOP` (12px) of accumulated
+   travel — below it nothing moves and no indicator shows. Whatever the classifier can't decide
+   per-event (sparse remnants, zero-delta-faked pauses, accidental brushes) dies in the slop
+   instead of ghost-tugging a parked page. A pull already visibly in progress resumes freely.
 
-A magnitude/"significant delta" heuristic alone does NOT work: a fast re-swipe arrives while
-the tail is still emitting large deltas, indistinguishable by size. (`useSectionSnap.ts`)
+**Invariant:** no single wheel event carries enough information to be classified as intent —
+only streams do. If a new input quirk appears, extend one of the two principles; do not add
+another timing threshold.
 
 ## 13. Headless-Chrome verification recipes (used throughout this repo's history)
 
