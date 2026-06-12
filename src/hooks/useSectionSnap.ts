@@ -39,6 +39,7 @@ const EDGE_EPS = 4; // px tolerance for "resting at a content edge"
 const MIN_INTERNAL = 40; // sections with less internal scroll than this just pull (no dead slack)
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
 const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
+const SIG_THRESHOLD = 3; // px — minimum |deltaY| that counts as intentional input (excludes trackpad momentum tails)
 
 // All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
 // so convergence speed is identical at 60/90/120/144Hz (a fixed per-frame
@@ -78,6 +79,7 @@ export function useSectionSnap(): void {
     // ---- WHEEL (trackpad / mouse) ------------------------------------------
     let lastT = 0;
     let lastAbsDy = 0;
+    let lastSigT = 0; // last time a "significant" (≥ SIG_THRESHOLD) delta arrived — excludes momentum tails
     let gestureUsed = false; // a section change already fired in the current gesture
     let gestureClosed = false; // this gesture ran into a content edge → no pulling until it lifts
     let springId = 0;
@@ -160,17 +162,27 @@ export function useSectionSnap(): void {
         return;
       }
 
-      // A pause starts a fresh gesture (re-arms edge pulling); a mid-stream delta
-      // spike only breaks a stale momentum lock so a new flick responds without
-      // waiting the old one out — it must NOT re-arm a pull that already ran into
-      // an edge this gesture, or one long swipe could cross two sections.
+      // A pause starts a fresh gesture (re-arms edge pulling). A mid-stream delta
+      // spike only breaks a stale momentum lock — it must NOT re-arm a pull that
+      // already ran into an edge this gesture, or one long swipe could cross two
+      // sections. The significant-gap branch handles the trackpad case: momentum
+      // tail events (< SIG_THRESHOLD px) keep `gap` below GESTURE_GAP even after
+      // the finger lifts; tracking when the last intentional delta arrived lets us
+      // detect "new swipe after tail died" without waiting for full wheel silence.
+      const sigGap = now - lastSigT;
       if (gap > GESTURE_GAP) {
+        gestureUsed = false;
+        gestureClosed = false;
+      } else if (absRaw >= SIG_THRESHOLD && sigGap > GESTURE_GAP) {
+        // First significant input after a meaningful pause in significant input:
+        // a new trackpad swipe whose momentum tail kept the raw gap < GESTURE_GAP.
         gestureUsed = false;
         gestureClosed = false;
       } else if (absRaw > lastAbsDy + 16) {
         gestureUsed = false;
       }
       lastAbsDy = absRaw;
+      if (absRaw >= SIG_THRESHOLD) lastSigT = now;
       if (gestureUsed || !raw) return;
 
       const cap = maxStep();
