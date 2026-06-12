@@ -24,18 +24,41 @@ function useGridFillers(itemCount: number): {
     if (!grid) return;
 
     const measure = () => {
-      // Resolved track list, e.g. "283px 283px 283px" — collapsed auto-fit
-      // tracks report as 0px and don't count.
-      const cols = getComputedStyle(grid)
-        .gridTemplateColumns.split(' ')
-        .filter((w) => w !== '0px').length;
+      // Backgrounded-tab passes (e.g. returning from an external link on
+      // iPad Safari) report zero sizes — keep the last good value instead of
+      // recomputing fillers from a degenerate layout.
+      if (!grid.clientWidth) return;
+
+      // Column count from geometry: how many children share the first row's
+      // offsetTop. Robust where parsing grid-template-columns is not — Safari
+      // can return the specified repeat(auto-fit, …) text instead of the
+      // resolved track list.
+      const kids = Array.from(grid.children) as HTMLElement[];
+      if (kids.length === 0) return;
+      const firstTop = kids[0].offsetTop;
+      let cols = 0;
+      for (const kid of kids) {
+        if (kid.offsetTop !== firstTop) break;
+        cols += 1;
+      }
+
       setFillers(cols > 1 ? (cols - (itemCount % cols)) % cols : 0);
     };
 
     measure();
     const ro = new ResizeObserver(measure);
     ro.observe(grid);
-    return () => ro.disconnect();
+
+    // Safari restore paths (bfcache, returning from another tab) can skip the
+    // resize pipeline entirely — re-measure after the page is shown again.
+    const remeasure = () => requestAnimationFrame(measure);
+    window.addEventListener('pageshow', remeasure);
+    document.addEventListener('visibilitychange', remeasure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('pageshow', remeasure);
+      document.removeEventListener('visibilitychange', remeasure);
+    };
   }, [itemCount]);
 
   return { gridRef, fillers };
