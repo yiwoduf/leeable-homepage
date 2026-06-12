@@ -55,12 +55,15 @@ ignored until the wheel falls quiet for `GESTURE_GAP` (80ms). Key state:
 - **The pull gate** — gesture flags only make the pull branch *reachable* (they
   may be wrong under event-merge distortion); a pull from rest is BUILT solely
   by finger-evidence events: a sustained velocity ramp (`RISE_MIN`×`RISE_PX`),
-  or post-silence input once the momentum envelope (`tailEnv`, `TAIL_ENV_TAU`)
-  has died. Evidence anywhere in a gesture owns the whole gesture
-  (`fingerProven`), and `PULL_SLOP` (12px) of finger-owned travel must
-  accumulate before anything moves or indicates. Full physics, the merge-
-  artifact taxonomy, and the verification harness: gotchas.md §12. Debug a real
-  device with `?wheellog` (per-event console dump).
+  or a quiet-burst (window mass after silence, envelope-gated). Evidence
+  anywhere in a gesture owns the whole gesture (`fingerProven`); evidence
+  during a commit glide releases the commit lock so the queued swipe takes
+  over at glide end; commits consume the proof. `PULL_SLOP` (12px) of
+  finger-owned travel must accumulate before anything moves or indicates.
+  Full physics and the false-positive taxonomy: gotchas.md §12. **Run
+  `node scripts/sim-wheel.mjs` after ANY change to the wheel path** — it
+  asserts the adversarial and legit cases. Debug a real device with
+  `?wheellog` (per-event console dump).
 - A section with `restBot - restTop <= MIN_INTERNAL` (40px) has no real internal
   scroll, so it pulls immediately (no dead slack — fixes the hero's ~15px slop).
 
