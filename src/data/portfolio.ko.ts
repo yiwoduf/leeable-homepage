@@ -158,7 +158,7 @@ export const portfolioKo: PortfolioData = {
 
   // Skills arrays are identical to EN — tech terms stay in English.
   skills: [
-    { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP'] },
+    { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP', 'Java'] },
     { group: 'Frontend', items: ['React', 'Next.js', 'Vite', 'TailwindCSS'] },
     { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'MongoDB'] },
     { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'OpenCode', 'Codex'] },

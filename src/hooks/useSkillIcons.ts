@@ -4,7 +4,7 @@ import { SKILL_ICONS } from '../config/skillIcons';
 // Monochrome (black) brand marks → recolor to follow the theme text color so
 // they stay visible in dark mode. (GitHub/X/Codex/OpenClaw render from inline
 // currentColor SVGs already; colorful brand marks keep their own colors.)
-const ADAPT = new Set(['nextdotjs', 'vercel', 'opencode']);
+const ADAPT = new Set(['nextdotjs', 'vercel', 'opencode', 'openjdk']);
 
 // Session cache so re-mounting the Skills section doesn't refetch.
 const cache: Record<string, SVGSVGElement> = {};

@@ -8,6 +8,7 @@ export const SKILL_ICONS: Record<string, string> = {
   JavaScript: 'javascript',
   Python: 'python',
   PHP: 'php',
+  Java: 'openjdk',
   React: 'react',
   'Next.js': 'nextdotjs',
   Vite: 'vite',

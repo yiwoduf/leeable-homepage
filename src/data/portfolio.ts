@@ -153,7 +153,7 @@ export const portfolio: PortfolioData = {
   ],
 
   skills: [
-    { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP'] },
+    { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP', 'Java'] },
     { group: 'Frontend', items: ['React', 'Next.js', 'Vite', 'TailwindCSS'] },
     { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'MongoDB'] },
     { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'OpenCode', 'Codex'] },
