@@ -146,6 +146,15 @@
 .proj-desc { color: var(--text-dim); font-size: 14.5px; margin-top: 12px; flex: 1; text-wrap: pretty; }
 .proj-stack { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
 .proj-nolink { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
+/* skeleton fillers — square off the last grid row with quiet placeholder
+   boxes so a wrapped row never leaves ragged empty space. */
+.proj-skeleton {
+  align-items: center; justify-content: center;
+  border-style: dashed; background: transparent;
+}
+.proj-skeleton svg { width: 46px; height: auto; color: var(--text-faint); opacity: .45; transition: opacity .3s; }
+.proj-skeleton:hover { transform: none; box-shadow: none; border-color: var(--border); }
+.proj-skeleton:hover svg { opacity: .7; }
 
 /* ============================================================
    SKILLS — rotating marquee carousel

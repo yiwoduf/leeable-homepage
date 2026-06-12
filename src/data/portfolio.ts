@@ -23,15 +23,15 @@ export const portfolio: PortfolioData = {
     body: 'I design and deploy multi-agent systems that automate real-world workflows: identifying where agents add leverage, then shipping autonomous pipelines that run unattended. Operator/founder mindset, self-taught since age 12, with strong system-design instincts.',
     facts: [
       { k: 'Based in', v: 'Dallas–Fort Worth, TX' },
-      { k: 'Languages', v: 'English, Korean' },
+      { k: 'Languages', v: 'English · Korean' },
       { k: 'Education', v: 'B.S. Computer Science, University of Kansas' },
       { k: 'Focus', v: 'Multi-agent systems · Workflow automation' },
     ],
     stats: [
       { n: '5+', l: 'agents orchestrated' },
-      { n: '2,259+', l: 'jobs processed' },
+      { n: '2,259+', l: 'postings processed' },
       { n: '~2 yrs', l: 'production software' },
-      { n: 'Daily', l: 'unattended runs' },
+      { n: '24/7', l: 'autonomous' },
     ],
   },
 
