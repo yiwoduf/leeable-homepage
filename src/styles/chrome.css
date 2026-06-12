@@ -181,7 +181,8 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
   width: 2px; height: 24px; border-radius: 2px;
   background: color-mix(in oklab, var(--text) 12%, transparent);
   overflow: hidden;
-  opacity: 0; transition: opacity 0.1s ease, height 0.08s ease, background 0.18s ease;
+  /* slow fade OUT (base state); the active state below overrides for fast IN */
+  opacity: 0; transition: opacity 0.45s ease, height 0.2s ease, background 0.3s ease;
 }
 .scroll-hint-bar.up { top: 16px; }
 .scroll-hint-bar.down { bottom: 16px; }
@@ -202,7 +203,7 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
   position: fixed; left: 50%; transform: translateX(-50%);
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
   color: color-mix(in oklab, var(--accent) 72%, var(--text-faint));
-  white-space: nowrap; opacity: 0; transition: opacity 0.22s ease;
+  white-space: nowrap; opacity: 0; transition: opacity 0.45s ease;
 }
 .hint-label.up { top: 118px; }
 .hint-label.down { bottom: 118px; }
@@ -215,6 +216,7 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
   opacity: 1;
   height: calc(22px + var(--pull, 0) * 74px);
   background: color-mix(in oklab, var(--accent) 16%, transparent);
+  transition: opacity 0.1s ease, height 0.08s ease, background 0.18s ease;
 }
 :root[data-pull="down"] .scroll-hint-bar.down .fill,
 :root[data-pull="up"] .scroll-hint-bar.up .fill {
@@ -228,7 +230,10 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
   background: linear-gradient(to bottom, color-mix(in oklab, var(--accent) 20%, transparent), var(--accent));
 }
 :root[data-pull="down"] .hint-label.down,
-:root[data-pull="up"] .hint-label.up { opacity: calc(0.2 + var(--pull, 0) * 0.7); }
+:root[data-pull="up"] .hint-label.up {
+  opacity: calc(0.2 + var(--pull, 0) * 0.7);
+  transition: opacity 0.15s ease;
+}
 
 /* mobile: same pull indicator, lifted above the bottom tab bar */
 @media (max-width: 560px) {

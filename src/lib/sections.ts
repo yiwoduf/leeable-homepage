@@ -1,4 +1,5 @@
 import { NAV } from '../config/navigation';
+import { scrollerY, scrollerViewHeight } from './scroller';
 
 /**
  * Single source of truth for "which section am I on", shared by the pager
@@ -16,21 +17,21 @@ export function sectionElements(): HTMLElement[] {
 }
 
 /**
- * Index of the section that owns an absolute-Y document position. Sections stack
+ * Index of the section that owns an absolute-Y content position. Sections stack
  * contiguously, so every Y belongs to exactly one; positions above the first or
  * below the last clamp to the ends.
  */
 export function sectionIndexAt(list: HTMLElement[], y: number): number {
   for (let i = 0; i < list.length; i++) {
     const r = list[i].getBoundingClientRect();
-    const top = r.top + window.scrollY;
+    const top = r.top + scrollerY();
     if (y >= top && y < top + r.height) return i;
   }
-  const firstTop = list[0].getBoundingClientRect().top + window.scrollY;
+  const firstTop = list[0].getBoundingClientRect().top + scrollerY();
   return y < firstTop ? 0 : list.length - 1;
 }
 
 /** Index of the section under the viewport centre — the one you're "on". */
 export function activeSectionIndex(list: HTMLElement[] = sectionElements()): number {
-  return sectionIndexAt(list, window.scrollY + window.innerHeight / 2);
+  return sectionIndexAt(list, scrollerY() + scrollerViewHeight() / 2);
 }

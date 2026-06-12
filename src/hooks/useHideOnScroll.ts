@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { onScrollerScroll, scrollerY } from '../lib/scroller';
 
 /**
  * Hide a fixed element while scrolling, reveal it once scrolling has paused for
@@ -12,7 +13,7 @@ export function useHideOnScroll(idleMs = 600): boolean {
   useEffect(() => {
     let timer = 0;
     const onScroll = () => {
-      if (window.scrollY < 8) {
+      if (scrollerY() < 8) {
         window.clearTimeout(timer);
         setHidden(false);
         return;
@@ -21,9 +22,9 @@ export function useHideOnScroll(idleMs = 600): boolean {
       window.clearTimeout(timer);
       timer = window.setTimeout(() => setHidden(false), idleMs);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const off = onScrollerScroll(onScroll);
     return () => {
-      window.removeEventListener('scroll', onScroll);
+      off();
       window.clearTimeout(timer);
     };
   }, [idleMs]);

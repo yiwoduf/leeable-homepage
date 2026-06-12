@@ -3,6 +3,8 @@ import { isScrollLocked, smoothScrollTo } from '../lib/scrollController';
 import { sectionSnapTop, sectionSnapBottom } from '../lib/sectionMetrics';
 import { sectionElements, activeSectionIndex } from '../lib/sections';
 import { clampScroll } from '../lib/viewport';
+import { scrollContainer, scrollerY } from '../lib/scroller';
+import { nativeJumpTo } from '../lib/scroll';
 
 /**
  * Full-screen section pager — DESKTOP WHEEL ONLY.
@@ -66,15 +68,21 @@ export function useSectionSnap(): void {
       }
     };
 
-    // ---- TOUCH DEVICES: native CSS snap + passive instrumentation ----------
-    // Scrolling itself is 100% native (see base.css). This branch only:
+    // ---- TOUCH DEVICES: native container snap + passive instrumentation ----
+    // Scrolling itself is 100% native inside the fixed <main> container (see
+    // base.css — the browser bar never moves, so geometry is pixel-exact).
+    // This branch never writes scroll DURING a gesture; it only:
     //   1. tags each section data-snap='fit'|'tall' so the snap CSS can mirror
-    //      the desktop resting positions (fit rule from lib/sectionMetrics.ts:
-    //      content fits when h <= 100vh - 2×12vh)
-    //   2. drives the pull indicator READ-ONLY from scroll position — when the
-    //      page travels the gap between two sections' rests, the indicator
-    //      fills toward the destination. No scroll writes, ever.
+    //      the desktop resting positions (fit rule from lib/sectionMetrics.ts)
+    //   2. drives the pull indicator read-only from scroll position
+    //   3. enforces the pager contract AFTER momentum settles: one gesture
+    //      moves at most ONE rest position. If WebKit's snap overshoots a stop
+    //      (a known iOS quirk under hard flings), a single corrective native
+    //      jump puts the page on the adjacent rest.
     if (window.matchMedia('(pointer: coarse)').matches) {
+      const container = scrollContainer();
+      if (!container) return;
+
       const innerOf = (el: HTMLElement): HTMLElement =>
         el.querySelector<HTMLElement>('.section-inner, .hero-inner, .contact-inner') ?? el;
       const tag = () => {
@@ -89,7 +97,55 @@ export function useSectionSnap(): void {
       sectionElements().forEach((el) => ro.observe(innerOf(el)));
       window.addEventListener('resize', tag);
 
+      // All legal rest positions, in document order — mirrors the CSS snap
+      // stops exactly (fit → one centered rest; tall → top and bottom rests;
+      // the first section anchors at 0 per the CSS first-child rule).
+      const restsOf = (): number[] => {
+        const out: number[] = [];
+        sectionElements().forEach((el, idx) => {
+          out.push(idx === 0 ? 0 : clampScroll(sectionSnapTop(el)));
+          if (el.dataset.snap === 'tall') out.push(clampScroll(sectionSnapBottom(el)));
+        });
+        return out;
+      };
+      const nearestRest = (rests: number[], y: number): number => {
+        let best = 0;
+        for (let k = 1; k < rests.length; k++) {
+          if (Math.abs(rests[k] - y) < Math.abs(rests[best] - y)) best = k;
+        }
+        return best;
+      };
+
+      // One-step-per-gesture backstop.
+      let gestureRestIdx = -1;
+      let touching = false;
+      let settleId = 0;
+      const onSettle = () => {
+        if (touching || 'snapJump' in root.dataset || gestureRestIdx < 0) return;
+        const rests = restsOf();
+        const arrived = nearestRest(rests, scrollerY());
+        const from = gestureRestIdx;
+        gestureRestIdx = -1; // one-shot per gesture
+        if (Math.abs(arrived - from) > 1) {
+          nativeJumpTo(rests[from + Math.sign(arrived - from)]);
+        }
+      };
+      const armSettle = () => {
+        window.clearTimeout(settleId);
+        settleId = window.setTimeout(onSettle, 140);
+      };
+      const onTouchStart = () => {
+        touching = true;
+        window.clearTimeout(settleId);
+        gestureRestIdx = nearestRest(restsOf(), scrollerY());
+      };
+      const onTouchEnd = () => {
+        touching = false;
+        armSettle();
+      };
+
       const onScroll = () => {
+        if (!touching) armSettle();
         // No indicator while a nav jump flies through several sections.
         if ('snapJump' in root.dataset) {
           setPull('');
@@ -100,11 +156,8 @@ export function useSectionSnap(): void {
         const i = activeSectionIndex(list);
         const restTop = clampScroll(sectionSnapTop(list[i]));
         const restBot = clampScroll(sectionSnapBottom(list[i]));
-        const y = window.scrollY;
-        // Generous rest tolerance: CSS vh (large viewport) and JS innerHeight
-        // (visual viewport) disagree by the browser-bar height on mobile, so
-        // a legit snap rest can sit tens of px away from the computed bounds.
-        const eps = Math.max(24, window.innerHeight * 0.08);
+        const y = scrollerY();
+        const eps = 12; // container geometry is exact — tight rest tolerance
 
         // Identify the inter-section gap we're inside (if any) — its bounds
         // and the sections on either side of it.
@@ -138,12 +191,20 @@ export function useSectionSnap(): void {
           setPull('down', (y - gapLo) / dist, lower.dataset.screenLabel ?? '');
         }
       };
-      window.addEventListener('scroll', onScroll, { passive: true });
+
+      container.addEventListener('touchstart', onTouchStart, { passive: true });
+      container.addEventListener('touchend', onTouchEnd, { passive: true });
+      container.addEventListener('touchcancel', onTouchEnd, { passive: true });
+      container.addEventListener('scroll', onScroll, { passive: true });
 
       return () => {
         ro.disconnect();
         window.removeEventListener('resize', tag);
-        window.removeEventListener('scroll', onScroll);
+        container.removeEventListener('touchstart', onTouchStart);
+        container.removeEventListener('touchend', onTouchEnd);
+        container.removeEventListener('touchcancel', onTouchEnd);
+        container.removeEventListener('scroll', onScroll);
+        window.clearTimeout(settleId);
         setPull('');
       };
     }

@@ -15,7 +15,7 @@
   --accent-ink: #0a0a0b;
 
   --bg: #0a0a0b;
-  --bg-2: #11100e; /* warm graphite — matches the grid bg's warmth, no blue cast */
+  --bg-2: #0f0e0e; /* near-neutral with a hint of warmth — sits close to --bg */
   --surface: #141417;
   --surface-2: #1a1a1f;
   --surface-hi: #202027;

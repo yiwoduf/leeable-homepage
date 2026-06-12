@@ -6,11 +6,15 @@ before touching `useSectionSnap`, `useReveal`, `scrollController`, or the
 bursts) — the behavior is full of timing edge cases.
 
 > **Mobile is fully native.** The JS pager below is DESKTOP WHEEL ONLY.
-> Touch devices use CSS scroll snap (`base.css`: `scroll-snap-type: y
-> mandatory` + `scroll-snap-stop: always` per section) — JS-driven document
-> scrolling during touch flickers on iOS WebKit, so coarse pointers get the
-> platform's snap physics, which satisfies constraints #1/#2 natively. Reveals
-> on touch are reveal-once (no replay) for the same reason.
+> On coarse pointers the DOCUMENT never scrolls: `<main>` becomes a fixed,
+> viewport-sized scroll container with CSS snap inside (`base.css`) — JS-driven
+> document scrolling flickers on iOS WebKit, and root-scroller snap is
+> unreliable (browser-bar vh drift, flaky multi-stop/snap-stop handling).
+> All scroll consumers go through `lib/scroller.ts`, which resolves to the
+> window on desktop and the container on touch. useSectionSnap's touch branch
+> only instruments passively (fit/tall tagging, the pull indicator, and a
+> one-step-per-gesture backstop that corrects AFTER momentum settles). Reveals
+> on touch are reveal-once and fire as a group at scroll settle.
 
 ## Hard product constraints (do not regress)
 

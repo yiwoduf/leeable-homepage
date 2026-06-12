@@ -1,6 +1,7 @@
 import { useEffect } from 'react';
 import { isScrollLocked } from '../lib/scrollController';
 import { maxScrollY } from '../lib/viewport';
+import { onScrollerScroll, scrollerViewHeight, scrollerY } from '../lib/scroller';
 
 /**
  * Reveal-on-scroll, per element, tracking what you're actually looking at — in
@@ -51,7 +52,7 @@ export function useReveal(): void {
     const inBand = (el: Element): boolean => {
       const r = el.getBoundingClientRect();
       // at the very bottom nothing can rise further, so the whole viewport counts
-      const limit = window.innerHeight * (window.scrollY >= maxScrollY() - 4 ? 1 : line);
+      const limit = scrollerViewHeight() * (scrollerY() >= maxScrollY() - 4 ? 1 : line);
       return r.top < limit && r.bottom > 0;
     };
     const setRevealed = (el: Element, on: boolean) => {
@@ -104,10 +105,10 @@ export function useReveal(): void {
     // publish scroll direction so directional reveals (e.g. the timeline line)
     // can draw from the edge you're entering — bottom-up when scrolling up.
     const root = document.documentElement;
-    let lastY = window.scrollY;
+    let lastY = scrollerY();
     let settleId = 0;
     const onScroll = () => {
-      const y = window.scrollY;
+      const y = scrollerY();
       if (Math.abs(y - lastY) > 1) {
         root.dataset.scrolldir = y > lastY ? 'down' : 'up';
         lastY = y;
@@ -115,14 +116,14 @@ export function useReveal(): void {
       window.clearTimeout(settleId);
       settleId = window.setTimeout(reconcile, SETTLE_MS);
     };
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const offScroll = onScrollerScroll(onScroll);
 
     reconcile(); // first paint
 
     return () => {
       io.disconnect();
       mo.disconnect();
-      window.removeEventListener('scroll', onScroll);
+      offScroll();
       window.clearTimeout(settleId);
     };
   }, []);

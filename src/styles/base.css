@@ -14,26 +14,39 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
-/* Mobile: 100% NATIVE scrolling with CSS scroll snap. JS-driven document
-   scrolling during touch flickers on iOS WebKit, so coarse pointers get the
-   platform's own snap physics instead (the wheel pager in useSectionSnap is
-   desktop-only):
-     • free scrolling inside sections taller than the viewport (a snap area
-       larger than the snapport allows unrestricted scrolling within — spec)
+/* Mobile: 100% NATIVE scrolling with CSS scroll snap — inside a CONTAINER.
+   JS-driven document scrolling during touch flickers on iOS WebKit, and the
+   ROOT scroller brings two more platform problems: the browser bar moves
+   (CSS vh drifts from the real viewport, so snap rests land off-position)
+   and root snap handles multiple stops / snap-stop unreliably. So on coarse
+   pointers the document never scrolls at all: <main> becomes a fixed,
+   viewport-sized scroll container with the snap model inside it —
+     • free scrolling inside sections taller than the viewport
      • magnetic rest at section edges (y mandatory)
-     • a fling can never skip past a section (scroll-snap-stop: always)
-   Reduced-motion users keep fully native, snap-free scrolling. */
+     • a fling cannot skip past a stop (scroll-snap-stop: always, plus a JS
+       one-step backstop in useSectionSnap for WebKit's momentum quirks)
+   The wheel pager in useSectionSnap stays desktop-only; reduced-motion users
+   keep fully native, snap-free scrolling. */
 @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
-  html {
+  html, body {
+    overflow: hidden;
+    height: 100%;
+    overscroll-behavior: none;
+  }
+  main {
+    position: fixed;
+    inset: 0;
+    overflow-y: auto;
     scroll-snap-type: y mandatory;
     scroll-behavior: auto;
     overscroll-behavior-y: none;
+    scrollbar-width: none;
   }
-  body { overscroll-behavior-y: none; }
+  main::-webkit-scrollbar { width: 0; height: 0; display: none; }
   /* Nav jumps disable snap for the flight (lib/scroll.ts sets the attribute):
      iOS aborts a native smooth scroll at the first snap-stop otherwise, so
      multi-section jumps would never arrive. Snap re-engages on landing. */
-  html[data-snap-jump] { scroll-snap-type: none; }
+  html[data-snap-jump] main { scroll-snap-type: none; }
 
   /* Snap geometry mirrors the desktop pager's resting positions exactly
      (see lib/sectionMetrics.ts). useSectionSnap tags each section with

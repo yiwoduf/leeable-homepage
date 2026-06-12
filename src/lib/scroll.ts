@@ -1,6 +1,7 @@
 import { smoothScrollTo } from './scrollController';
 import { sectionSnapTop } from './sectionMetrics';
 import { clampScroll } from './viewport';
+import { scrollContainer, scrollerY, scrollerTo } from './scroller';
 
 /**
  * Instantly re-align the viewport onto a section's snap position. Used after a
@@ -10,12 +11,12 @@ import { clampScroll } from './viewport';
  */
 export function realignTo(id: string): void {
   if (id === 'hero') {
-    window.scrollTo({ top: 0, behavior: 'instant' });
+    scrollerTo(0, 'instant');
     return;
   }
   const el = document.getElementById(id);
   if (!el) return;
-  window.scrollTo({ top: clampScroll(sectionSnapTop(el)), behavior: 'instant' });
+  scrollerTo(clampScroll(sectionSnapTop(el)), 'instant');
 }
 
 /**
@@ -24,10 +25,8 @@ export function realignTo(id: string): void {
  * view, body below — rather than its padded container edge. Used by the nav,
  * brand mark, and the hero's in-page links.
  *
- * Touch devices use the browser's NATIVE smooth scroll instead: the page has
- * CSS `scroll-snap-type: y mandatory` there, and iOS re-snaps mid-flight
- * against a JS-driven rAF animation (flicker, then it springs back). Native
- * smooth scrolling cooperates with snap and settles on the snap position.
+ * Touch devices jump natively with snap suspended for the flight — see
+ * `nativeJumpTo`.
  */
 export function scrollToId(id: string): void {
   const target = id === 'hero' ? 0 : (() => {
@@ -36,41 +35,43 @@ export function scrollToId(id: string): void {
   })();
   if (target === null) return;
 
-  if (window.matchMedia('(pointer: coarse)').matches) {
-    nativeJump(clampScroll(target));
+  if (scrollContainer()) {
+    nativeJumpTo(clampScroll(target));
     return;
   }
   smoothScrollTo(target);
 }
 
 /**
- * Touch-device nav jump: suspend CSS snap for the flight, scroll natively,
+ * Touch-device jump: suspend CSS snap for the flight, scroll natively, then
  * re-engage snap on landing. With `scroll-snap-stop: always` active, iOS
  * aborts a native smooth scroll at the first snap position it passes — so
- * jumps further than one section would never arrive without this.
+ * jumps further than one stop would never arrive without this. Also used by
+ * the pager's one-step backstop (useSectionSnap) for corrective moves.
  */
-function nativeJump(target: number): void {
+export function nativeJumpTo(target: number): void {
   const root = document.documentElement;
+  const host: EventTarget = scrollContainer() ?? window;
   root.dataset.snapJump = '';
 
   let settleId = 0;
   let failsafeId = 0;
   const done = () => {
     delete root.dataset.snapJump; // snap re-engages exactly at the rest we chose
-    window.removeEventListener('scrollend', done);
-    window.removeEventListener('touchstart', done);
+    host.removeEventListener('scrollend', done);
+    host.removeEventListener('touchstart', done);
     window.clearInterval(settleId);
     window.clearTimeout(failsafeId);
   };
 
   // Arrival detection: scrollend where supported, settle-polling as fallback,
   // and a hard failsafe. A touch mid-flight hands control back immediately.
-  window.addEventListener('scrollend', done, { once: true });
-  window.addEventListener('touchstart', done, { once: true, passive: true });
+  host.addEventListener('scrollend', done, { once: true });
+  host.addEventListener('touchstart', done, { once: true, passive: true });
   let lastY = -1;
   let still = 0;
   settleId = window.setInterval(() => {
-    const y = window.scrollY;
+    const y = scrollerY();
     if (Math.abs(y - lastY) < 1) {
       still += 1;
       if (still >= 3) done();
@@ -81,5 +82,5 @@ function nativeJump(target: number): void {
   }, 120);
   failsafeId = window.setTimeout(done, 1800);
 
-  window.scrollTo({ top: target, behavior: 'smooth' });
+  scrollerTo(target, 'smooth');
 }

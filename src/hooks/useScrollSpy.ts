@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { NAV, type SectionId } from '../config/navigation';
+import { onScrollerScroll, scrollerMaxY, scrollerViewHeight, scrollerY } from '../lib/scroller';
 
 export interface ScrollSpyState {
   /** Id of the section currently under the scroll mark. */
@@ -15,10 +16,10 @@ export function useScrollSpy(): ScrollSpyState {
 
   useEffect(() => {
     const onScroll = () => {
-      const h = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(h > 0 ? Math.min(1, window.scrollY / h) : 0);
+      const h = scrollerMaxY();
+      setProgress(h > 0 ? Math.min(1, scrollerY() / h) : 0);
 
-      const mark = window.innerHeight * 0.4;
+      const mark = scrollerViewHeight() * 0.4;
       let cur: SectionId = NAV[0].id;
       NAV.forEach((n) => {
         const el = document.getElementById(n.id);
@@ -27,9 +28,9 @@ export function useScrollSpy(): ScrollSpyState {
       setActive(cur);
     };
 
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const off = onScrollerScroll(onScroll);
     onScroll();
-    return () => window.removeEventListener('scroll', onScroll);
+    return off;
   }, []);
 
   return { active, progress };
