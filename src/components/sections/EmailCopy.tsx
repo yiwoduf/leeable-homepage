@@ -34,13 +34,21 @@ export function EmailCopy({ email }: { email: string }) {
 
   return (
     <div className="contact-mail-wrap">
-      <a className="email-plain" href={`mailto:${email}`}>
-        <span>{email}</span>
-      </a>
-      <button className={cx('copy-btn', copied && 'copied')} onClick={copy} aria-label={t.email.copyAria}>
-        <Icon name={copied ? 'check' : 'copy'} />
-        <span className="copy-tip">{copied ? t.email.copied : t.email.copy}</span>
-      </button>
+      <div className="cb-bar" aria-hidden="true">
+        <span className="cb-dot" />
+        <span className="cb-dot" />
+        <span className="cb-dot" />
+        <span className="cb-name">contact.sh</span>
+      </div>
+      <div className="cb-body">
+        <a className="email-plain" href={`mailto:${email}`}>
+          <span>{email}</span>
+        </a>
+        <button className={cx('copy-btn', copied && 'copied')} onClick={copy} aria-label={t.email.copyAria}>
+          <Icon name={copied ? 'check' : 'copy'} />
+          <span className="copy-tip">{copied ? t.email.copied : t.email.copy}</span>
+        </button>
+      </div>
     </div>
   );
 }

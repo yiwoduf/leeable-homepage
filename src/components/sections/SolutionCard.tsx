@@ -68,12 +68,7 @@ export function SolutionCard({ solution, no }: SolutionCardProps) {
               <p className="sol-text">{solution.problem}</p>
             </div>
             <div className={cx(solution.status !== 'live' && 'sol-planned')}>
-              <div className="sol-section-l">
-                {sc.solution}
-                {solution.status !== 'live' && (
-                  <span className="sol-planned-tag">{sc.inProgress}</span>
-                )}
-              </div>
+              <div className="sol-section-l">{sc.solution}</div>
               <p className="sol-text">{solution.solution}</p>
             </div>
           </div>
