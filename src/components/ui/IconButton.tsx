@@ -12,10 +12,11 @@ interface IconButtonProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
   showLabel?: boolean;
 }
 
-/** Square icon link (e.g. hero social buttons). Glows by default; can reveal a text label. */
+/** Square icon link (e.g. hero social buttons). Pointer glow by default (no
+ *  comet outline — too noisy at button scale); can reveal a text label. */
 export function IconButton({ icon, label, glow = true, showLabel = false, className, ...rest }: IconButtonProps) {
   return (
-    <a className={cx('iconbtn', glow && 'glow', className)} aria-label={label} {...(glow ? glowHandlers : {})} {...rest}>
+    <a className={cx('iconbtn', glow && 'glow-p', className)} aria-label={label} {...(glow ? glowHandlers : {})} {...rest}>
       <Icon name={icon} />
       {showLabel && (
         <span className="iconbtn-label" aria-hidden="true">

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import type { MouseEvent } from 'react';
 import { Icon } from '../ui/Icon';
 import { cx } from '../../lib/cx';
+import { glowHandlers } from '../../lib/cardGlow';
 import { useI18n } from '../../i18n';
 
 /** Email address with a one-click copy button + transient "Copied" state. */
@@ -33,7 +34,7 @@ export function EmailCopy({ email }: { email: string }) {
   };
 
   return (
-    <div className="contact-mail-wrap">
+    <div className="contact-mail-wrap glow" {...glowHandlers}>
       <div className="cb-bar" aria-hidden="true">
         <span className="cb-dot" />
         <span className="cb-dot" />

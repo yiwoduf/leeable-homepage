@@ -18,9 +18,11 @@ type ButtonElProps = CommonProps & ButtonHTMLAttributes<HTMLButtonElement> & { h
 /** Anchor when given `href`, otherwise a `<button>`. */
 export type ButtonProps = AnchorProps | ButtonElProps;
 
-/** The site's primary call-to-action — outline, solid (`primary`), or glowing. */
+/** The site's primary call-to-action — outline, solid (`primary`), or glowing.
+ *  `glow` is the pointer-following area only (`glow-p`) — the spinning comet
+ *  outline read as visual noise on buttons and is reserved for surfaces. */
 export function Button(props: ButtonProps) {
-  const cls = cx('btn', props.variant === 'primary' && 'primary', props.glow && 'glow', props.className);
+  const cls = cx('btn', props.variant === 'primary' && 'primary', props.glow && 'glow-p', props.className);
   const glow = props.glow ? glowHandlers : {};
 
   if (props.href !== undefined) {

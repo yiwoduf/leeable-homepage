@@ -14,6 +14,9 @@ export function SocialRail({ identity }: { identity: Identity }) {
       <a href={identity.linkedin} target="_blank" rel="noopener" data-tip={t.social.linkedin} aria-label={t.social.linkedin}>
         <Icon name="linkedin" />
       </a>
+      <a href={identity.x} target="_blank" rel="noopener" data-tip={t.social.x} aria-label={t.social.x}>
+        <Icon name="x" />
+      </a>
       <a href={`mailto:${identity.email}`} data-tip={t.social.email} aria-label={t.social.email}>
         <Icon name="mail" />
       </a>

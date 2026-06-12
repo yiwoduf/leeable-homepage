@@ -32,16 +32,16 @@ export function ContactSection({ identity }: { identity: Identity }) {
         <EmailCopy email={identity.email} />
       </div>
       <div className="contact-links reveal" style={cssVars({ '--d': '.27s' })}>
-        <Button href={identity.github} target="_blank" rel="noopener">
+        <Button glow href={identity.github} target="_blank" rel="noopener">
           <Icon name="github" /> {t.social.github}
         </Button>
-        <Button href={identity.linkedin} target="_blank" rel="noopener">
+        <Button glow href={identity.linkedin} target="_blank" rel="noopener">
           <Icon name="linkedin" /> {t.social.linkedin}
         </Button>
-        <Button href={identity.x} target="_blank" rel="noopener">
+        <Button glow href={identity.x} target="_blank" rel="noopener">
           <Icon name="x" /> {t.social.x}
         </Button>
-        <Button variant="primary" href={identity.resume} target="_blank" rel="noopener">
+        <Button glow variant="primary" href={identity.resume} target="_blank" rel="noopener">
           <Icon name="download" /> {t.social.resume}
         </Button>
       </div>

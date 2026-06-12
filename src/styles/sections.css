@@ -37,7 +37,10 @@
   clip-path: inset(0 0 100% 0);
   transition: clip-path .7s cubic-bezier(.16, .84, .34, 1); transition-delay: var(--d, 0s);
 }
-:root[data-scrolldir="up"] .tl-line.reveal { clip-path: inset(100% 0 0 0); }
+/* :not([data-revealed]) keeps this hidden-state rule from outranking the
+   revealed rule below — :root[...] alone has higher specificity, which kept
+   the line clipped forever on upward arrivals. */
+:root[data-scrolldir="up"] .tl-line.reveal:not([data-revealed]) { clip-path: inset(100% 0 0 0); }
 .tl-line.reveal[data-revealed] { clip-path: inset(0 0 0 0); }
 .tl-item { position: relative; padding-bottom: 52px; }
 .tl-item:last-child { padding-bottom: 0; }
@@ -275,6 +278,10 @@ html[data-lang='ko'] .contact-big .kw { font-size: 1.4em; line-height: .85; }
   font-family: var(--font-mono); font-weight: 600; font-size: 14px;
   color: var(--accent);
 }
+.cb-body .copy-btn { margin-left: auto; }
+/* the bar/body carry opaque backgrounds, so the pointer glow must sit above
+   them (elsewhere it lives between the surface and the children) */
+.contact-mail-wrap.glow::after { z-index: 2; }
 .email-plain {
   display: inline-flex; align-items: center; gap: 10px;
   font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.02em;
