@@ -13,7 +13,11 @@ export function ExperienceSection({ experience }: { experience: Experience[] }) 
       <Kicker idx="02">{s.kicker}</Kicker>
       <SectionTitle>{renderRich(s.title)}</SectionTitle>
       <div className="timeline">
-        <span className="tl-line reveal" aria-hidden="true" />
+        {/* outer span = reveal sensor (never clipped, so the observer sees a
+            stable box); inner span = the actual line, drawn via clip-path */}
+        <span className="tl-line reveal" aria-hidden="true">
+          <span className="tl-line-draw" />
+        </span>
         {experience.map((e, i) => (
           <div className="tl-item reveal" key={`${e.role}-${e.period}`} style={cssVars({ '--d': `${i * 0.08}s` })}>
             <span className="tl-dot" />
