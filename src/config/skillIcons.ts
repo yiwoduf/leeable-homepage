@@ -8,7 +8,8 @@ export const SKILL_ICONS: Record<string, string> = {
   JavaScript: 'javascript',
   Python: 'python',
   PHP: 'php',
-  Java: 'openjdk',
+  // Java renders from CUSTOM_SKILL_ICONS — the CDN only has the OpenJDK
+  // replacement mark, which doesn't read as Java.
   React: 'react',
   'Next.js': 'nextdotjs',
   Vite: 'vite',
