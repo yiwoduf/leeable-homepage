@@ -69,6 +69,7 @@
   right: 24px;
   width: min(380px, calc(100vw - 32px));
   height: min(560px, 70vh);
+  height: min(560px, 70svh); /* stable on iOS — see .section */
   display: flex;
   flex-direction: column;
   /* Glass surface — matches .mobilenav recipe */

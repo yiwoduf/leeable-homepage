@@ -209,7 +209,13 @@
 /* ============================================================
    CONTACT
    ============================================================ */
-.contact { text-align: center; padding-top: clamp(160px, 26vh, 300px); padding-bottom: clamp(160px, 26vh, 300px); }
+.contact {
+  text-align: center;
+  padding-top: clamp(160px, 26vh, 300px);
+  padding-top: clamp(160px, 26svh, 300px);
+  padding-bottom: clamp(160px, 26vh, 300px);
+  padding-bottom: clamp(160px, 26svh, 300px);
+}
 .contact-inner { max-width: 860px; margin: 0 auto; }
 .contact-big {
   font-family: var(--font-display); font-weight: 700;

@@ -3,6 +3,7 @@
    ============================================================ */
 .hero {
   min-height: 100vh;
+  min-height: 100svh; /* stable on iOS — see .section */
   display: grid;
   /* Explicit definite track. With the implicit `auto` track, .hero-inner's
      width:100% is cyclic and resolves as fit-content (its auto margins also
@@ -14,6 +15,8 @@
   align-items: center;
   position: relative;
   padding: clamp(80px, 12vh, 140px) clamp(24px, 6vw, 88px) clamp(60px, 9vh, 110px);
+  padding-top: clamp(80px, 12svh, 140px);
+  padding-bottom: clamp(60px, 9svh, 110px);
   overflow: hidden;
 }
 .hero-inner {

@@ -27,6 +27,13 @@ export function useResizeRealign(activeId: string): void {
       timer = window.setTimeout(() => realignTo(ref.current), 140);
     };
 
+    // bfcache restore (returning from an external link) re-evaluates layout —
+    // re-align onto the section the visitor was on.
+    const onPageShow = (e: PageTransitionEvent) => {
+      if (e.persisted) schedule();
+    };
+    window.addEventListener('pageshow', onPageShow);
+
     const host = scrollContainer();
     if (host) {
       let lastW = host.clientWidth;
@@ -43,6 +50,7 @@ export function useResizeRealign(activeId: string): void {
       ro.observe(host);
       return () => {
         ro.disconnect();
+        window.removeEventListener('pageshow', onPageShow);
         window.clearTimeout(timer);
       };
     }
@@ -50,6 +58,7 @@ export function useResizeRealign(activeId: string): void {
     window.addEventListener('resize', schedule);
     return () => {
       window.removeEventListener('resize', schedule);
+      window.removeEventListener('pageshow', onPageShow);
       window.clearTimeout(timer);
     };
   }, []);

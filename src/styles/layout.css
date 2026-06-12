@@ -33,19 +33,40 @@
 /* ---- Section shell ---- */
 .section {
   position: relative;
+  /* svh, not vh: on iOS, vh re-resolves when browser chrome changes (tab
+     returns, rotation) — that churn under a min-height container is what
+     corrupted grid row heights on iPad. svh never changes. The vh line stays
+     as the fallback for engines without svh support. */
   min-height: 100vh;
-  display: flex; flex-direction: column; justify-content: center;
+  min-height: 100svh;
+  /* Grid centering, not flex: WebKit has long-standing layout bugs with
+     min-height flex-column containers when their height basis changes; grid
+     with a definite 100% track + align-content is immune, and sizes the
+     inner deterministically (same fix as the hero). */
+  display: grid;
+  grid-template-columns: 100%;
+  align-content: center;
   padding: clamp(80px, 10vh, 128px) clamp(24px, 6vw, 88px);
+  padding-top: clamp(80px, 10svh, 128px);
+  padding-bottom: clamp(80px, 10svh, 128px);
 }
 /* extra scroll room top + bottom so scrolling feels free, not rigid; the snap
    targets the content (not this padding) so the title still lands nicely */
 .section:not(.hero):not(.contact) {
   min-height: 100vh;
+  min-height: 100svh;
   padding-top: clamp(130px, 20vh, 280px);
+  padding-top: clamp(130px, 20svh, 280px);
   padding-bottom: clamp(130px, 20vh, 280px);
+  padding-bottom: clamp(130px, 20svh, 280px);
 }
 /* AI Solutions: extra breathing room top + bottom */
-#solutions { padding-top: clamp(130px, 20vh, 280px); padding-bottom: clamp(130px, 20vh, 280px); }
+#solutions {
+  padding-top: clamp(130px, 20vh, 280px);
+  padding-top: clamp(130px, 20svh, 280px);
+  padding-bottom: clamp(130px, 20vh, 280px);
+  padding-bottom: clamp(130px, 20svh, 280px);
+}
 .section-inner { max-width: var(--maxw); margin: 0 auto; width: 100%; }
 .section.alt { background: var(--bg-2); }
 .section.alt::before, .section.alt::after { content: none; }
