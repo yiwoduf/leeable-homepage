@@ -76,13 +76,18 @@ export function useReveal(): void {
       },
       { rootMargin: `0px 0px -${Math.round((1 - line) * 100)}% 0px` },
     );
-    reveals.forEach((el) => io.observe(el));
+    // Desktop only: live per-element toggles while you scroll. On touch the
+    // native snap has no scroll lock to defer behind, so live toggles would
+    // reveal elements one-by-one mid-flight and erase the arrival stagger —
+    // instead, mobile reveals as a GROUP at settle (the scroll-stop reconcile
+    // below), which replays the same staggered cascade as the desktop pager.
+    if (replay) reveals.forEach((el) => io.observe(el));
 
     // Track .reveal nodes mounted after this effect ran (content/theme swaps).
     const track = (el: HTMLElement) => {
       if (reveals.has(el)) return;
       reveals.add(el);
-      io.observe(el);
+      if (replay) io.observe(el);
       setRevealed(el, inBand(el)); // already in the band → show right away
     };
     const mo = new MutationObserver((records) => {

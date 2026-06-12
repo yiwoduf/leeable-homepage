@@ -45,8 +45,31 @@ const MAX_FRAME_DT = 64; // ms — clamp dt across tab-switch / hitch gaps
 export function useSectionSnap(): void {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    // Touch devices scroll natively with CSS scroll-snap (see base.css).
-    if (window.matchMedia('(pointer: coarse)').matches) return;
+
+    // Touch devices scroll natively with CSS scroll snap (see base.css). The
+    // snap CSS needs to know whether each section's CONTENT fits the viewport
+    // (single centered rest) or is taller (top/bottom edge rests) — measure
+    // and tag, re-tagging whenever content or viewport size changes. Mirrors
+    // the fit rule in lib/sectionMetrics.ts (fits when h <= 100vh - 2×12vh).
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      const innerOf = (el: HTMLElement): HTMLElement =>
+        el.querySelector<HTMLElement>('.section-inner, .hero-inner, .contact-inner') ?? el;
+      const tag = () => {
+        for (const el of sectionElements()) {
+          const fits =
+            innerOf(el).getBoundingClientRect().height <= window.innerHeight * 0.76;
+          el.dataset.snap = fits ? 'fit' : 'tall';
+        }
+      };
+      tag();
+      const ro = new ResizeObserver(tag); // content growth (e.g. a card expanding)
+      sectionElements().forEach((el) => ro.observe(innerOf(el)));
+      window.addEventListener('resize', tag);
+      return () => {
+        ro.disconnect();
+        window.removeEventListener('resize', tag);
+      };
+    }
 
     const root = document.documentElement;
     const vh = () => window.innerHeight;

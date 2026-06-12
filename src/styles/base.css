@@ -30,8 +30,39 @@ html {
     overscroll-behavior-y: none;
   }
   body { overscroll-behavior-y: none; }
-  .section {
+
+  /* Snap geometry mirrors the desktop pager's resting positions exactly
+     (see lib/sectionMetrics.ts). useSectionSnap tags each section with
+     data-snap='fit'|'tall' by measuring its content vs the viewport.
+     FIT content rests centered; TALL content rests at its top edge
+     (12vh breathing) or at its bottom edge via an invisible sentinel —
+     so a fling from mid-section stops at the content edge instead of
+     crossing into the neighbor, and the bottom of a long section is a
+     legitimate resting position. */
+  .section[data-snap='fit'] .section-inner,
+  .section[data-snap='fit'] .hero-inner,
+  .section[data-snap='fit'] .contact-inner {
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+  }
+  .section[data-snap='tall'] .section-inner,
+  .section[data-snap='tall'] .hero-inner,
+  .section[data-snap='tall'] .contact-inner {
+    position: relative;
     scroll-snap-align: start;
+    scroll-snap-stop: always;
+    scroll-margin-top: 12vh;
+  }
+  .section[data-snap='tall'] .section-inner::after,
+  .section[data-snap='tall'] .hero-inner::after,
+  .section[data-snap='tall'] .contact-inner::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -12vh;
+    width: 1px;
+    height: 1px;
+    scroll-snap-align: end;
     scroll-snap-stop: always;
   }
 }
