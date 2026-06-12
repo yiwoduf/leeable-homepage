@@ -14,19 +14,16 @@ html {
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
 }
-/* Mobile: 100% NATIVE scrolling with CSS scroll snap — inside a CONTAINER.
-   JS-driven document scrolling during touch flickers on iOS WebKit, and the
-   ROOT scroller brings two more platform problems: the browser bar moves
-   (CSS vh drifts from the real viewport, so snap rests land off-position)
-   and root snap handles multiple stops / snap-stop unreliably. So on coarse
-   pointers the document never scrolls at all: <main> becomes a fixed,
-   viewport-sized scroll container with the snap model inside it —
-     • free scrolling inside sections taller than the viewport
-     • magnetic rest at section edges (y mandatory)
-     • a fling cannot skip past a stop (scroll-snap-stop: always, plus a JS
-       one-step backstop in useSectionSnap for WebKit's momentum quirks)
-   The wheel pager in useSectionSnap stays desktop-only; reduced-motion users
-   keep fully native, snap-free scrolling. */
+/* Mobile: THE CARD MODEL — 100% native scrolling, shorts-style.
+   JS-driven document scrolling during touch flickers on iOS WebKit, and iOS
+   momentum snapping is only reliable in its optimal configuration: a fixed
+   scroll container with ONE uniform snap stop per full-height card. So on
+   coarse pointers the document never scrolls at all — <main> is a fixed,
+   viewport-sized scroll container; every section is exactly one card with a
+   single snap stop; content taller than its card scrolls INSIDE the card
+   (see layout.css for the card geometry and useSectionSnap for the
+   overscroll handoff that reproduces the desktop edge rules).
+   Reduced-motion users keep fully native, snap-free scrolling. */
 @media (pointer: coarse) and (prefers-reduced-motion: no-preference) {
   html, body {
     overflow: hidden;
@@ -47,57 +44,6 @@ html {
      iOS aborts a native smooth scroll at the first snap-stop otherwise, so
      multi-section jumps would never arrive. Snap re-engages on landing. */
   html[data-snap-jump] main { scroll-snap-type: none; }
-
-  /* Snap geometry mirrors the desktop pager's resting positions exactly
-     (see lib/sectionMetrics.ts). useSectionSnap tags each section with
-     data-snap='fit'|'tall' by measuring its content vs the viewport.
-     FIT content rests centered; TALL content rests at its top edge
-     (12vh breathing) or at its bottom edge via an invisible sentinel —
-     so a fling from mid-section stops at the content edge instead of
-     crossing into the neighbor, and the bottom of a long section is a
-     legitimate resting position. */
-  /* FIT sections snap by their BOX (≥100vh), not their content: the box
-     centered always covers the viewport (no neighbor background peeking on
-     iPad, where CSS vh and the visual viewport disagree), and the section's
-     symmetric padding keeps the content visually centered anyway. */
-  .section[data-snap='fit'] {
-    scroll-snap-align: center;
-    scroll-snap-stop: always;
-  }
-  .section[data-snap='tall'] .section-inner,
-  .section[data-snap='tall'] .hero-inner,
-  .section[data-snap='tall'] .contact-inner {
-    position: relative;
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-    scroll-margin-top: 12vh;
-  }
-  .section[data-snap='tall'] .section-inner::after,
-  .section[data-snap='tall'] .hero-inner::after,
-  .section[data-snap='tall'] .contact-inner::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -12vh;
-    width: 1px;
-    height: 1px;
-    scroll-snap-align: end;
-    scroll-snap-stop: always;
-  }
-
-  /* The FIRST section's top rest must be the page top itself: a content-based
-     snap point can land above scrollY 0 (unreachable), and iOS then refuses
-     to rest on the hero at all. Its bottom sentinel (when tall) still applies. */
-  main > .section:first-child {
-    scroll-snap-align: start;
-    scroll-snap-stop: always;
-  }
-  main > .section:first-child .section-inner,
-  main > .section:first-child .hero-inner,
-  main > .section:first-child .contact-inner {
-    scroll-snap-align: none;
-    scroll-margin-top: 0;
-  }
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }

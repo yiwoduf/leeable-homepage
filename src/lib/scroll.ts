@@ -16,7 +16,9 @@ export function realignTo(id: string): void {
   }
   const el = document.getElementById(id);
   if (!el) return;
-  scrollerTo(clampScroll(sectionSnapTop(el)), 'instant');
+  // Card model on touch: rests are the cards' own tops inside the container.
+  const target = scrollContainer() ? el.offsetTop : clampScroll(sectionSnapTop(el));
+  scrollerTo(target, 'instant');
 }
 
 /**
@@ -29,17 +31,15 @@ export function realignTo(id: string): void {
  * `nativeJumpTo`.
  */
 export function scrollToId(id: string): void {
-  const target = id === 'hero' ? 0 : (() => {
-    const el = document.getElementById(id);
-    return el ? sectionSnapTop(el) : null;
-  })();
-  if (target === null) return;
+  const el = id === 'hero' ? null : document.getElementById(id);
+  if (id !== 'hero' && !el) return;
 
   if (scrollContainer()) {
-    nativeJumpTo(clampScroll(target));
+    // Card model on touch: jump to the card's own top.
+    nativeJumpTo(el ? el.offsetTop : 0);
     return;
   }
-  smoothScrollTo(target);
+  smoothScrollTo(el ? sectionSnapTop(el) : 0);
 }
 
 /**

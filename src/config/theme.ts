@@ -46,6 +46,9 @@ export function applyDesignTokens(root: HTMLElement = document.documentElement):
   root.style.setProperty('--font-mono', fp.mono);
 
   const m = siteConfig.motion / 10;
-  root.style.setProperty('--reveal-shift', `${8 + m * 34}px`);
-  root.style.setProperty('--reveal-dur', `${0.42 + m * 0.5}s`);
+  // Touch devices get a tighter, faster reveal — card swipes land quickly and
+  // the full desktop stagger duration reads as lag on a phone.
+  const scale = window.matchMedia('(pointer: coarse)').matches ? 0.55 : 1;
+  root.style.setProperty('--reveal-shift', `${(8 + m * 34) * scale}px`);
+  root.style.setProperty('--reveal-dur', `${((0.42 + m * 0.5) * scale).toFixed(3)}s`);
 }

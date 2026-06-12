@@ -68,57 +68,62 @@ export function useSectionSnap(): void {
       }
     };
 
-    // ---- TOUCH DEVICES: native container snap + passive instrumentation ----
-    // Scrolling itself is 100% native inside the fixed <main> container (see
-    // base.css — the browser bar never moves, so geometry is pixel-exact).
-    // This branch never writes scroll DURING a gesture; it only:
-    //   1. tags each section data-snap='fit'|'tall' so the snap CSS can mirror
-    //      the desktop resting positions (fit rule from lib/sectionMetrics.ts)
+    // ---- TOUCH DEVICES: the card model (see base.css / layout.css) ---------
+    // Scrolling is 100% native inside the fixed <main> container: every
+    // section is ONE uniform full-height card with a single snap stop, and
+    // taller content scrolls inside its card. This branch never writes scroll
+    // DURING a gesture; it only:
+    //   1. reproduces the desktop edge rules via overscroll handoff (a swipe
+    //      starting mid-content stops at the content edge; one starting at an
+    //      edge chains out to the pager)
     //   2. drives the pull indicator read-only from scroll position
-    //   3. enforces the pager contract AFTER momentum settles: one gesture
-    //      moves at most ONE rest position. If WebKit's snap overshoots a stop
-    //      (a known iOS quirk under hard flings), a single corrective native
-    //      jump puts the page on the adjacent rest.
+    //   3. enforces one-card-per-gesture AFTER momentum settles (a single
+    //      corrective native jump if WebKit's momentum ever overshoots).
     if (window.matchMedia('(pointer: coarse)').matches) {
       const container = scrollContainer();
       if (!container) return;
 
       const innerOf = (el: HTMLElement): HTMLElement =>
         el.querySelector<HTMLElement>('.section-inner, .hero-inner, .contact-inner') ?? el;
-      // 'fit' up to a 5% overflow: marginally-tall content (e.g. the stacked
-      // hero) reads as ONE card — an intermediate bottom-stop a few px below
-      // the top-stop would force a pointless second flick and let the
-      // backstop "bounce" a legitimate section change back.
-      const tag = () => {
-        for (const el of sectionElements()) {
-          const fits =
-            innerOf(el).getBoundingClientRect().height <= window.innerHeight * 1.05;
-          el.dataset.snap = fits ? 'fit' : 'tall';
-        }
-      };
-      tag();
-      const ro = new ResizeObserver(tag); // content growth (e.g. a card expanding)
-      sectionElements().forEach((el) => ro.observe(innerOf(el)));
-      window.addEventListener('resize', tag);
 
-      // All legal rest positions, in document order — mirrors the CSS snap
-      // stops exactly (fit → one centered rest; tall → top and bottom rests;
-      // the first section anchors at 0 per the CSS first-child rule). Stops
-      // closer than ~a third of a viewport are coalesced into one: they are
-      // visually the same rest and must count as ONE step for the backstop.
-      const restsOf = (): number[] => {
-        const raw: number[] = [];
-        sectionElements().forEach((el, idx) => {
-          raw.push(idx === 0 ? 0 : clampScroll(sectionSnapTop(el)));
-          if (el.dataset.snap === 'tall') raw.push(clampScroll(sectionSnapBottom(el)));
-        });
-        const minGap = window.innerHeight * 0.3;
-        const out: number[] = [];
-        for (const r of raw) {
-          if (!out.length || r - out[out.length - 1] >= minGap) out.push(r);
-        }
-        return out;
-      };
+      // ---- EDGE HANDOFF (the desktop edge rules, via overscroll) -----------
+      // Cards contain their own scrolling (layout.css). A gesture that STARTS
+      // mid-content must stop at the content edge (contain); only a gesture
+      // that starts AT an edge and moves outward may chain to the pager
+      // (auto). Outward needs the direction, so it's decided on the first
+      // move of each gesture — before the boundary can be hit.
+      const handoffCleanups = sectionElements().map((sec) => {
+        const inner = innerOf(sec);
+        let startY = 0;
+        let startTop = true;
+        let startBot = true;
+        let decided = false;
+        const onTs = (e: TouchEvent) => {
+          startY = e.touches[0]?.clientY ?? 0;
+          startTop = inner.scrollTop <= 1;
+          startBot = inner.scrollTop >= inner.scrollHeight - inner.clientHeight - 1;
+          decided = false;
+          // no internal overflow → a pure page card; always hand off
+          inner.style.overscrollBehaviorY = startTop && startBot ? 'auto' : 'contain';
+        };
+        const onTm = (e: TouchEvent) => {
+          if (decided) return;
+          decided = true;
+          const dy = (e.touches[0]?.clientY ?? startY) - startY; // + = finger down = scroll up
+          const outward = (startTop && dy > 0) || (startBot && dy < 0);
+          if (outward) inner.style.overscrollBehaviorY = 'auto';
+        };
+        inner.addEventListener('touchstart', onTs, { passive: true });
+        inner.addEventListener('touchmove', onTm, { passive: true });
+        return () => {
+          inner.removeEventListener('touchstart', onTs);
+          inner.removeEventListener('touchmove', onTm);
+        };
+      });
+
+      // Uniform card stops — each section's top inside the container. This is
+      // the whole rest model now; no intermediate stops exist.
+      const restsOf = (): number[] => sectionElements().map((el) => el.offsetTop);
       const nearestRest = (rests: number[], y: number): number => {
         let best = 0;
         for (let k = 1; k < rests.length; k++) {
@@ -191,47 +196,27 @@ export function useSectionSnap(): void {
         }
         const list = sectionElements();
         if (!list.length) return;
-        const i = activeSectionIndex(list);
-        const restTop = clampScroll(sectionSnapTop(list[i]));
-        const restBot = clampScroll(sectionSnapBottom(list[i]));
+        const tops = restsOf();
         const y = scrollerY();
-        const eps = 12; // container geometry is exact — tight rest tolerance
-
-        // Identify the inter-section gap we're inside (if any) — its bounds
-        // and the sections on either side of it.
-        let gapLo = 0;
-        let gapHi = 0;
-        let lower: HTMLElement | undefined;
-        let upper: HTMLElement | undefined;
-        if (y > restBot + eps && list[i + 1]) {
-          gapLo = restBot;
-          gapHi = clampScroll(sectionSnapTop(list[i + 1]));
-          upper = list[i];
-          lower = list[i + 1];
-        } else if (y < restTop - eps && list[i - 1]) {
-          gapLo = clampScroll(sectionSnapBottom(list[i - 1]));
-          gapHi = restTop;
-          upper = list[i - 1];
-          lower = list[i];
-        } else {
-          setPull('');
-          return;
+        // Locate the card gap we're traversing.
+        let i = 0;
+        for (let k = 0; k < tops.length; k++) {
+          if (tops[k] <= y + 1) i = k;
         }
-        const dist = gapHi - gapLo;
-        if (dist < 8 || !lower || !upper) {
+        const lo = tops[i];
+        const hi = i + 1 < tops.length ? tops[i + 1] : lo;
+        const dist = hi - lo;
+        const frac = dist > 8 ? (y - lo) / dist : 0;
+        // Minimum progress filters out snap-arrival micro-bounces.
+        if (frac < 0.06 || frac > 0.94) {
           setPull('');
           return;
         }
         // Direction comes from the live scroll direction (set by useReveal).
-        // A minimum progress filters out snap-arrival micro-bounces.
         if (root.dataset.scrolldir === 'up') {
-          const p = (gapHi - y) / dist;
-          if (p < 0.06) setPull('');
-          else setPull('up', p, upper.dataset.screenLabel ?? '');
+          setPull('up', 1 - frac, list[i].dataset.screenLabel ?? '');
         } else {
-          const p = (y - gapLo) / dist;
-          if (p < 0.06) setPull('');
-          else setPull('down', p, lower.dataset.screenLabel ?? '');
+          setPull('down', frac, list[i + 1]?.dataset.screenLabel ?? '');
         }
       };
 
@@ -241,8 +226,7 @@ export function useSectionSnap(): void {
       container.addEventListener('scroll', onScroll, { passive: true });
 
       return () => {
-        ro.disconnect();
-        window.removeEventListener('resize', tag);
+        handoffCleanups.forEach((off) => off());
         container.removeEventListener('touchstart', onTouchStart);
         container.removeEventListener('touchend', onTouchEnd);
         container.removeEventListener('touchcancel', onTouchEnd);

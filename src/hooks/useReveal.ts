@@ -1,7 +1,8 @@
 import { useEffect } from 'react';
 import { isScrollLocked } from '../lib/scrollController';
 import { maxScrollY } from '../lib/viewport';
-import { onScrollerScroll, scrollerViewHeight, scrollerY } from '../lib/scroller';
+import { onScrollerScroll, scrollContainer, scrollerViewHeight, scrollerY } from '../lib/scroller';
+import { sectionElements } from '../lib/sections';
 
 /**
  * Reveal-on-scroll, per element, tracking what you're actually looking at — in
@@ -79,10 +80,28 @@ export function useReveal(): void {
     );
     // Desktop only: live per-element toggles while you scroll. On touch the
     // native snap has no scroll lock to defer behind, so live toggles would
-    // reveal elements one-by-one mid-flight and erase the arrival stagger —
-    // instead, mobile reveals as a GROUP at settle (the scroll-stop reconcile
-    // below), which replays the same staggered cascade as the desktop pager.
+    // reveal elements one-by-one mid-flight and erase the arrival stagger.
     if (replay) reveals.forEach((el) => io.observe(el));
+
+    // Touch: reveal each CARD's content as a group the moment the card is a
+    // third visible — the stagger starts while the snap is still gliding in,
+    // so arrival feels immediate (the settle reconcile below stays as a
+    // safety net for anything this misses).
+    let secIO: IntersectionObserver | null = null;
+    if (!replay) {
+      secIO = new IntersectionObserver(
+        (entries) => {
+          for (const e of entries) {
+            if (!e.isIntersecting) continue;
+            e.target
+              .querySelectorAll<HTMLElement>('.reveal')
+              .forEach((el) => el.toggleAttribute('data-revealed', true));
+          }
+        },
+        { root: scrollContainer(), threshold: 0.34 },
+      );
+      sectionElements().forEach((sec) => secIO?.observe(sec));
+    }
 
     // Track .reveal nodes mounted after this effect ran (content/theme swaps).
     const track = (el: HTMLElement) => {
@@ -122,6 +141,7 @@ export function useReveal(): void {
 
     return () => {
       io.disconnect();
+      secIO?.disconnect();
       mo.disconnect();
       offScroll();
       window.clearTimeout(settleId);
