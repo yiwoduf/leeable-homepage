@@ -150,9 +150,14 @@
    boxes so a wrapped row never leaves ragged empty space. */
 .proj-skeleton {
   align-items: center; justify-content: center;
-  border-style: dashed; background: transparent;
+  border-style: dashed;
+  /* a quiet step off the section background — half-strength card surface */
+  background: color-mix(in oklab, var(--surface) 55%, transparent);
 }
-.proj-skeleton svg { width: 46px; height: auto; color: var(--text-faint); opacity: .45; transition: opacity .3s; }
+.proj-skeleton svg { width: 64px; height: auto; color: var(--text-faint); opacity: .45; transition: opacity .3s; }
+/* neutral mark: CSS fill outranks the SVG's presentation attributes, so the
+   accent piece goes monochrome here only. */
+.proj-skeleton svg path { fill: currentColor; }
 .proj-skeleton:hover { transform: none; box-shadow: none; border-color: var(--border); }
 .proj-skeleton:hover svg { opacity: .7; }
 
