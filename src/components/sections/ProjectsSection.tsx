@@ -1,9 +1,67 @@
+import { useEffect, useRef } from 'react';
+import type { RefObject } from 'react';
 import type { Project } from '../../types/portfolio';
 import { Section, Kicker, SectionTitle, Card, Chip, Icon } from '../ui';
 import { PuzzleMark } from '../ui/PuzzleMark';
 import { cssVars } from '../../lib/cssVars';
+import { scrollContainer } from '../../lib/scroller';
 import { useI18n } from '../../i18n';
 import { renderRich } from '../../i18n/rich';
+
+/**
+ * WebKit (iPad Safari) workaround. After a rotation or returning from another
+ * tab, Safari keeps the grid's CACHED row tracks instead of re-sizing them to
+ * the reflowed content: cards render stretched to old taller tracks (tags
+ * pinned to the bottom of a huge box) or clipped by old shorter ones — states
+ * the spec doesn't allow for auto rows, i.e. an engine bug, not our CSS.
+ *
+ * The fix forces the grid through display:none and back within a single task,
+ * which rebuilds the tracks from scratch. No visible flash: the browser never
+ * paints mid-task. Touch devices only — desktop engines don't have the bug.
+ */
+function useStaleTrackKick(gridRef: RefObject<HTMLDivElement>): void {
+  useEffect(() => {
+    if (!window.matchMedia('(pointer: coarse)').matches) return;
+    const grid = gridRef.current;
+    if (!grid) return;
+
+    const kick = () => {
+      const prev = grid.style.display;
+      grid.style.display = 'none';
+      void grid.offsetHeight; // flush layout while hidden
+      grid.style.display = prev;
+    };
+
+    // Returning from the GitHub tab: same-tab restore fires pageshow; a
+    // backgrounded-but-alive page fires visibilitychange instead.
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') kick();
+    };
+    window.addEventListener('pageshow', kick);
+    document.addEventListener('visibilitychange', onVisible);
+
+    // Rotation: the fixed scroll container's width only changes on real
+    // viewport changes. Kick one frame later, after the new layout lands.
+    const host = scrollContainer();
+    let ro: ResizeObserver | null = null;
+    if (host) {
+      let lastW = host.clientWidth;
+      ro = new ResizeObserver(() => {
+        const w = host.clientWidth;
+        if (w === 0 || w === lastW) return;
+        lastW = w;
+        requestAnimationFrame(kick);
+      });
+      ro.observe(host);
+    }
+
+    return () => {
+      window.removeEventListener('pageshow', kick);
+      document.removeEventListener('visibilitychange', onVisible);
+      ro?.disconnect();
+    };
+  }, [gridRef]);
+}
 
 /**
  * Skeleton cells that square off the 3-column layout's ragged second row
@@ -53,12 +111,14 @@ function ProjectCard({ project, index, soon }: { project: Project; index: number
 export function ProjectsSection({ projects }: { projects: Project[] }) {
   const { t } = useI18n();
   const s = t.sections.projects;
+  const gridRef = useRef<HTMLDivElement>(null);
+  useStaleTrackKick(gridRef);
 
   return (
     <Section id="projects" alt label={s.screenLabel}>
       <Kicker idx="04">{s.kicker}</Kicker>
       <SectionTitle>{renderRich(s.title)}</SectionTitle>
-      <div className="proj-grid">
+      <div className="proj-grid" ref={gridRef}>
         {projects.map((p, i) => (
           <ProjectCard key={p.name} project={p} index={i} soon={s.soon} />
         ))}
