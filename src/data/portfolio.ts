@@ -54,7 +54,7 @@ export const portfolio: PortfolioData = {
       org: 'Paycom · Irving, TX',
       period: 'Nov 2024 — May 2026',
       points: [
-        'Promoted to Software Developer III and awarded a performance bonus ahead of peers as the most junior team member; served as Lead Dev / Lead Tester on 20+ test-execution and 200+ development tickets.',
+        'Promoted to Software Developer III ahead of peers and earned a performance bonus for consistently delivering high-impact work — as the most junior member of the team; served as Lead Dev / Lead Tester on 20+ test-execution and 200+ development tickets.',
         'Designed and shipped an end-to-end system automating jurisdiction selection from candidate data — owning the database schema, third-party API integration, and a new data model across 14 stories.',
         'Delivered a multi-module compliance feature end to end under a 3-week deadline, designing a progressive-disclosure UX for complex eligibility flows.',
         'Built an internal harness for AI-assisted development in a security-restricted environment, standardizing safe AI coding workflows across the team.',

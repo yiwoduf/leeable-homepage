@@ -127,9 +127,14 @@
 /* ============================================================
    PROJECTS
    ============================================================ */
-/* auto-fit keeps all four cards on one desktop row (1180/4 > 250) and
-   degrades gracefully at intermediate widths. */
-.proj-grid { margin-top: 52px; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px; }
+/* Explicit column counts per breakpoint (4 → 3 → 1). Only the 3-column
+   window wraps the 4 cards onto a ragged second row — the two static
+   .proj-skeleton cells square it off there (and stay display:none
+   everywhere else). Declarative on purpose: measured auto-fit + JS filler
+   state mutated the grid while the tab was hidden, glitching WebKit's
+   grid row heights on restore. */
+.proj-grid { margin-top: 52px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+@media (max-width: 1100px) { .proj-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) { .proj-grid { grid-template-columns: 1fr; } }
 .proj-card {
   border: 1px solid var(--border); border-radius: 8px; background: var(--surface);
@@ -146,14 +151,16 @@
 .proj-desc { color: var(--text-dim); font-size: 14.5px; margin-top: 12px; flex: 1; text-wrap: pretty; }
 .proj-stack { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
 .proj-nolink { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
-/* skeleton fillers — square off the last grid row with quiet placeholder
-   boxes so a wrapped row never leaves ragged empty space. */
+/* skeleton fillers — square off the wrapped 3-column row with quiet
+   placeholder boxes; hidden at every other breakpoint. */
 .proj-skeleton {
+  display: none;
   align-items: center; justify-content: center;
   border-style: dashed;
   /* a quiet step off the section background — half-strength card surface */
   background: color-mix(in oklab, var(--surface) 55%, transparent);
 }
+@media (min-width: 901px) and (max-width: 1100px) { .proj-skeleton { display: flex; } }
 .proj-skeleton svg { width: 64px; height: auto; color: var(--text-faint); opacity: .45; transition: opacity .3s; }
 /* neutral mark: CSS fill outranks the SVG's presentation attributes, so the
    accent piece goes monochrome here only. */

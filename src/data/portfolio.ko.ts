@@ -58,7 +58,7 @@ export const portfolioKo: PortfolioData = {
       org: 'Paycom · Irving, TX',
       period: '2024년 11월 — 2026년 5월',
       points: [
-        'Software Developer III로 조기 승진, 팀 내 최연소로 성과 보너스 수령. 테스트 실행 20건 이상, 개발 티켓 200건 이상에서 Lead Dev / Lead Tester 역할을 맡았습니다.',
+        '팀 내 최연소 멤버로서 동료들보다 앞서 Software Developer III로 승진했고, 꾸준히 임팩트 있는 결과물을 내며 성과 보너스를 받았습니다. 테스트 실행 20건 이상, 개발 티켓 200건 이상에서 Lead Dev / Lead Tester를 맡았습니다.',
         '후보자 데이터로부터 관할권을 자동 선택하는 시스템을 엔드투엔드로 설계·출시했습니다. DB 스키마, 서드파티 API 통합, 14개 스토리에 걸친 신규 데이터 모델을 단독 담당했습니다.',
         '3주 데드라인 안에 복잡한 자격 심사 흐름을 처리하는 Progressive Disclosure UX를 설계해 멀티 모듈 컴플라이언스 기능을 혼자 엔드투엔드로 완성했습니다.',
         '보안 제한 환경에서 AI 보조 개발을 가능하게 하는 내부 하네스를 구축하고, 팀 전체의 AI 코딩 워크플로우를 표준화했습니다.',
