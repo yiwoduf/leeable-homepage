@@ -48,17 +48,19 @@ export function ContactSection({ identity }: { identity: Identity }) {
       <div className="footer reveal" style={cssVars({ '--d': '.33s' })}>
         <span>
           © {year} {identity.name} — {identity.role}
+        </span>
+        <span className="footer-repo">
+          {t.footer.builtInPublic}
           <a
-            className="fork-link"
+            className="repo-link"
             href={SITE_REPO_URL}
             target="_blank"
             rel="noopener"
-            aria-label="Fork this site on GitHub"
+            aria-label="View source on GitHub"
           >
-            <Icon name="fork" /> {t.footer.forkMe}
+            <Icon name="github" />
           </a>
         </span>
-        <span>{t.footer.builtInPublic}</span>
       </div>
     </Section>
   );

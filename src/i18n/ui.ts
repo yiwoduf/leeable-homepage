@@ -91,7 +91,6 @@ export interface UiStrings {
   /** Footer. */
   footer: {
     builtInPublic: string;
-    forkMe: string;
   };
 }
 
@@ -184,7 +183,6 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
     },
     footer: {
       builtInPublic: 'Built in public · leeable.dev',
-      forkMe: 'Fork me',
     },
   },
 
@@ -275,7 +273,6 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
     },
     footer: {
       builtInPublic: '공개 개발 중 · leeable.dev',
-      forkMe: 'Fork me',
     },
   },
 };
