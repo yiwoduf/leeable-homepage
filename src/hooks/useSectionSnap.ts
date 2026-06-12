@@ -46,31 +46,6 @@ export function useSectionSnap(): void {
   useEffect(() => {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Touch devices scroll natively with CSS scroll snap (see base.css). The
-    // snap CSS needs to know whether each section's CONTENT fits the viewport
-    // (single centered rest) or is taller (top/bottom edge rests) — measure
-    // and tag, re-tagging whenever content or viewport size changes. Mirrors
-    // the fit rule in lib/sectionMetrics.ts (fits when h <= 100vh - 2×12vh).
-    if (window.matchMedia('(pointer: coarse)').matches) {
-      const innerOf = (el: HTMLElement): HTMLElement =>
-        el.querySelector<HTMLElement>('.section-inner, .hero-inner, .contact-inner') ?? el;
-      const tag = () => {
-        for (const el of sectionElements()) {
-          const fits =
-            innerOf(el).getBoundingClientRect().height <= window.innerHeight * 0.76;
-          el.dataset.snap = fits ? 'fit' : 'tall';
-        }
-      };
-      tag();
-      const ro = new ResizeObserver(tag); // content growth (e.g. a card expanding)
-      sectionElements().forEach((el) => ro.observe(innerOf(el)));
-      window.addEventListener('resize', tag);
-      return () => {
-        ro.disconnect();
-        window.removeEventListener('resize', tag);
-      };
-    }
-
     const root = document.documentElement;
     const vh = () => window.innerHeight;
     const maxStep = () => Math.max(110, Math.round(vh() * 0.14));
@@ -90,6 +65,79 @@ export function useSectionSnap(): void {
         root.style.removeProperty('--pull-label');
       }
     };
+
+    // ---- TOUCH DEVICES: native CSS snap + passive instrumentation ----------
+    // Scrolling itself is 100% native (see base.css). This branch only:
+    //   1. tags each section data-snap='fit'|'tall' so the snap CSS can mirror
+    //      the desktop resting positions (fit rule from lib/sectionMetrics.ts:
+    //      content fits when h <= 100vh - 2×12vh)
+    //   2. drives the pull indicator READ-ONLY from scroll position — when the
+    //      page travels the gap between two sections' rests, the indicator
+    //      fills toward the destination. No scroll writes, ever.
+    if (window.matchMedia('(pointer: coarse)').matches) {
+      const innerOf = (el: HTMLElement): HTMLElement =>
+        el.querySelector<HTMLElement>('.section-inner, .hero-inner, .contact-inner') ?? el;
+      const tag = () => {
+        for (const el of sectionElements()) {
+          const fits =
+            innerOf(el).getBoundingClientRect().height <= window.innerHeight * 0.76;
+          el.dataset.snap = fits ? 'fit' : 'tall';
+        }
+      };
+      tag();
+      const ro = new ResizeObserver(tag); // content growth (e.g. a card expanding)
+      sectionElements().forEach((el) => ro.observe(innerOf(el)));
+      window.addEventListener('resize', tag);
+
+      const onScroll = () => {
+        const list = sectionElements();
+        if (!list.length) return;
+        const i = activeSectionIndex(list);
+        const restTop = clampScroll(sectionSnapTop(list[i]));
+        const restBot = clampScroll(sectionSnapBottom(list[i]));
+        const y = window.scrollY;
+
+        // Identify the inter-section gap we're inside (if any) — its bounds
+        // and the sections on either side of it.
+        let gapLo = 0;
+        let gapHi = 0;
+        let lower: HTMLElement | undefined;
+        let upper: HTMLElement | undefined;
+        if (y > restBot + EDGE_EPS && list[i + 1]) {
+          gapLo = restBot;
+          gapHi = clampScroll(sectionSnapTop(list[i + 1]));
+          upper = list[i];
+          lower = list[i + 1];
+        } else if (y < restTop - EDGE_EPS && list[i - 1]) {
+          gapLo = clampScroll(sectionSnapBottom(list[i - 1]));
+          gapHi = restTop;
+          upper = list[i - 1];
+          lower = list[i];
+        } else {
+          setPull('');
+          return;
+        }
+        const dist = gapHi - gapLo;
+        if (dist < 8 || !lower || !upper) {
+          setPull('');
+          return;
+        }
+        // Direction comes from the live scroll direction (set by useReveal).
+        if (root.dataset.scrolldir === 'up') {
+          setPull('up', (gapHi - y) / dist, upper.dataset.screenLabel ?? '');
+        } else {
+          setPull('down', (y - gapLo) / dist, lower.dataset.screenLabel ?? '');
+        }
+      };
+      window.addEventListener('scroll', onScroll, { passive: true });
+
+      return () => {
+        ro.disconnect();
+        window.removeEventListener('resize', tag);
+        window.removeEventListener('scroll', onScroll);
+        setPull('');
+      };
+    }
 
     // ---- WHEEL (trackpad / mouse) ------------------------------------------
     let lastT = 0;

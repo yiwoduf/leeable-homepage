@@ -65,6 +65,20 @@ html {
     scroll-snap-align: end;
     scroll-snap-stop: always;
   }
+
+  /* The FIRST section's top rest must be the page top itself: a content-based
+     snap point can land above scrollY 0 (unreachable), and iOS then refuses
+     to rest on the hero at all. Its bottom sentinel (when tall) still applies. */
+  main > .section:first-child {
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+  }
+  main > .section:first-child .section-inner,
+  main > .section:first-child .hero-inner,
+  main > .section:first-child .contact-inner {
+    scroll-snap-align: none;
+    scroll-margin-top: 0;
+  }
 }
 html::-webkit-scrollbar { width: 0; height: 0; display: none; }
 body::-webkit-scrollbar { width: 0; height: 0; display: none; }
