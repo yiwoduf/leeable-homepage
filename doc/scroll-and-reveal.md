@@ -48,8 +48,13 @@ ignored until the wheel falls quiet for `GESTURE_GAP` (80ms). Key state:
   fresh delta spike (`absRaw > lastAbsDy + 16`) so a NEW flick breaks a stale
   trackpad-momentum lock. **Never reset it mid-glide** (`isScrollLocked()`), or
   one flick double-commits.
-- `gestureClosed` — this gesture ran into an edge via internal scroll. Reset
-  ONLY on a true gap, NOT on a spike — so one long swipe can't roll into a pull.
+- `gestureClosed` — this gesture ran into an edge via internal scroll. NOT reset
+  on a spike — one long swipe can't roll into a pull. Besides the true gap, it
+  re-opens on two NEW-TOUCH stream signatures (a `CLOSED_GAP` void in the
+  fine-delta stream, or a delta rise after `TAIL_DECAY_MIN` strict decreases),
+  because a trackpad's momentum tail keeps the raw gap alive for up to ~1s and
+  froze the page at the edge otherwise (gotchas.md §12). Gap timing uses
+  `e.timeStamp` (creation time) so delivery hitches can't fake a pause.
 - A section with `restBot - restTop <= MIN_INTERNAL` (40px) has no real internal
   scroll, so it pulls immediately (no dead slack — fixes the hero's ~15px slop).
 

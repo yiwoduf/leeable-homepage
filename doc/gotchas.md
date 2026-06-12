@@ -108,7 +108,32 @@ Continuous scroll values must not live in React state — the nav progress bar r
 actual section change. Keep it that way; a per-pixel `setState` re-rendered the whole app every
 frame on phones.
 
-## 12. Headless-Chrome verification recipes (used throughout this repo's history)
+## 12. Trackpad momentum tail freezes a closed gesture at the section edge
+
+**Symptom:** trackpad only — swipe from mid-section to the content edge, swipe again: nothing
+moves. Mouse wheel fine. "Wiggling the mouse" before re-scrolling made it work again.
+
+**Cause:** `gestureClosed` (set when a gesture runs into a content edge) resets on
+`GESTURE_GAP` (80ms) of wheel silence. But a trackpad keeps emitting decaying momentum-tail
+deltas for up to ~1s after the fingers lift, so the gap never elapses between two quick
+swipes — the second swipe was judged part of the first, still-closed gesture and its deltas
+were clamped at the edge (a no-op). Wiggling the mouse just made the user pause >80ms.
+
+**Fix:** the wheel path recognizes two stream signatures that ONLY a new touch produces and
+re-opens `gestureClosed` (never `gestureUsed` — rule "one gesture, one section" stays intact):
+
+1. **A `CLOSED_GAP` (40ms) void in the fine-delta stream.** Tails emit continuously every
+   ~8–16ms; even a 40ms hole in *event-creation* time (`e.timeStamp`, immune to delivery
+   hitches) means the tail died or a new touch killed it. Gated to small first deltas
+   (`TOUCH_START_MAX`) so jank-merged tail events can't qualify; notchy mice are excluded.
+2. **A delta rise after a confirmed decay run** (`TAIL_DECAY_MIN` strict decreases). Momentum
+   only ever decays — a rising delta inside a tail is physically a fresh finger. This catches
+   pause-free flick-flick rhythm scrolling, where no gap of any size ever appears.
+
+A magnitude/"significant delta" heuristic alone does NOT work: a fast re-swipe arrives while
+the tail is still emitting large deltas, indistinguishable by size. (`useSectionSnap.ts`)
+
+## 13. Headless-Chrome verification recipes (used throughout this repo's history)
 
 - Screenshot: `chrome --headless=new --screenshot=out.png --window-size=1440,900
   --virtual-time-budget=10000 <url>` (virtual time breaks rAF glides — use `--timeout=<ms>` plus

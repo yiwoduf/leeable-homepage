@@ -40,6 +40,17 @@ const MIN_INTERNAL = 40; // sections with less internal scroll than this just pu
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
 const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
 
+// Trackpads keep emitting decaying "momentum tail" deltas for up to ~1s after
+// the fingers lift, so GESTURE_GAP alone never elapses between two quick
+// swipes — a gesture that closed at a content edge stayed closed and the page
+// froze until true silence ("works again after wiggling the mouse"). Only a
+// NEW touch produces these two stream signatures, so either re-opens a closed
+// gesture (they re-arm `gestureClosed` ONLY — never `gestureUsed`, so a single
+// gesture still can't commit twice):
+const CLOSED_GAP = 40; // ms — a void this long in a fine-delta stream means new touch (tails emit every ~8–16ms without pause)
+const TAIL_DECAY_MIN = 6; // consecutive strictly-decreasing |deltaY|s that confirm a momentum tail is playing
+const TOUCH_START_MAX = 12; // px — a new touch's first delta is small; excludes jank-merged tail deltas from the CLOSED_GAP test
+
 // All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
 // so convergence speed is identical at 60/90/120/144Hz (a fixed per-frame
 // factor would run twice as fast on a 120Hz screen). τ values are tuned to
@@ -78,6 +89,7 @@ export function useSectionSnap(): void {
     // ---- WHEEL (trackpad / mouse) ------------------------------------------
     let lastT = 0;
     let lastAbsDy = 0;
+    let decayStreak = 0; // consecutive strictly-decreasing |deltaY|s — the momentum-tail signature
     let gestureUsed = false; // a section change already fired in the current gesture
     let gestureClosed = false; // this gesture ran into a content edge → no pulling until it lifts
     let springId = 0;
@@ -148,30 +160,54 @@ export function useSectionSnap(): void {
       e.preventDefault();
 
       const raw = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * vh() : e.deltaY;
+      if (!raw) return; // horizontal-only event — keep it out of the vertical gesture stream
       const absRaw = Math.abs(raw);
-      const now = performance.now();
+      // Event CREATION time, not processing time: a long frame delivers queued
+      // wheel events in one late burst, and a processing-time clock would fake
+      // a "gesture pause" exactly when the page hitches.
+      const now = e.timeStamp;
       const gap = now - lastT;
       lastT = now;
+
+      // Momentum-tail bookkeeping (constants above): strict decreases build the
+      // streak, a meaningful rise is evidence of a new finger, plateaus and
+      // sub-threshold jitter leave it untouched (so a slow new swipe's tiny
+      // first deltas don't consume the streak before its real rise arrives).
+      const risen = absRaw - lastAbsDy > Math.max(2, lastAbsDy * 0.2);
+      const tailConfirmed = decayStreak >= TAIL_DECAY_MIN;
+      const trackStream = () => {
+        decayStreak = absRaw < lastAbsDy ? decayStreak + 1 : risen ? 0 : decayStreak;
+        lastAbsDy = absRaw;
+      };
 
       // While a glide is playing, swallow input but DON'T re-judge the gesture —
       // resetting mid-glide would let one flick's momentum commit a second section.
       if (isScrollLocked()) {
-        lastAbsDy = absRaw;
+        trackStream();
         return;
       }
 
-      // A pause starts a fresh gesture (re-arms edge pulling); a mid-stream delta
-      // spike only breaks a stale momentum lock so a new flick responds without
-      // waiting the old one out — it must NOT re-arm a pull that already ran into
-      // an edge this gesture, or one long swipe could cross two sections.
+      // Gesture boundaries. A real pause starts a fresh gesture; a delta spike
+      // only breaks a stale momentum lock so a new flick can respond without
+      // waiting the old tail out. `gestureClosed` is deliberately stickier (one
+      // long swipe must not roll through an edge into a pull), so it re-opens
+      // only on the two NEW-TOUCH signatures described at the constants: a
+      // CLOSED_GAP void in the fine-delta stream, or a clear rise after a
+      // confirmed decay run (momentum only ever decays — a rise IS a finger).
       if (gap > GESTURE_GAP) {
         gestureUsed = false;
         gestureClosed = false;
-      } else if (absRaw > lastAbsDy + 16) {
-        gestureUsed = false;
+        decayStreak = 0;
+      } else {
+        if (absRaw > lastAbsDy + 16) gestureUsed = false;
+        if (gestureClosed) {
+          const newTouchPause = e.deltaMode === 0 && absRaw <= TOUCH_START_MAX && gap > CLOSED_GAP;
+          const newTouchRise = tailConfirmed && risen;
+          if (newTouchPause || newTouchRise) gestureClosed = false;
+        }
       }
-      lastAbsDy = absRaw;
-      if (gestureUsed || !raw) return;
+      trackStream();
+      if (gestureUsed) return;
 
       const cap = maxStep();
       const dy = Math.max(-cap, Math.min(cap, raw));
