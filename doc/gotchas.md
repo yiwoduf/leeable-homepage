@@ -108,27 +108,7 @@ Continuous scroll values must not live in React state — the nav progress bar r
 actual section change. Keep it that way; a per-pixel `setState` re-rendered the whole app every
 frame on phones.
 
-## 12. Trackpad momentum tail blocks `gestureClosed` reset
-
-**Symptom:** after reaching a section edge mid-swipe with a trackpad, the next intentional swipe
-does nothing (screen frozen at the edge). Works again after moving the mouse (which forces a ~80ms
-pause) or after waiting a moment.
-
-**Cause:** `useSectionSnap` sets `gestureClosed = true` when a gesture hits a content edge. It
-resets on `gap > GESTURE_GAP (80ms)` of wheel silence. But trackpads emit residual momentum events
-(< 1–2 px each) for 100–300 ms after the finger lifts — these keep `lastT` fresh so `gap` never
-reaches 80 ms. The next intentional swipe arrives while `gestureClosed = true` and `eff ≥ restBot`,
-so the clamped scroll is a no-op; the screen doesn't move at all.
-
-Mouse movement appeared to fix it because the user naturally paused >80 ms before the next scroll;
-the fix was incidental, not causal.
-
-**Fix (invariant):** track `lastSigT` — the last time a delta ≥ `SIG_THRESHOLD (3px)` arrived.
-Momentum tail events (< 3 px) don't update it. On the first significant event of a new swipe, if
-`sigGap = now − lastSigT > GESTURE_GAP`, that constitutes a new gesture even if the raw gap didn't
-clear 80 ms. (`useSectionSnap.ts`, wheel reset block)
-
-## 13. Headless-Chrome verification recipes (used throughout this repo's history)
+## 12. Headless-Chrome verification recipes (used throughout this repo's history)
 
 - Screenshot: `chrome --headless=new --screenshot=out.png --window-size=1440,900
   --virtual-time-budget=10000 <url>` (virtual time breaks rAF glides — use `--timeout=<ms>` plus
