@@ -20,7 +20,7 @@ Single content object (`portfolio: PortfolioData`, typed by `types/portfolio.ts`
 | Solutions (expandable cards) | `solutions[]` |
 | └ status badge | `status: 'live' | 'in-progress'` |
 | └ workflow nodes / outcome metrics | `flow[]` / `metrics[]` (empty `metrics` hides the block) |
-| Projects | `projects[]` — `link: null` renders a non-link "soon" card |
+| Projects | `projects[]` — `link: null` renders a non-link "SOON" card; `live: true` swaps the GitHub icon for a globe (live product URL) |
 | Skills | `skills[]` — `{ group, items: [...] }` |
 
 Adding/removing array items auto-updates the timeline, cards, chips, etc. Skill

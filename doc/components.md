@@ -7,7 +7,7 @@ Four buckets: `ui/` (reusable primitives), `layout/` (fixed chrome), `sections/`
 
 | Component | Purpose / notes |
 |---|---|
-| `Icon` | Inline-SVG icon set keyed by `name` (`IconName`). Holds github, linkedin, x, mail, download, arrow, chevron, file, home, user, briefcase, cpu, folder, layers, copy, check, gear, close. Add new icons here. |
+| `Icon` | Inline-SVG icon set keyed by `name` (`IconName`). Holds github, linkedin, x, globe, mail, download, arrow, chevron, file, home, user, briefcase, cpu, folder, layers, copy, check, gear, close. Add new icons here. |
 | `IconButton` | Square icon `<a>` (hero socials). `showLabel` reveals a text label in responsive layouts. Pointer glow (`glow-p`) by default — no comet outline at button scale. |
 | `Button` | Primary CTA. `<a>` when `href` given, else `<button>`. `variant='primary'` solid. `glow` = pointer-following glow only (`glow-p`); the comet outline is reserved for surfaces. |
 | `Card` | Glowing surface base for project/solution/stat cards. `<a>` when `href`. `glow` = `'glow'` (comet border) or `'glow-p'` (pointer glow only). |
@@ -49,7 +49,7 @@ Projects · Skills · Contact. Each takes its slice of `portfolio` as props.
 | `AboutSection` | Lead + body, a facts grid, and a `Stat` grid. |
 | `ExperienceSection` | Timeline: `.tl-line` (unclipped reveal **sensor**) wrapping `.tl-line-draw` (the clip-path draw animation — see gotchas.md §4) + a `.tl-item.reveal` per role. `now: true` adds the pulsing ring. |
 | `SolutionsSection` / `SolutionCard` | Expandable cards. `SolutionCard` measures its body `scrollHeight` to animate open/closed; its className changes with `open`/`armed` (the reason reveal uses a data-attribute). Body: PROBLEM \| SOLUTION columns (in-progress solutions render muted via `.sol-planned`), then ROLE, flow nodes, metrics. |
-| `ProjectsSection` | Grid of `Card`s (link → GitHub icon, `link: null` → "soon"). Two static `.proj-skeleton` cells square off the 3-column breakpoint (CSS-gated 901–1100px). `useStaleTrackKick` rebuilds the grid tracks after rotation/tab-return on touch (WebKit bug — gotchas.md §3). |
+| `ProjectsSection` | Grid of `Card`s (link → GitHub icon; `live: true` → accent globe icon; `link: null` → "SOON" badge). Three static `.proj-skeleton` cells (`sk-0`…`sk-2`) square off the ragged last row — all three at 4 columns, `sk-0` alone at 3 columns (CSS-gated). `useStaleTrackKick` rebuilds the grid tracks after rotation/tab-return on touch (WebKit bug — gotchas.md §3). |
 | `SkillsSection` | Per-group marquee rows. Icons: `SKILL_ICONS` slug → Simple Icons SVG fetched by `useSkillIcons` (black marks recolored via the ADAPT set); `CUSTOM_SKILL_ICONS` inline SVGs (OpenClaw, Codex, Java); else a fallback square. |
 | `ContactSection` | Big line, `EmailCopy` codebox, GitHub/LinkedIn/X/Résumé buttons (pointer glow), footer with © line and a GitHub view-source icon next to "Built in public". |
 | `EmailCopy` | Code-block style email: window bar (`.cb-bar` dots + `contact.sh`) over a graph-paper body with `$` prompt + copy button (right-aligned). Carries the full `glow` (comet outline + pointer glow, raised above the opaque child backgrounds). |

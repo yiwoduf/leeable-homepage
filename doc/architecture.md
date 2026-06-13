@@ -10,6 +10,11 @@ content object, a design-config object, and a set of focused hooks.
   `noUnusedParameters`, `noImplicitOverride`), **three 0.137.5**.
 - `npm run dev` — dev server. `npm run build` — `tsc --noEmit && vite build`.
   `npm run typecheck` — types only. `npm run preview` — preview the build.
+  `npm run sim:wheel` — wheel-pager gesture simulation (mandatory after any
+  `useSectionSnap` change — scroll-and-reveal.md).
+- `vite.config.ts`: `build.target: 'es2022'`, and `package.json` carries a
+  TEMPORARY `overrides: { esbuild: "^0.28.1" }` security pin — see
+  maintenance.md for why and when to remove both/either.
 - Deployed on Vercel (`leeable.dev`); the chat backend is a Vercel Function
   (`api/chat.ts` — env vars and security model in `SETUP.md`). API code compiles
   with `tsc -p api` as part of `typecheck`/`build`; its relative imports carry
@@ -88,6 +93,9 @@ src/
     three/heroEngine.ts    Three.js hero object engine (makeHero → HeroController)
 
   styles/                  global CSS, composed via index.css (see styling.md)
+
+scripts/
+  sim-wheel.mjs            wheel-pager gesture simulation harness (npm run sim:wheel)
 ```
 
 ## Data flow

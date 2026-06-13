@@ -6,5 +6,6 @@
 - [components.md](components.md) — UI / layout / section component catalog + hooks
 - [styling.md](styling.md) — CSS organization, tokens, theming, reveal classes
 - [content-and-config.md](content-and-config.md) — where to edit content & design knobs
+- [maintenance.md](maintenance.md) — pending tasks (esbuild override removal…) & recurring upkeep — check at session start
 - [../SETUP.md](../SETUP.md) — Simon chat backend: env vars, security model, rate limits
 - [../CLAUDE.md](../CLAUDE.md) — session briefing: stack, hard rules, conventions
