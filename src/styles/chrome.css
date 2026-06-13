@@ -181,8 +181,10 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
   width: 2px; height: 24px; border-radius: 2px;
   background: color-mix(in oklab, var(--text) 12%, transparent);
   overflow: hidden;
-  /* fade OUT (base state); the active state below overrides for fast IN */
-  opacity: 0; transition: opacity 0.3s ease, height 0.2s ease, background 0.25s ease;
+  /* fade OUT (base state) — slow and soft, this is also the post-commit
+     dissolve after lingerPull holds the bar at 100% through the snap glide.
+     The active state below overrides for a fast IN. */
+  opacity: 0; transition: opacity 0.5s ease, height 0.4s ease, background 0.4s ease;
 }
 .scroll-hint-bar.up { top: 16px; }
 .scroll-hint-bar.down { bottom: 16px; }
@@ -203,7 +205,7 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
   position: fixed; left: 50%; transform: translateX(-50%);
   font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.22em; text-transform: uppercase;
   color: color-mix(in oklab, var(--accent) 72%, var(--text-faint));
-  white-space: nowrap; opacity: 0; transition: opacity 0.3s ease;
+  white-space: nowrap; opacity: 0; transition: opacity 0.5s ease;
 }
 .hint-label.up { top: 118px; }
 .hint-label.down { bottom: 118px; }
@@ -214,9 +216,10 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
 :root[data-pull="down"] .scroll-hint-bar.down,
 :root[data-pull="up"] .scroll-hint-bar.up {
   opacity: 1;
-  height: calc(22px + var(--pull, 0) * 74px);
+  /* taller floor: the bar is clearly visible from the first pixel of pull */
+  height: calc(30px + var(--pull, 0) * 72px);
   background: color-mix(in oklab, var(--accent) 16%, transparent);
-  transition: opacity 0.1s ease, height 0.08s ease, background 0.18s ease;
+  transition: opacity 0.08s ease, height 0.08s ease, background 0.18s ease;
 }
 :root[data-pull="down"] .scroll-hint-bar.down .fill,
 :root[data-pull="up"] .scroll-hint-bar.up .fill {
@@ -231,8 +234,9 @@ html[data-chat-open] .socialrail { transform: translateY(-50%) translateX(84px);
 }
 :root[data-pull="down"] .hint-label.down,
 :root[data-pull="up"] .hint-label.up {
-  opacity: calc(0.2 + var(--pull, 0) * 0.7);
-  transition: opacity 0.15s ease;
+  /* higher floor: the destination name is readable from the start of the pull */
+  opacity: calc(0.38 + var(--pull, 0) * 0.62);
+  transition: opacity 0.12s ease;
 }
 
 /* mobile: same pull indicator, lifted above the bottom tab bar */

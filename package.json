@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "tsc --noEmit && tsc -p api && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit && tsc -p api"
+    "typecheck": "tsc --noEmit && tsc -p api",
+    "sim:wheel": "node scripts/sim-wheel.mjs"
   },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",

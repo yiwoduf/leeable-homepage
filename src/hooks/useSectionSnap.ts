@@ -32,9 +32,10 @@ import { scrollContainer, scrollerY, scrollerTo, scrollerViewHeight } from '../l
  */
 
 const GESTURE_GAP = 80; // ms of wheel silence that ends one gesture / starts the next
-const SPRING_DELAY = 320; // ms of stillness before an uncommitted wheel pull springs back
+const SPRING_DELAY = 450; // ms of stillness before an uncommitted wheel pull springs back (long enough to read the hint)
 const COMMIT = 0.26; // fraction of the transition a WHEEL pull must cover before it advances
-const PULL_CURVE = 0.5; // <1 front-loads the indicator so it shows early in the pull, not just near commit
+const PULL_CURVE = 0.4; // <1 front-loads the indicator so it shows early in the pull, not just near commit
+const COMMIT_LINGER = 600; // ms the indicator stays at 100% after a commit (≈ the snap glide) before fading out
 const EDGE_EPS = 4; // px tolerance for "resting at a content edge"
 const MIN_INTERNAL = 40; // sections with less internal scroll than this just pull (no dead slack)
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
@@ -88,8 +89,11 @@ export function useSectionSnap(): void {
 
     // publish pull state for <ScrollHint>: direction, 0–1 progress, and the
     // destination section's name (shown faintly toward the side you're pulling).
+    let lingerId = 0; // pending post-commit fade (see lingerPull)
     const setPull = (dir: 'up' | 'down' | '', progress = 0, label = '') => {
       if (dir) {
+        // a live pull always outranks a leftover post-commit linger
+        window.clearTimeout(lingerId);
         root.dataset.pull = dir;
         // front-load the visual so the line is clearly filling well before commit
         const shown = Math.pow(Math.min(1, Math.max(0, progress)), PULL_CURVE);
@@ -100,6 +104,14 @@ export function useSectionSnap(): void {
         root.style.setProperty('--pull', '0');
         root.style.removeProperty('--pull-label');
       }
+    };
+
+    // A commit fills the indicator to 100% and holds it through the snap glide
+    // (the payoff frame: "you crossed"), then lets the CSS fade it out — instead
+    // of snapping it away the instant the threshold is hit.
+    const lingerPull = (dir: 'up' | 'down', label: string) => {
+      setPull(dir, 1, label);
+      lingerId = window.setTimeout(() => setPull(''), COMMIT_LINGER);
     };
 
     // ---- WHEEL (trackpad / mouse) ------------------------------------------
@@ -365,7 +377,7 @@ export function useSectionSnap(): void {
           gestureUsed = true;
           closedAt = now; // the arrival edge starts inside the blind spot too
           window.clearTimeout(springId);
-          setPull('');
+          lingerPull('down', next.dataset.screenLabel ?? '');
           stopWheelGlide(); // hand the position to the snap glide
           smoothScrollTo(nextRest);
         } else if (over > 0 && dist > 0) {
@@ -410,7 +422,7 @@ export function useSectionSnap(): void {
           gestureUsed = true;
           closedAt = now; // the arrival edge starts inside the blind spot too
           window.clearTimeout(springId);
-          setPull('');
+          lingerPull('up', prev.dataset.screenLabel ?? '');
           stopWheelGlide(); // hand the position to the snap glide
           smoothScrollTo(prevRest);
         } else if (over > 0 && dist > 0) {
@@ -592,12 +604,18 @@ export function useSectionSnap(): void {
       tActive = false;
       const mode = tMode;
       tMode = 'none';
-      setPull('');
       if (mode === 'pull-down') {
+        // committed: hold the indicator at 100% through the glide (lingerPull);
+        // released early: clear it so the spring-back reads as a cancel.
+        if (tReady) lingerPull('down', tNextLabel);
+        else setPull('');
         smoothScrollTo(tReady ? tNextRest : tRestBot);
       } else if (mode === 'pull-up') {
+        if (tReady) lingerPull('up', tPrevLabel);
+        else setPull('');
         smoothScrollTo(tReady ? tPrevRest : tRestTop);
       } else if (mode === 'internal') {
+        setPull('');
         // fling: coast with friction, bounded to the section (parks at its
         // edges). Velocity is px/ms and friction decays by elapsed time, so
         // the coast feels identical at any refresh rate.
@@ -617,6 +635,7 @@ export function useSectionSnap(): void {
       } else {
         // mode 'none' — e.g. a tap that grabbed a glide mid-transition. If the
         // page was left resting between sections, settle onto the nearest rest.
+        setPull('');
         const y0 = scrollerY();
         if (y0 > tRestBot + EDGE_EPS) {
           smoothScrollTo(y0 - tRestBot < tNextRest - y0 ? tRestBot : tNextRest);
@@ -649,6 +668,7 @@ export function useSectionSnap(): void {
       stopWheelGlide();
       stopTouchFollow();
       window.clearTimeout(springId);
+      window.clearTimeout(lingerId);
       setPull('');
     };
   }, []);

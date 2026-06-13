@@ -79,8 +79,9 @@ fills the indicator by finger travel; release past `touchCommitPx()`
 `isScrollLocked()` is true and both paths swallow input.
 
 **Tuning constants** (top of the file): `COMMIT 0.26` (wheel: fraction of the gap
-to pull before crossing — raise = less sensitive), `PULL_CURVE 0.5` (front-loads
-the indicator so it shows early, not just near commit), `SPRING_DELAY`,
+to pull before crossing — raise = less sensitive), `PULL_CURVE 0.4` (front-loads
+the indicator so it shows early, not just near commit), `COMMIT_LINGER 600`
+(post-commit 100% hold before the fade), `SPRING_DELAY 450`,
 `GESTURE_GAP`, `EDGE_EPS`, `MIN_INTERNAL`, `TOUCH_RESIST`, `touchCommitPx`, and
 the trackpad intent set (`INTENT_WIN`, `INTENT_KEEP`, `INTENT_FLOOR`,
 `INTENT_RETAIN`, `TAIL_DECAY_MIN`, `TRUE_GAP`, `RISE_MIN`, `RISE_PX`,
@@ -89,12 +90,18 @@ the trackpad intent set (`INTENT_WIN`, `INTENT_KEEP`, `INTENT_FLOOR`,
 ## The pull indicator — `ScrollHint` + chrome.css
 
 The pager publishes `data-pull` (`up`/`down`/``), `--pull` (0–1, already
-curved), and `--pull-label` (destination section name, JSON-quoted) on `<html>`.
-`ScrollHint` is pure markup (two bars + two `.hint-label`s); chrome.css makes the
-bar **stretch** with `--pull` (`height: 22px + --pull*74px`), brighten to accent
-with a glowing head, and fade the destination label in. Same indicator on mobile,
-lifted above the bottom tab bar (`@media max-width:560px`). (The old
-`useScrollHint` / `data-hint` path was removed — `data-pull` is the one indicator.)
+curved by `PULL_CURVE` 0.4 — front-loaded so the bar reads from the first few
+px of pull), and `--pull-label` (destination section name, JSON-quoted) on
+`<html>`. `ScrollHint` is pure markup (two bars + two `.hint-label`s);
+chrome.css makes the bar **stretch** with `--pull` (`height: 30px + --pull*72px`
+— tall floor for instant visibility), brighten to accent with a glowing head,
+and fade the destination label in (0.38 opacity floor). On COMMIT the pager
+calls `lingerPull`: the bar jumps to 100% and holds through the snap glide
+(`COMMIT_LINGER` 600ms), then the slow base-state transition dissolves it —
+the crossing gets a payoff frame instead of the indicator vanishing at the
+threshold. Uncommitted wheel pulls spring back after `SPRING_DELAY` (450ms).
+Same indicator on mobile, lifted above the bottom tab bar
+(`@media max-width:560px`).
 
 ## The scroll owner — `lib/scrollController.ts`
 
