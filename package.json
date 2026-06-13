@@ -10,6 +10,9 @@
     "typecheck": "tsc --noEmit && tsc -p api",
     "sim:wheel": "node scripts/sim-wheel.mjs"
   },
+  "overrides": {
+    "esbuild": "^0.28.1"
+  },
   "dependencies": {
     "@upstash/ratelimit": "^2.0.8",
     "@upstash/redis": "^1.38.0",
