@@ -138,12 +138,12 @@
 /* ============================================================
    PROJECTS
    ============================================================ */
-/* Explicit column counts per breakpoint (4 → 3 → 1). Only the 3-column
-   window wraps the 4 cards onto a ragged second row — the two static
-   .proj-skeleton cells square it off there (and stay display:none
-   everywhere else). Declarative on purpose: measured auto-fit + JS filler
-   state mutated the grid while the tab was hidden, glitching WebKit's
-   grid row heights on restore. */
+/* Explicit column counts per breakpoint (4 → 3 → 1). With 5 cards both wide
+   windows wrap onto a ragged last row — the static .proj-skeleton cells
+   square it off: all three (sk-0…sk-2) in the 4-column window, only sk-0 in
+   the 3-column one, none in the single column. Declarative on purpose:
+   measured auto-fit + JS filler state mutated the grid while the tab was
+   hidden, glitching WebKit's grid row heights on restore. */
 .proj-grid { margin-top: 52px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 1100px) { .proj-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) { .proj-grid { grid-template-columns: 1fr; } }
@@ -158,12 +158,14 @@
 .proj-link { color: var(--text-faint); transition: color .2s, transform .2s; }
 .proj-card:hover .proj-link { color: var(--accent); }
 .proj-link svg { width: 17px; height: 17px; }
+/* live products: the globe reads "deployed" — accent-tinted at rest */
+.proj-link.live { color: color-mix(in oklab, var(--accent) 70%, var(--text-faint)); }
 .proj-name { font-family: var(--font-mono); font-weight: 600; font-size: 18px; margin-top: 20px; letter-spacing: -0.01em; word-break: break-word; }
 .proj-desc { color: var(--text-dim); font-size: 14.5px; margin-top: 12px; flex: 1; text-wrap: pretty; }
 .proj-stack { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; }
 .proj-nolink { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-faint); }
-/* skeleton fillers — square off the wrapped 3-column row with quiet
-   placeholder boxes; hidden at every other breakpoint. */
+/* skeleton fillers — square off the wrapped last row with quiet placeholder
+   boxes; per-slot visibility matches each breakpoint's empty-cell count. */
 .proj-skeleton {
   display: none;
   align-items: center; justify-content: center;
@@ -171,7 +173,8 @@
   /* a quiet step off the section background — half-strength card surface */
   background: color-mix(in oklab, var(--surface) 55%, transparent);
 }
-@media (min-width: 901px) and (max-width: 1100px) { .proj-skeleton { display: flex; } }
+@media (min-width: 1101px) { .proj-skeleton { display: flex; } }
+@media (min-width: 901px) and (max-width: 1100px) { .proj-skeleton.sk-0 { display: flex; } }
 .proj-skeleton svg { width: 64px; height: auto; color: var(--text-faint); opacity: .45; transition: opacity .3s; }
 /* neutral mark: CSS fill outranks the SVG's presentation attributes, so the
    accent piece goes monochrome here only. */

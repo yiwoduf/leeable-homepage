@@ -78,6 +78,8 @@ export interface Project {
   stack: string[];
   /** External URL, or `null` when the project isn't public yet. */
   link: string | null;
+  /** `link` points at a LIVE product (globe icon) rather than source code (GitHub icon). */
+  live?: boolean;
 }
 
 export interface SkillGroup {

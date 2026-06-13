@@ -64,13 +64,14 @@ function useStaleTrackKick(gridRef: RefObject<HTMLDivElement>): void {
 }
 
 /**
- * Skeleton cells that square off the 3-column layout's ragged second row
- * (4 cards → 2 empty slots). Always in the DOM; CSS breakpoints decide
- * whether they're shown. Deliberately static: a measured (ResizeObserver +
+ * Skeleton cells that square off the ragged last grid row. With 5 cards the
+ * 4-column window needs 3 fillers and the 3-column window needs 1 — each cell
+ * carries a per-slot class (`sk-0`…) so CSS breakpoints decide which are
+ * shown. Always in the DOM, deliberately static: a measured (ResizeObserver +
  * state) filler count mutated the grid while the tab was hidden behind an
  * external link, which glitched WebKit's grid row heights on restore.
  */
-const SKELETON_SLOTS = [0, 1] as const;
+const SKELETON_SLOTS = [0, 1, 2] as const;
 
 function ProjectCard({ project, index, soon }: { project: Project; index: number; soon: string }) {
   const style = cssVars({ '--d': `${index * 0.05}s` });
@@ -79,8 +80,9 @@ function ProjectCard({ project, index, soon }: { project: Project; index: number
       <div className="proj-top">
         <span className="proj-no">{String(index + 1).padStart(2, '0')} /</span>
         {project.link ? (
-          <span className="proj-link">
-            <Icon name="github" />
+          // live products get the globe (it's a destination, not source code)
+          <span className={project.live ? 'proj-link live' : 'proj-link'}>
+            <Icon name={project.live ? 'globe' : 'github'} />
           </span>
         ) : (
           <span className="proj-nolink">{soon}</span>
@@ -125,7 +127,7 @@ export function ProjectsSection({ projects }: { projects: Project[] }) {
         {SKELETON_SLOTS.map((i) => (
           <div
             key={`filler-${i}`}
-            className="proj-card proj-skeleton reveal"
+            className={`proj-card proj-skeleton sk-${i} reveal`}
             style={cssVars({ '--d': `${(projects.length + i) * 0.05}s` })}
             aria-hidden="true"
           >

@@ -19,6 +19,12 @@ const icons = {
       <path d="M17.53 3h3.06l-6.69 7.64L21.75 21h-6.16l-4.83-6.31L5.24 21H2.18l7.16-8.17L2.25 3h6.31l4.37 5.77L17.53 3Zm-1.07 16.2h1.7L7.62 4.71H5.8l10.66 14.49Z" />
     </svg>
   ),
+  globe: (p) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" aria-hidden="true" {...p}>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M3 12h18M12 3a14.6 14.6 0 0 1 0 18M12 3a14.6 14.6 0 0 0 0 18" />
+    </svg>
+  ),
   mail: (p) => (
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" aria-hidden="true" {...p}>
       <rect x="2.5" y="4.5" width="19" height="15" rx="2" />

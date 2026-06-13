@@ -220,7 +220,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       projects: {
         kicker: '프로젝트',
         title: '아이디어에서 *제품*까지',
-        soon: '준비 중',
+        soon: 'SOON', // deliberately English in both locales — reads as a badge, not copy
         screenLabel: '프로젝트',
       },
       skills: {
