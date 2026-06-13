@@ -145,6 +145,12 @@ export const portfolio: PortfolioData = {
       link: 'https://github.com/yiwoduf/openclaw-webhook-trigger',
     },
     {
+      name: 'Workflow Diagram Generator',
+      desc: 'Architecture and workflow diagrams authored by AI instead of dragged by hand in Figma. Describe a flow in plain language and the assistant writes a declarative spec that renders through a built-in design system, then exports pixel-perfect PNGs or looping GIFs — clone it, open Claude Code, and ask for the diagram you want.',
+      stack: ['Vite', 'Canvas / GIF', 'AI-native'],
+      link: 'https://github.com/yiwoduf/workflow-diagram-generator',
+    },
+    {
       name: 'Argon MS — Online Game Server',
       desc: 'A from-scratch online game server I built and ran as a teenager — Java server backend, MySQL/MariaDB database, JavaScript NPC scripting, and client reverse engineering. Handled server ops, content, and live debugging end to end.',
       stack: ['Java', 'MySQL', 'JavaScript', 'Reverse Engineering'],

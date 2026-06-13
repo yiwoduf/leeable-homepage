@@ -64,14 +64,16 @@ function useStaleTrackKick(gridRef: RefObject<HTMLDivElement>): void {
 }
 
 /**
- * Skeleton cells that square off the ragged last grid row. With 5 cards the
- * 4-column window needs 3 fillers and the 3-column window needs 1 — each cell
- * carries a per-slot class (`sk-0`…) so CSS breakpoints decide which are
- * shown. Always in the DOM, deliberately static: a measured (ResizeObserver +
- * state) filler count mutated the grid while the tab was hidden behind an
- * external link, which glitched WebKit's grid row heights on restore.
+ * Skeleton cells that square off the ragged last grid row. With 6 cards the
+ * 4-column window leaves 2 empty cells (both fillers shown) and the 3-column
+ * window divides evenly (none shown) — each cell carries a per-slot class
+ * (`sk-0`…) so CSS breakpoints decide which are visible. Always in the DOM,
+ * deliberately static: a measured (ResizeObserver + state) filler count mutated
+ * the grid while the tab was hidden behind an external link, which glitched
+ * WebKit's grid row heights on restore. (Recount on card add/remove —
+ * doc/maintenance.md.)
  */
-const SKELETON_SLOTS = [0, 1, 2] as const;
+const SKELETON_SLOTS = [0, 1] as const;
 
 function ProjectCard({ project, index, soon }: { project: Project; index: number; soon: string }) {
   const style = cssVars({ '--d': `${index * 0.05}s` });

@@ -149,6 +149,12 @@ export const portfolioKo: PortfolioData = {
       link: 'https://github.com/yiwoduf/openclaw-webhook-trigger',
     },
     {
+      name: 'Workflow Diagram Generator',
+      desc: 'Figma처럼 손으로 끌어 그리는 대신 AI가 작성하는 아키텍처·워크플로우 다이어그램 도구입니다. 흐름을 말로 설명하면 AI가 선언형 스펙을 작성하고, 내장 디자인 시스템으로 렌더링해 픽셀 단위로 깔끔한 PNG나 반복 GIF로 내보냅니다. 클론한 뒤 Claude Code를 열어 원하는 다이어그램을 요청하기만 하면 됩니다.',
+      stack: ['Vite', 'Canvas / GIF', 'AI-native'],
+      link: 'https://github.com/yiwoduf/workflow-diagram-generator',
+    },
+    {
       name: 'Argon MS — Online Game Server',
       desc: '10대 시절 밑바닥부터 직접 만들고 운영한 온라인 게임 서버. Java 서버 백엔드, MySQL/MariaDB 데이터베이스, JavaScript NPC 스크립팅, 클라이언트 리버스 엔지니어링까지 — 서버 운영, 콘텐츠, 라이브 디버깅을 전부 혼자 담당했습니다.',
       stack: ['Java', 'MySQL', 'JavaScript', 'Reverse Engineering'],

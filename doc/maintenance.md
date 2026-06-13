@@ -69,10 +69,10 @@ adversary; a deliberate decel-then-push "pump" at an edge can cross.
   number from the job-search pipeline — bump it occasionally in: both data
   files (about stat + solution metric), the EN/KO experience bullet, and
   simon.ts.
-- **Projects grid parity:** the skeleton fillers assume 5 cards
-  (sk-0…sk-2 at 4-col, sk-0 at 3-col). If a card is added/removed, recount
-  the empty cells per breakpoint and adjust `SKELETON_SLOTS` +
-  the `.proj-skeleton` media rules in `sections.css`.
+- **Projects grid parity:** the skeleton fillers assume 6 cards (2 fillers at
+  4-col, none at 3-col). If a card is added/removed, recount the empty cells
+  per breakpoint (`(cols − cards mod cols) mod cols`) and adjust
+  `SKELETON_SLOTS` + the `.proj-skeleton` media rules in `sections.css`.
 - **Before every commit:** `npm run typecheck`; after touching
   `useSectionSnap.ts`: `npm run sim:wheel`; after layout changes: headless
   screenshot/DOM check in BOTH locales (recipes: gotchas.md §13 — note the

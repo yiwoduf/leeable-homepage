@@ -138,12 +138,12 @@
 /* ============================================================
    PROJECTS
    ============================================================ */
-/* Explicit column counts per breakpoint (4 → 3 → 1). With 5 cards both wide
-   windows wrap onto a ragged last row — the static .proj-skeleton cells
-   square it off: all three (sk-0…sk-2) in the 4-column window, only sk-0 in
-   the 3-column one, none in the single column. Declarative on purpose:
-   measured auto-fit + JS filler state mutated the grid while the tab was
-   hidden, glitching WebKit's grid row heights on restore. */
+/* Explicit column counts per breakpoint (4 → 3 → 1). With 6 cards the 4-column
+   window wraps onto a ragged second row (4 + 2) — the two static .proj-skeleton
+   cells square it off there; the 3-column window divides evenly (3 + 3) so none
+   show, and the single column never does. Declarative on purpose: measured
+   auto-fit + JS filler state mutated the grid while the tab was hidden,
+   glitching WebKit's grid row heights on restore. */
 .proj-grid { margin-top: 52px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 @media (max-width: 1100px) { .proj-grid { grid-template-columns: repeat(3, 1fr); } }
 @media (max-width: 900px) { .proj-grid { grid-template-columns: 1fr; } }
@@ -174,7 +174,6 @@
   background: color-mix(in oklab, var(--surface) 55%, transparent);
 }
 @media (min-width: 1101px) { .proj-skeleton { display: flex; } }
-@media (min-width: 901px) and (max-width: 1100px) { .proj-skeleton.sk-0 { display: flex; } }
 .proj-skeleton svg { width: 64px; height: auto; color: var(--text-faint); opacity: .45; transition: opacity .3s; }
 /* neutral mark: CSS fill outranks the SVG's presentation attributes, so the
    accent piece goes monochrome here only. */
