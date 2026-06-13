@@ -126,50 +126,61 @@ fix):** a VERY hard swipe stops at the edge, then advances to the next section b
   detector saw "momentum rising = new finger" mid-tail, re-opened the closed gesture, and the
   still-strong tail blew through the 12px slop and the 26% commit → self-advance (v3).
 
-**The decisive realization:** boundary heuristics can NEVER be fully trusted — event
-queueing/merging under load can fake >`GESTURE_GAP` creation-time holes in the middle of a
-strong tail, and the old `gap > GESTURE_GAP` reset then handed the still-strong tail a fresh
-gesture: it blew through any slop and the 26% commit on its own (the self-advance). So intent
-is decided POSITIVELY at the only point that matters — building a pull from rest. The gesture
-flags only make the pull branch *reachable*; they are allowed to be wrong.
+**The architecture that finally held** (after a full custom-model rewrite regressed mouse +
+arrival flows and was reverted): restore the wheel pager to its known-good baseline — where
+mouse and touch were flawless — and add a SURGICAL, additive-only patch that gates exactly two
+trackpad decisions. The patch is the industry method (d4nyll/lethargy, as used by fullPage.js):
+classify each wheel event deliberate-vs-momentum by comparing the newest slice of scroll
+against the one before it — momentum only ever decays. Modernized three ways, each pinned to a
+simulated failure:
 
-**The model (`useSectionSnap.ts`):** a pull from rest is built only by FINGER EVIDENCE:
+- **Mass windows, exactly attributed.** The slices are TIME windows (`INTENT_WIN` 100ms) of
+  |deltaY| mass, with each event's mass spread across its creation-time span — the browser
+  merges wheel events under load, and merging conserves delta sums, so exact attribution keeps
+  the ratio truthful where per-event sizes/timings lie. `e.timeStamp` clock (delivery hitches
+  can't distort the windows).
+- **Device mode.** A direction whose retained history (`INTENT_RETAIN` 600ms) is all-sparse
+  (every gap ≥40ms) is a notch device: momentum physically requires dense streams, so sparse
+  streams are always deliberate. This keeps EVERY mouse flow bit-identical to the baseline —
+  asserted in simulation.
+- **Session awareness.** An empty older-window means "input after real quiet" only when there
+  is NO session history at all; with dense history on record it is a delivery hole or a tail's
+  death-gap — momentum.
 
-- **(a) THE RAMP** — `RISE_MIN` (3) strictly consecutive ≥`RISE_PX` (8px) span-velocity rises
-  ending ≥ `INTENT_VEL`. A new touch always accelerates from rest, so this fires even when the
-  new swipe is weaker than the old tail (flick-flick). Merging fakes at most TWO consecutive
-  rises (recovery + inflation — the event after a merge inherits its span and reads deflated);
-  sub-8px deltas are excluded (tail-end ±1px quantization fakes ±25% jumps); events faster
-  than `VEL_SANE` (12px/ms) are merge artifacts and carry no evidence.
-- **(b) THE QUIET BURST** — ≥`MIN_BURST` of pro-rated window mass (`BURST_WIN` 90ms) after a
-  near-silent prior window, two events in a row, above a merge-proof velocity floor, and ONLY
-  while the momentum envelope is dead (`tailEnv` < `INTENT_VEL`). Serves what ramps can't:
-  mouse notches, idle starts, ultra-gentle sub-8px pulls. Every clause kills a real false
-  positive found by simulation: a ratio-style acceleration test inherits the user's own
-  closing swipe for ~180ms; a delivery hole makes a strong tail look like "input after
-  silence" (only the envelope tells them apart); a dying tail's last dribble can clump window
-  mass right as the envelope dies (velocity floor); an early-stamped merge can dump mass once
-  but never twice (two-in-a-row).
+The two gated decisions (everything else is the untouched baseline):
 
-Lifecycle state: `fingersLifted` (decay streak OR window-mass collapse; sticky; gates re-arming
-a closed gesture so a mid-swipe acceleration can't roll through an edge), `fingerProven`
-(evidence anywhere in a gesture owns the whole gesture; evidence DURING a commit glide releases
-the commit lock so the queued swipe takes over the moment the glide ends — this is what makes
-post-arrival input instant), commits consume both flags (leftover tails can't pull at the
-arrival section), and `PULL_SLOP` (12px of finger-owned travel before anything moves).
+1. **Releasing a closed edge-lock** (the STUCK fix): a >`GESTURE_GAP` hole releases
+   `gestureClosed` only after TRUE silence (`TRUE_GAP` 240ms — beyond any delivery hole), once
+   momentum was actually seen (`tailSeen`: an event classified momentum, or `TAIL_DECAY_MIN`
+   velocity decreases — fingers provably lifted), or on a sparse-only stream. Deliberate input
+   after seen-momentum also re-arms directly (flick-flick, no silence needed). A single swipe
+   that merely accelerates never sees momentum → it can never roll through the edge it hit.
+2. **Opening a pull from a parked edge** (the SKIP/ghost fix): takes a notch device, a finger
+   ramp (`RISE_MIN`=3 consecutive ≥`RISE_PX` velocity rises — reliable even in the window-
+   ratio's ~240ms blind spot around the closing swipe's peak, and merging can fake at most 2),
+   or two deliberate events once past that blind spot (`closedAt` + `TRUE_GAP`). A pull
+   already in progress flows exactly as baseline.
 
-**Verification harness: `scripts/sim-wheel.mjs`** — replicates the decision flow exactly and
-asserts 2,000 adversarial runs (latest-stamp merging, 7–12-event freezes, violent+medium
-flicks, normal+floaty tails: zero self-advances, zero ghosts) plus 12 legit gesture shapes
-(stuck-after-glide, arrival swipe, leftover tail, flick-flick, mouse, ultra-gentle…). Run it
-after ANY change to the wheel path. An earliest-stamp merge model can still defeat ramp
-detection in theory; real browsers stamp coalesced events with the latest input. On a real
-device, `?wheellog` dumps per-event physics to the console — measure, don't guess.
+**Verification harness: `scripts/sim-wheel.mjs`** — mirrors the decision flow exactly, FIRST
+proves it reproduces both baseline bugs (stuck re-flick, post-glide tail re-commit), then
+asserts: the patch fixes both; 4,000 adversarial runs (latest-stamp merging, 7–12-event
+freezes, violent+medium flicks, normal+floaty tails, tall + fitting-section arrivals) open
+zero pulls and zero commits; four mouse flows are BIT-IDENTICAL patched-vs-baseline; and seven
+legit trackpad gestures all engage. Run it after ANY change to the wheel path. (Earliest-stamp
+merging — which no real browser does — can still defeat ramp detection in theory; reported by
+the sim, not asserted.) On a real device, `?wheellog` dumps per-event classification.
 
-**Invariant:** no single wheel event carries enough information to be classified as intent —
-only streams do, and the PULL GATE (not the gesture boundary) is where intent is enforced. If
-a new quirk appears: reproduce it in sim-wheel.mjs first, then extend the evidence definition;
-never add another timing threshold to the boundary.
+Adversarial review caught two mouse regressions pre-ship (both now sim cases): the
+deliberate-pair `gestureUsed` release must be `!streamSparse`-guarded or one sustained mouse
+spin advances several sections, and after trackpad use the dense history makes the first
+PIXEL-mode mouse notch read non-sparse — that single notch is swallowed (bounded, documented
+cost: the second notch always pulls; `deltaMode !== 0` devices bypass entirely; a full notchy
+bypass would let strong merged tail events open ghost pulls).
+
+**Invariants:** (1) the baseline gesture model is correct for mouse/touch — never restructure
+it for a trackpad symptom; gate, don't rewrite. (2) No single wheel event carries enough
+information to be classified — only streams do. (3) New quirk? Reproduce it in sim-wheel.mjs
+first, then adjust the classifier; never add another bare timing threshold.
 
 ## 13. Headless-Chrome verification recipes (used throughout this repo's history)
 

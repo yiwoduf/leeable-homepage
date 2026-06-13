@@ -44,26 +44,24 @@ am I on" = `activeSectionIndex()` (center probe) from `lib/sections.ts`.
 
 **Wheel path:** owns `wheel` (preventDefault all). A burst commits once then is
 ignored until the wheel falls quiet for `GESTURE_GAP` (80ms). Key state:
-- `gestureUsed` — a commit already fired this gesture. Reset on a gap, OR on a
-  fresh delta spike (`absRaw > lastAbsDy + 16`) so a NEW flick breaks a stale
-  trackpad-momentum lock. **Never reset it mid-glide** (`isScrollLocked()`), or
-  one flick double-commits.
-- `gestureClosed` — this gesture ran into an edge via internal scroll. Re-armed
-  only by a true gap or by finger evidence after `fingersLifted` (a decay run
-  proved the touch ended) — never by a bare spike, so one long swipe can't roll
-  into a pull.
-- **The pull gate** — gesture flags only make the pull branch *reachable* (they
-  may be wrong under event-merge distortion); a pull from rest is BUILT solely
-  by finger-evidence events: a sustained velocity ramp (`RISE_MIN`×`RISE_PX`),
-  or a quiet-burst (window mass after silence, envelope-gated). Evidence
-  anywhere in a gesture owns the whole gesture (`fingerProven`); evidence
-  during a commit glide releases the commit lock so the queued swipe takes
-  over at glide end; commits consume the proof. `PULL_SLOP` (12px) of
-  finger-owned travel must accumulate before anything moves or indicates.
-  Full physics and the false-positive taxonomy: gotchas.md §12. **Run
-  `node scripts/sim-wheel.mjs` after ANY change to the wheel path** — it
-  asserts the adversarial and legit cases. Debug a real device with
-  `?wheellog` (per-event console dump).
+- `gestureUsed` — a commit already fired this gesture. Reset on a gap, a fresh
+  delta spike (`absRaw > lastAbsDy + 16`), or two-in-a-row deliberate events (a
+  swipe queued during a snap glide takes over the moment it ends). **Never
+  reset it mid-glide** (`isScrollLocked()`), or one flick double-commits.
+- `gestureClosed` — this gesture ran into an edge via internal scroll. A
+  >`GESTURE_GAP` hole alone does NOT release it (event queueing fakes holes
+  mid-tail): release takes TRUE silence (`TRUE_GAP` 240ms), seen momentum
+  (`tailSeen`) + deliberate input, or a sparse-only (mouse) stream. Never a
+  bare spike — one long swipe can't roll into a pull.
+- **The pull-start gate** — opening a pull from a parked edge takes a notch
+  device, a finger ramp (`RISE_MIN`×`RISE_PX` velocity rises), or two
+  deliberate events past the `closedAt`+`TRUE_GAP` blind spot. The classifier
+  behind "deliberate" is the Lethargy method on exactly-attributed mass
+  windows — gotchas.md §12 has the full physics. A pull already in progress
+  flows exactly as the baseline. **Run `node scripts/sim-wheel.mjs` after ANY
+  change to the wheel path** — it proves the baseline bugs, asserts the fixes,
+  4,000 adversarial runs, mouse bit-parity, and the legit gestures. Debug a
+  real device with `?wheellog` (per-event console dump).
 - A section with `restBot - restTop <= MIN_INTERNAL` (40px) has no real internal
   scroll, so it pulls immediately (no dead slack — fixes the hero's ~15px slop).
 
@@ -84,8 +82,9 @@ fills the indicator by finger travel; release past `touchCommitPx()`
 to pull before crossing — raise = less sensitive), `PULL_CURVE 0.5` (front-loads
 the indicator so it shows early, not just near commit), `SPRING_DELAY`,
 `GESTURE_GAP`, `EDGE_EPS`, `MIN_INTERNAL`, `TOUCH_RESIST`, `touchCommitPx`, and
-the momentum/intent set (`TAIL_DECAY_MIN`, `RISE_MIN`, `RISE_PX`, `TAIL_ENV_TAU`,
-`ENV_DENSE_GAP`, `VEL_SANE`, `INTENT_VEL`, `PULL_SLOP` — see gotchas.md §12).
+the trackpad intent set (`INTENT_WIN`, `INTENT_KEEP`, `INTENT_FLOOR`,
+`INTENT_RETAIN`, `TAIL_DECAY_MIN`, `TRUE_GAP`, `RISE_MIN`, `RISE_PX`,
+`VEL_SANE` — see gotchas.md §12).
 
 ## The pull indicator — `ScrollHint` + chrome.css
 

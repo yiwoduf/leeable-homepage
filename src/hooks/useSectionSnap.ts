@@ -40,47 +40,32 @@ const MIN_INTERNAL = 40; // sections with less internal scroll than this just pu
 const TOUCH_RESIST = 0.45; // how much the page follows the finger past an edge (rubber-band)
 const NOTCH_DELTA = 60; // |deltaY| at/above which a wheel event is treated as a discrete notch
 
-// ---- Momentum vs intent ------------------------------------------------------
+// ---- Trackpad intent classification (the Lethargy method) -------------------
 // A trackpad keeps streaming decaying "momentum tail" deltas for up to ~1s
-// after the fingers lift, and under load the browser queues/merges wheel
-// events — which can fake delta spikes AND >GESTURE_GAP creation-time holes in
-// the MIDDLE of a strong tail. So no boundary heuristic can be fully trusted;
-// intent is decided POSITIVELY at the point that matters — starting a pull —
-// by two industry-standard detectors that fail in opposite directions:
-//   • THE RAMP — RISE_MIN consecutive velocity rises. A new touch always
-//     accelerates from rest, so it fires even when the new swipe is weaker
-//     than the old tail (flick-flick). Velocity = |deltaY| over the full
-//     e.timeStamp gap (merge-correct); merging can fake at most two
-//     consecutive rises, never three.
-//   • THE QUIET BURST — real input (≥MIN_BURST of window mass) arriving
-//     after a window of near-silence, two events in a row, AND only while the
-//     momentum ENVELOPE is dead. The envelope (tailEnv) is a decaying max of
-//     stream velocity with TAIL_ENV_TAU slower than any physical tail, so
-//     live momentum always sits under it: a delivery hole makes a strong
-//     tail look exactly like "input after silence" 90–180ms later, and the
-//     env gate is the one signal that tells them apart (the tail arrives
-//     under a live envelope; a finger after a real pause arrives after the
-//     envelope has died). Only dense events feed the envelope — mouse
-//     notches are sparse, leave no momentum, and are never self-blocked.
-//     Mass is merge-proof (merging conserves delta sums; events spanning
-//     more than a window are pro-rated). This path serves what ramps can't:
-//     mouse notches, idle starts, and ultra-gentle sub-RISE_PX pulls.
-// Tail remnants fail both BY CONSTRUCTION and contribute nothing: no movement,
-// no indicator, no commit — even when a fake gap re-opens the gesture flags.
-// PULL_SLOP px of finger-owned travel must still accumulate before anything
-// engages (touch-slop hysteresis against micro-noise).
-const RISE_MIN = 3; // consecutive velocity rises = finger; event merging can fake at most 2 (recovery + inflation, then forced deflation)
-const RISE_PX = 8; // px — deltas below this don't count as rises (tail-end ±1px quantization fakes ±25% jumps)
-const VEL_SANE = 12; // px/ms — faster than any human input; such an event is a merge artifact and carries no ramp evidence
-const INTENT_VEL = 0.35; // px/ms — minimum speed a velocity ramp must reach to count as a finger (≈350px/s)
-const BURST_WIN = 90; // ms — mass window: |deltaY| summed over the last window vs the window before it
-const LIFT_RATIO = 0.85; // recent/prior window mass below this = momentum decaying → the fingers have lifted
-const MIN_BURST = 18; // px — window mass below this is silence; at/above it is real input
-const SPAN_CAP = 400; // ms — pro-rating gap cap: longer gaps are idle pauses, not plausible merge spans
-const TAIL_ENV_TAU = 900; // ms — envelope decay; MUST be slower than any real tail (~150–400ms) or late tails outlive the gate
-const ENV_DENSE_GAP = 48; // ms — only dense streams feed the envelope (momentum exists only after flicks)
-const TAIL_DECAY_MIN = 6; // consecutive decelerating events — the fast fingers-lifted signal (mass collapse is the slow one)
-const PULL_SLOP = 12; // px of finger-owned travel before a pull from rest engages (moves / indicates)
+// after the fingers lift, which breaks two spots in the wheel gesture model:
+// the tail keeps `gap` below GESTURE_GAP so a closed gesture never re-arms
+// (page stuck at the edge until the user pauses), and a delivery hitch or
+// delta spike inside the tail can reset the flags and let the tail itself
+// pull/commit at the next section (ghost pulls, section skipping).
+// The industry approach (d4nyll/lethargy, as used by fullPage.js) classifies
+// each wheel event as deliberate-or-momentum by comparing the newest slice of
+// scroll against the one before it — momentum only ever decays, so its
+// newest/older ratio sits below what a finger sustains. Two modernizations:
+// the slices are TIME windows of |deltaY| MASS (event rates vary 60–125Hz+),
+// and each event's mass is attributed across its creation-time span, because
+// the browser merges wheel events under load — merging conserves delta sums,
+// so exact attribution keeps the ratio truthful where per-event sizes and
+// timings lie. Mouse notch trains hold a constant ratio ≈1 and sail through:
+// the classifier only ever gates trackpad momentum.
+const INTENT_WIN = 100; // ms — each comparison half-window
+const INTENT_KEEP = 0.92; // newest/older mass ratio a finger sustains; tails decay to ≲0.88
+const INTENT_FLOOR = 12; // px per window — less is a dying dribble, not input
+const INTENT_RETAIN = 600; // ms — stream history horizon (device-mode + session awareness)
+const TAIL_DECAY_MIN = 6; // consecutive decelerating events = momentum is playing (fast lift signal)
+const TRUE_GAP = 240; // ms — beyond any delivery hole AND the window-ratio blind spot around a swipe's peak
+const RISE_MIN = 3; // consecutive ≥RISE_PX velocity rises = a finger ramp; merging fakes at most 2
+const RISE_PX = 8; // px — deltas below this don't count as rises (±1px quantization fakes ±25% jumps)
+const VEL_SANE = 12; // px/ms — beyond human input; merge artifacts carry no ramp evidence
 
 // All rAF loops below use TIME-BASED exponential decay — `1 - exp(-dt / τ)` —
 // so convergence speed is identical at 60/90/120/144Hz (a fixed per-frame
@@ -97,10 +82,6 @@ export function useSectionSnap(): void {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
     const root = document.documentElement;
-    // Diagnostic stream dump: open the site with ?wheellog to print every wheel
-    // event's physics (gap/vel/env/evidence/flags) — ground truth for tuning
-    // the momentum classifier on real devices instead of guessing.
-    const wheelLog = new URLSearchParams(window.location.search).has('wheellog');
     const vh = () => scrollerViewHeight();
     const maxStep = () => Math.max(110, Math.round(vh() * 0.14));
     const touchCommitPx = () => Math.max(64, Math.round(vh() * 0.14)); // finger drag past an edge to commit
@@ -124,27 +105,66 @@ export function useSectionSnap(): void {
     // ---- WHEEL (trackpad / mouse) ------------------------------------------
     let lastT = 0;
     let lastAbsDy = 0;
-    let lastVel = 0; // previous event's velocity (px/ms) — the merge-proof stream metric
-    let riseStreak = 0; // consecutive ≥RISE_PX accelerating events — the new-finger ramp signature
-    let decayStreak = 0; // consecutive decelerating events — the fast lift signal (short tails)
-    const burst: [number, number][] = []; // [timeStamp, pro-rated |deltaY|] — the rolling mass window
-    let burstAccel = false; // previous event passed the quiet-burst test (evidence needs two in a row)
-    let tailEnv = 0; // decaying max of stream velocity — live momentum can never exceed it
-    let fingersLifted = false; // sticky: the window mass collapsed — the touch ended (cleared at gesture boundaries)
-    let fingerProven = false; // sticky: evidence fired this gesture — the rest of the gesture is finger-owned
     let gestureUsed = false; // a section change already fired in the current gesture
     let gestureClosed = false; // this gesture ran into a content edge → no pulling until it lifts
-    let pullAcc = 0; // slop accumulator: px pulled past the edge before the pull engages
-    let pullDir = 0; // direction the slop is accumulating in (+1 down / -1 up)
-    let pullEngaged = false; // this gesture's pull cleared PULL_SLOP and is live
+    let tailSeen = false; // momentum arrived while closed → the fingers provably lifted
     let springId = 0;
+
+    // ---- Intent classifier state (constants above the hook) ----------------
+    // Per-direction history of [creationTime, |deltaY|, accrualSpan, isSparse];
+    // the last classification per direction backs the two-in-a-row pull-start
+    // rule, and `streamSparse` reports the device mode of the latest event's
+    // direction (a purely sparse stream cannot be carrying momentum).
+    const histDn: [number, number, number, boolean][] = [];
+    const histUp: [number, number, number, boolean][] = [];
+    let lastStampT = 0; // e.timeStamp of the previous wheel event (creation-time clock)
+    let lastIntentDn = true;
+    let lastIntentUp = true;
+    let streamSparse = true; // latest classified direction had a sparse-only (notch-device) history
+    let lastVel = 0; // span velocity of the previous event (merge-proof)
+    let decayStreak = 0; // consecutive decelerating events — the fast momentum signal
+    let riseStreak = 0; // consecutive ≥RISE_PX accelerating events — the finger-ramp signal
+    let closedAt = -1e9; // when the gesture last closed at an edge (ratio intent is blind near that peak)
+    // Diagnostic: open the site with ?wheellog to dump per-event classification.
+    const wheelLog = new URLSearchParams(window.location.search).has('wheellog');
+
+    const overlap = (a0: number, a1: number, b0: number, b1: number) =>
+      Math.max(0, Math.min(a1, b1) - Math.max(a0, b0));
+
+    /** Feed one wheel event into the stream model and classify it: deliberate input (true) or momentum (false)? */
+    const classifyIntent = (down: boolean, d: number, t: number, stampGap: number): boolean => {
+      const hist = down ? histDn : histUp;
+      // An event's delta accrued since the previous event (merging!), capped to
+      // the comparison range — longer gaps are idle pauses, not accrual.
+      hist.push([t, d, Math.max(1, Math.min(stampGap, INTENT_WIN * 2)), stampGap >= 40]);
+      while (hist.length && hist[0][0] <= t - INTENT_RETAIN) hist.shift();
+      // Momentum exists only in dense streams. A direction whose whole
+      // retained history is sparse (every gap ≥ 40ms) is a notch device —
+      // mouse wheels — and is always deliberate. This is what keeps every
+      // mouse flow bit-identical to the unpatched pager.
+      streamSparse = hist.every((h) => h[3]);
+      if (streamSparse) return true;
+      let newMass = 0;
+      let oldMass = 0;
+      let older = false;
+      for (const [te, de, se] of hist) {
+        const s0 = te - se;
+        newMass += (de * overlap(s0, te, t - INTENT_WIN, t)) / se;
+        oldMass += (de * overlap(s0, te, t - INTENT_WIN * 2, t - INTENT_WIN)) / se;
+        if (te <= t - INTENT_WIN * 2) older = true;
+      }
+      if (newMass < INTENT_FLOOR) return false;
+      if (oldMass > 0) return newMass >= oldMass * INTENT_KEEP;
+      // Older window empty: with no session history at all this is input after
+      // real quiet (deliberate); with dense history on record it is a delivery
+      // hole or a dying tail's gap — momentum, not a new touch.
+      return !older;
+    };
 
     const armSpring = (target: number) => {
       window.clearTimeout(springId);
       springId = window.setTimeout(() => {
         setPull('');
-        pullAcc = 0;
-        pullEngaged = false;
         if (!isScrollLocked()) smoothScrollTo(target);
       }, SPRING_DELAY);
     };
@@ -207,118 +227,83 @@ export function useSectionSnap(): void {
       e.preventDefault();
 
       const raw = e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * vh() : e.deltaY;
-      if (!raw) return; // horizontal-only event — keep it out of the vertical gesture stream
       const absRaw = Math.abs(raw);
-      // Event CREATION time, not processing time: a long frame delivers queued
-      // wheel events in one late burst, and a processing-time clock would fake
-      // a "gesture pause" exactly when the page hitches.
-      const now = e.timeStamp;
+      const now = performance.now();
       const gap = now - lastT;
       lastT = now;
 
-      // Stream physics (constants above). SPAN velocity — |delta| over the
-      // FULL creation-time gap — is the only merge-correct rate (a coalesced
-      // event's delta accrued across its whole gap; dividing by less inflates
-      // it into fake evidence). Events faster than any human (VEL_SANE) are
-      // merge artifacts: they move content fine but carry no ramp evidence.
-      const vel = absRaw / Math.max(4, gap);
-      const sane = vel <= VEL_SANE;
-      // THE RAMP: strictly consecutive ≥RISE_PX rises. Merging fakes at most
-      // two in a row (recovery + inflation — the event after a merge always
-      // inherits its span and reads deflated, breaking the chain); sub-RISE_PX
-      // deltas are excluded (tail-end ±1px quantization fakes ±25% jumps).
-      const rising = sane && absRaw >= RISE_PX && vel > lastVel * 1.15;
-      const riseNow = rising ? riseStreak + 1 : 0;
-      // THE QUIET BURST: pro-rated window sums — see the constants block.
-      const mass = absRaw * Math.min(1, BURST_WIN / Math.max(1, Math.min(gap, SPAN_CAP)));
-      burst.push([now, mass]);
-      let recentMass = 0;
-      let priorMass = 0;
-      for (let k = burst.length - 1; k >= 0; k -= 1) {
-        const age = now - burst[k][0];
-        if (age >= BURST_WIN * 2) {
-          burst.splice(0, k + 1);
-          break;
-        }
-        if (age < BURST_WIN) recentMass += burst[k][1];
-        else priorMass += burst[k][1];
-      }
-      const envBefore = tailEnv * Math.exp(-Math.min(2000, gap) / TAIL_ENV_TAU);
-      // The burst's events must also clear a (merge-proof) velocity floor —
-      // a dying tail's last dribble can clump ≥MIN_BURST of window mass right
-      // as the envelope dies, but its velocity (conserved under merging)
-      // stays far below anything a finger produces.
-      const burstVel = absRaw / Math.max(4, Math.min(gap, BURST_WIN));
-      const quietBurst =
-        recentMass >= MIN_BURST &&
-        priorMass < MIN_BURST &&
-        envBefore < INTENT_VEL &&
-        burstVel >= INTENT_VEL * 0.5;
-      const fingerEvidence =
-        (sane && riseNow >= RISE_MIN && vel >= INTENT_VEL) || (quietBurst && burstAccel);
-      // Two lift signals, either marks "the touch ended" (sticky until the
-      // next gesture boundary, so the re-swipe that follows can re-arm a
-      // closed gesture — flick-flick — without waiting for wheel silence):
-      // a window-over-window mass collapse (robust, needs ~150ms), or a run
-      // of consecutive decelerating events (fast — catches short tails that
-      // a new flick interrupts before the windows see the collapse).
-      const lifting = priorMass >= MIN_BURST && recentMass < priorMass * LIFT_RATIO;
-      const trackStream = () => {
-        burstAccel = quietBurst;
-        decayStreak = vel < lastVel * 0.98 ? decayStreak + 1 : rising ? 0 : decayStreak;
-        if (lifting || decayStreak >= TAIL_DECAY_MIN) fingersLifted = true;
-        riseStreak = riseNow;
-        tailEnv =
-          sane && e.deltaMode === 0 && gap <= ENV_DENSE_GAP ? Math.max(envBefore, vel) : envBefore;
+      // Classify deliberate-vs-momentum on the CREATION-time clock (a long
+      // frame delivers queued events in one late burst; processing time would
+      // distort the windows exactly when the page hitches). The classifier is
+      // fed on every real event — including during glides — so its windows
+      // stay truthful; `wasIntent` backs the two-in-a-row pull-start rule.
+      const down = raw > 0;
+      const stampGap = e.timeStamp - lastStampT;
+      lastStampT = e.timeStamp;
+      const intent = raw ? classifyIntent(down, absRaw, e.timeStamp, stampGap) : false;
+      const wasIntent = down ? lastIntentDn : lastIntentUp;
+      if (raw) {
+        if (down) lastIntentDn = intent;
+        else lastIntentUp = intent;
+        // Per-event span velocity (merge-proof) backs two fast signals the
+        // window ratio is too slow for: TAIL_DECAY_MIN decreases in a row mark
+        // momentum ~50–100ms in (the fingers lifted), and RISE_MIN increases
+        // in a row mark a finger ramp — a new touch always accelerates from
+        // rest, and event merging can fake at most two rises, never three.
+        const vel = absRaw / Math.max(4, Math.min(stampGap, INTENT_WIN * 2));
+        decayStreak = vel < lastVel * 0.98 ? decayStreak + 1 : vel > lastVel * 1.15 ? 0 : decayStreak;
+        riseStreak = vel <= VEL_SANE && absRaw >= RISE_PX && vel > lastVel * 1.15 ? riseStreak + 1 : 0;
         lastVel = vel;
-        lastAbsDy = absRaw;
-      };
+        if (gestureClosed && (!intent || decayStreak >= TAIL_DECAY_MIN)) tailSeen = true;
+      }
 
-      // While a glide is playing, swallow input but DON'T re-judge the gesture
-      // flags from gaps — resetting mid-glide would let one flick's momentum
-      // commit a second section. Finger EVIDENCE during the glide, though, is
-      // a queued intent: it owns the gesture and releases the commit lock, so
-      // the swipe takes over the moment the glide ends (no stuck section, and
-      // rhythm scrolling stays snappy). Momentum can't fake evidence, so the
-      // committing flick's own tail can't re-commit through this.
+      // While a glide is playing, swallow input but DON'T re-judge the gesture —
+      // resetting mid-glide would let one flick's momentum commit a second section.
       if (isScrollLocked()) {
-        if (fingerEvidence) {
-          fingerProven = true;
-          gestureUsed = false;
-        }
-        trackStream();
+        lastAbsDy = absRaw;
         return;
       }
 
-      // Gesture boundaries. A pause starts a fresh gesture, and so does finger
-      // evidence arriving after the fingers had provably lifted (flick-flick —
-      // the tail keeps `gap` alive, but acceleration is a new finger). These
-      // only make the pull branch REACHABLE: the pull itself independently
-      // requires finger evidence per event, so a fake gap (event queueing can
-      // fake >GESTURE_GAP creation holes mid-tail) re-opening the flags hands
-      // momentum nothing. A bare delta spike only breaks the commit lock
-      // (keeps rhythm hops responsive); it must NOT start a fresh gesture, or
-      // mid-swipe acceleration would roll through the edge it just stopped at.
-      if (gap > GESTURE_GAP || (fingersLifted && fingerEvidence)) {
+      // A pause starts a fresh gesture; a mid-stream delta spike only breaks a
+      // stale momentum lock so a new flick responds without waiting the old
+      // one out — as does deliberate input proven two events in a row (a swipe
+      // queued during a snap glide must take over the moment it ends).
+      // TRACKPAD GUARD on the pause rule: under load the browser queues/merges
+      // wheel events, which fakes >GESTURE_GAP creation holes in the middle of
+      // a strong tail — so a hole alone must not unlock a closed edge. It
+      // unlocks only after TRUE silence (longer than any delivery hole), once
+      // momentum was actually seen (the fingers provably lifted), or on a
+      // sparse-only notch stream (mouse — no momentum to fake it).
+      if (gap > GESTURE_GAP) {
         gestureUsed = false;
-        gestureClosed = false;
-        fingersLifted = false;
-        fingerProven = false;
-        pullAcc = 0;
-        pullEngaged = false;
-      } else if (absRaw > lastAbsDy + 16) {
+        if (gap > TRUE_GAP || tailSeen || streamSparse || !gestureClosed) {
+          gestureClosed = false;
+          tailSeen = false;
+        }
+      } else if (absRaw > lastAbsDy + 16 || (!streamSparse && intent && wasIntent)) {
+        // The deliberate-pair release exists for DENSE streams only (a swipe
+        // queued during a snap glide, still streaming at glide end). A sparse
+        // notch train must keep the baseline burst rule — every notch
+        // classifies deliberate, so without the !streamSparse guard one
+        // sustained mouse spin would clear the commit lock on every notch
+        // and advance several sections.
         gestureUsed = false;
       }
-      // Evidence proves the FINGER for the whole gesture, not just one event —
-      // an ultra-gentle pull (sub-RISE_PX deltas) must keep accumulating after
-      // its first proof, or it could never cross the slop.
-      if (fingerEvidence) fingerProven = true;
+      // Trackpad stuck-fix: the tail keeps `gap` alive, so a closed gesture
+      // also re-arms on deliberate input after momentum was seen — momentum
+      // proves the fingers lifted, intent proves they came back. A single
+      // swipe that merely accelerates never sees momentum → it stays closed
+      // and cannot roll through the edge it stopped at.
+      if (raw && gestureClosed && tailSeen && intent) {
+        gestureClosed = false;
+        tailSeen = false;
+      }
       if (wheelLog)
         console.debug(
-          `[wheel] dy=${raw.toFixed(1)} gap=${gap.toFixed(0)} vel=${vel.toFixed(2)} rec=${recentMass.toFixed(0)} pri=${priorMass.toFixed(0)} rise=${riseNow} lifted=${fingersLifted ? 1 : 0} ev=${fingerEvidence ? 1 : 0} proven=${fingerProven ? 1 : 0} closed=${gestureClosed ? 1 : 0} used=${gestureUsed ? 1 : 0}`,
+          `[wheel] dy=${raw.toFixed(1)} gap=${gap.toFixed(0)} intent=${intent ? 1 : 0} was=${wasIntent ? 1 : 0} sparse=${streamSparse ? 1 : 0} tail=${tailSeen ? 1 : 0} closed=${gestureClosed ? 1 : 0} used=${gestureUsed ? 1 : 0}`,
         );
-      trackStream();
-      if (gestureUsed) return;
+      lastAbsDy = absRaw;
+      if (gestureUsed || !raw) return;
 
       const cap = maxStep();
       const dy = Math.max(-cap, Math.min(cap, raw));
@@ -345,47 +330,40 @@ export function useSectionSnap(): void {
         if (gestureClosed || !next || !atEdge) {
           const newY = Math.min(restBot, Math.max(restTop, eff + dy));
           scrollInternal(newY, eff, notchy);
-          if (newY >= restBot - EDGE_EPS) gestureClosed = true;
+          if (newY >= restBot - EDGE_EPS) {
+            if (!gestureClosed) closedAt = now;
+            gestureClosed = true;
+          }
           setPull('');
           window.clearTimeout(springId);
           return;
         }
+        // Trackpad skip/ghost-fix: momentum must not START a pull from a
+        // parked edge — it can reach here when a delivery hitch or delta
+        // spike resets the gesture flags mid-tail (and at sections that fit
+        // the viewport, atEdge is trivially true on arrival). Opening from
+        // rest takes a notch device, a finger ramp (reliable even right after
+        // a close), or two deliberate events once past the window-ratio blind
+        // spot around the closing swipe's peak. A pull already in progress
+        // (only a finger can have opened it) flows as before.
+        if (
+          eff <= restBot + 0.5 &&
+          e.deltaMode === 0 &&
+          !streamSparse &&
+          riseStreak < RISE_MIN &&
+          !(intent && wasIntent && now - closedAt >= TRUE_GAP)
+        )
+          return;
         // Rubber-band pull — the page position glides like the internal scroll
         // (no per-notch jerk); the indicator and commit threshold respond to
         // the pull TARGET so the gesture still feels immediate.
         const nextRest = clampScroll(sectionSnapTop(next));
-        // THE intent gate: only finger-evidence events may build a pull from
-        // rest — momentum remnants contribute nothing (no movement, no
-        // indicator), regardless of how the gesture flags got re-opened. After
-        // PULL_SLOP px of evidence-bearing travel the pull engages; a pull
-        // already in progress (page visibly past the edge — only a finger can
-        // have put it there) resumes without re-arming, and the engaging event
-        // carries its post-slop remainder.
-        let step = dy;
-        if (!pullEngaged) {
-          if (eff > restBot + 0.5) {
-            pullEngaged = true;
-          } else {
-            if (!fingerProven) return;
-            if (pullDir !== 1) {
-              pullDir = 1;
-              pullAcc = 0;
-            }
-            pullAcc += dy;
-            if (pullAcc <= PULL_SLOP) return;
-            pullEngaged = true;
-            step = pullAcc - PULL_SLOP;
-          }
-        }
-        const newY = Math.min(nextRest, Math.max(restBot, eff + step));
+        const newY = Math.min(nextRest, Math.max(restBot, eff + dy));
         const over = newY - restBot;
         const dist = nextRest - restBot;
         if (dist > 0 && over / dist >= COMMIT) {
           gestureUsed = true;
-          // The commit consumes this gesture's proof — it must not leak into
-          // the arrival section and let the leftover tail pull there.
-          fingerProven = false;
-          fingersLifted = false;
+          closedAt = now; // the arrival edge starts inside the blind spot too
           window.clearTimeout(springId);
           setPull('');
           stopWheelGlide(); // hand the position to the snap glide
@@ -406,38 +384,31 @@ export function useSectionSnap(): void {
         if (gestureClosed || !prev || !atEdge) {
           const newY = Math.max(restTop, Math.min(restBot, eff + dy));
           scrollInternal(newY, eff, notchy);
-          if (newY <= restTop + EDGE_EPS) gestureClosed = true;
+          if (newY <= restTop + EDGE_EPS) {
+            if (!gestureClosed) closedAt = now;
+            gestureClosed = true;
+          }
           setPull('');
           window.clearTimeout(springId);
           return;
         }
-        // Rubber-band pull — eased exactly like the downward branch above,
-        // with the same evidence-gated engage-after-slop accumulation.
+        // Same start gate as the downward branch: momentum can't open a pull.
+        if (
+          eff >= restTop - 0.5 &&
+          e.deltaMode === 0 &&
+          !streamSparse &&
+          riseStreak < RISE_MIN &&
+          !(intent && wasIntent && now - closedAt >= TRUE_GAP)
+        )
+          return;
+        // Rubber-band pull — eased exactly like the downward branch above.
         const prevRest = clampScroll(sectionSnapBottom(prev));
-        let step = dy;
-        if (!pullEngaged) {
-          if (eff < restTop - 0.5) {
-            pullEngaged = true;
-          } else {
-            if (!fingerProven) return;
-            if (pullDir !== -1) {
-              pullDir = -1;
-              pullAcc = 0;
-            }
-            pullAcc += -dy;
-            if (pullAcc <= PULL_SLOP) return;
-            pullEngaged = true;
-            step = -(pullAcc - PULL_SLOP);
-          }
-        }
-        const newY = Math.max(prevRest, Math.min(restTop, eff + step));
+        const newY = Math.max(prevRest, Math.min(restTop, eff + dy));
         const over = restTop - newY;
         const dist = restTop - prevRest;
         if (dist > 0 && over / dist >= COMMIT) {
           gestureUsed = true;
-          // Same as the downward branch: a commit consumes the gesture's proof.
-          fingerProven = false;
-          fingersLifted = false;
+          closedAt = now; // the arrival edge starts inside the blind spot too
           window.clearTimeout(springId);
           setPull('');
           stopWheelGlide(); // hand the position to the snap glide
