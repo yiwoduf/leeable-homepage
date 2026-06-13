@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactElement, MouseEvent } from 'react';
+import type { ThemePreference } from '../../types/design';
 import { useI18n } from '../../i18n';
 import { Icon } from '../ui/Icon';
 import { cx } from '../../lib/cx';
@@ -10,8 +11,8 @@ const FOCUSABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabi
 interface SettingsModalProps {
   open: boolean;
   onClose: () => void;
-  isDark: boolean;
-  onToggleTheme: () => void;
+  preference: ThemePreference;
+  onSetPreference: (next: ThemePreference) => void;
 }
 
 /**
@@ -19,7 +20,7 @@ interface SettingsModalProps {
  * Mounted/unmounted per open state (avoids .reveal observer issues).
  * CSS entrance animation only; exit is instant (KISS).
  */
-export function SettingsModal({ open, onClose, isDark, onToggleTheme }: SettingsModalProps): null | ReactElement {
+export function SettingsModal({ open, onClose, preference, onSetPreference }: SettingsModalProps): null | ReactElement {
   const { lang, setLang, t } = useI18n();
   const panelRef = useRef<HTMLDivElement>(null);
   const previousFocusRef = useRef<Element | null>(null);
@@ -100,18 +101,25 @@ export function SettingsModal({ open, onClose, isDark, onToggleTheme }: Settings
           <div className="modal-group-label">{t.settings.theme}</div>
           <div className="seg">
             <button
-              className={cx('seg-btn', isDark && 'active')}
-              aria-pressed={isDark}
-              onClick={() => { if (!isDark) onToggleTheme(); }}
+              className={cx('seg-btn', preference === 'dark' && 'active')}
+              aria-pressed={preference === 'dark'}
+              onClick={() => onSetPreference('dark')}
             >
               {t.settings.themeDark}
             </button>
             <button
-              className={cx('seg-btn', !isDark && 'active')}
-              aria-pressed={!isDark}
-              onClick={() => { if (isDark) onToggleTheme(); }}
+              className={cx('seg-btn', preference === 'light' && 'active')}
+              aria-pressed={preference === 'light'}
+              onClick={() => onSetPreference('light')}
             >
               {t.settings.themeLight}
+            </button>
+            <button
+              className={cx('seg-btn', preference === 'system' && 'active')}
+              aria-pressed={preference === 'system'}
+              onClick={() => onSetPreference('system')}
+            >
+              {t.settings.themeSystem}
             </button>
           </div>
         </div>

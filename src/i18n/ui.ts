@@ -85,6 +85,7 @@ export interface UiStrings {
     theme: string;
     themeDark: string;
     themeLight: string;
+    themeSystem: string;
     language: string;
     close: string;
   };
@@ -180,6 +181,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       theme: 'Theme',
       themeDark: 'Dark',
       themeLight: 'Light',
+      themeSystem: 'System',
       language: 'Language',
       close: 'Close',
     },
@@ -271,6 +273,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       theme: '테마',
       themeDark: '다크',
       themeLight: '라이트',
+      themeSystem: '시스템',
       language: '언어',
       close: '닫기',
     },

@@ -19,6 +19,7 @@
       var d = document.documentElement;
       try {
         var t = localStorage.getItem('leeable:theme');
+        if (t === 'system') t = matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
         if (t === 'light' || t === 'dark') d.setAttribute('data-theme', t);
         var l = localStorage.getItem('leeable:lang');
         if (l !== 'en' && l !== 'ko') l = (navigator.language || '').indexOf('ko') === 0 ? 'ko' : 'en';

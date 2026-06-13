@@ -4,7 +4,10 @@
  * honest (autocomplete + compile-time checks for valid options).
  */
 
+/** The theme actually applied to the page (`<html data-theme>`). */
 export type ThemeMode = 'dark' | 'light';
+/** What the user chose in settings — `system` resolves to a ThemeMode at runtime. */
+export type ThemePreference = ThemeMode | 'system';
 export type FontPairKey = 'modern' | 'plex' | 'editorial';
 export type BackgroundVariant = 'grid' | 'dots' | 'glow' | 'plain';
 export type NavStyle = 'icons' | 'labels' | 'dots';

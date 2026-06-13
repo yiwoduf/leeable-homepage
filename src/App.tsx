@@ -27,7 +27,7 @@ import {
  * `LanguageProvider`).
  */
 export function App() {
-  const { isDark, toggle } = useTheme();
+  const { isDark, preference, setPreference } = useTheme();
   const { active } = useScrollSpy();
   const headerHidden = useHideOnScroll();
   const [settingsOpen, setSettingsOpen] = useState(false);
@@ -50,8 +50,8 @@ export function App() {
       <SettingsModal
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
-        isDark={isDark}
-        onToggleTheme={toggle}
+        preference={preference}
+        onSetPreference={setPreference}
       />
 
       <main>
