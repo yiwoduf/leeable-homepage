@@ -168,7 +168,7 @@ export const portfolio: PortfolioData = {
     { group: 'Languages', items: ['TypeScript', 'JavaScript', 'Python', 'PHP', 'Java'] },
     { group: 'Frontend', items: ['React', 'Next.js', 'Vite', 'TailwindCSS'] },
     { group: 'Backend & Data', items: ['Node.js', 'PostgreSQL', 'MySQL', 'Supabase', 'MongoDB'] },
-    { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'OpenCode', 'Codex'] },
+    { group: 'AI & Agents', items: ['Claude', 'MCP', 'RAG', 'CAG', 'n8n', 'OpenClaw', 'OpenCode', 'Codex', 'Ollama'] },
     { group: 'Infra & Tools', items: ['Docker', 'Git', 'Vercel', 'Google Cloud'] },
   ],
 };
