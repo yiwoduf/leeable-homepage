@@ -20,6 +20,9 @@ Single content object (`portfolio: PortfolioData`, typed by `types/portfolio.ts`
 | Solutions (expandable cards) | `solutions[]` |
 | └ status badge | `status: 'live' | 'in-progress'` |
 | └ workflow nodes / outcome metrics | `flow[]` / `metrics[]` (empty `metrics` hides the block) |
+
+- Solution cards auto-number (`no={i+1}` in SolutionsSection) and key on `codename` — codenames must be unique.
+- `status: 'in-progress'` mutes the SOLUTION column (`.sol-planned`); an empty `metrics: []` hides the entire OUTCOME block.
 | Projects | `projects[]` — `link: null` renders a non-link "SOON" card; `live: true` swaps the GitHub icon for a globe (live product URL) |
 | Skills | `skills[]` — `{ group, items: [...] }` |
 
@@ -55,6 +58,12 @@ Valid options are also the unions in `types/design.ts`.
 A complete `PortfolioData` object with Korean copy. Loaded automatically when the
 visitor's language is `ko`. Identity URLs, skills arrays, company/product names,
 and place names stay in English as per Korean dev-industry convention.
+
+Both languages ship together: every content change edits `portfolio.ts` (EN) and
+`portfolio.ko.ts` (KO) in lockstep — identical array lengths and object shapes.
+Keep flow-node `k` keys identical across EN/KO (they're the React keys; differing
+keys remount the flow nodes on language switch and replay the stagger). Korean
+stays natural 의역/합니다체; product names stay English.
 
 ## Tagline
 
