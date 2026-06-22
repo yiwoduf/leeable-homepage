@@ -64,9 +64,9 @@ function useStaleTrackKick(gridRef: RefObject<HTMLDivElement>): void {
 }
 
 /**
- * Skeleton cells that square off the ragged last grid row. With 6 cards the
- * 4-column window leaves 2 empty cells (both fillers shown) and the 3-column
- * window divides evenly (none shown) — each cell carries a per-slot class
+ * Skeleton cells that square off the ragged last grid row. With 7 cards the
+ * 4-column window leaves 1 empty cell (sk-0 shown) and the 3-column window
+ * leaves 2 (sk-0 and sk-1 shown) — each cell carries a per-slot class
  * (`sk-0`…) so CSS breakpoints decide which are visible. Always in the DOM,
  * deliberately static: a measured (ResizeObserver + state) filler count mutated
  * the grid while the tab was hidden behind an external link, which glitched

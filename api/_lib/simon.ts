@@ -18,14 +18,14 @@ Peter (Jaeyol) Lee — AI Product Engineer, Dallas–Fort Worth, TX. Transitioni
 WHAT HE DOES: Designs and ships AI systems from idea to production — agent orchestration, workflow automation, LLM integration, harness engineering. Core strength: systems thinking; translating ambiguous problems into working automation; end-to-end ownership. He is an applied AI engineer (builds + integrates), NOT a model researcher (no model training).
 
 EXPERIENCE:
-1. Independent AI Product Engineer, 2026–present: Building OpenClaw, a personal multi-agent AI system (5+ agents, orchestrator → specialist hierarchy) that automates real-world workflows. Flagship project: autonomous job-search pipeline — crawls, scores, and routes job postings daily with zero manual intervention, 2,259+ LLM evaluations to date (Apify → n8n cron → Supabase → LLM scoring → Notion → Discord); tailors application materials on request.
+1. Independent AI Product Engineer, 2026–present: Building OpenClaw, a personal multi-agent AI system (5+ agents, orchestrator → specialist hierarchy) that automates real-world workflows. Flagship project: autonomous job-search pipeline — crawls, scores, and routes job postings daily with zero manual intervention, 2,259+ LLM evaluations to date (Apify → n8n cron → Supabase → LLM scoring → Notion → Discord); tailors application materials on request. Second flagship: News HQ, a self-hosted four-agent news intelligence system (curator, analyst, reporter, RAG chat) that collects, de-duplicates, analyzes, and reports ~500 articles/day from 10+ trusted sources into a vector knowledge base (pgvector) and Notion, ships daily category briefings to Discord and iMessage, and answers questions over the same vectors via RAG; runs unattended, about 2x faster via parallel agent orchestration, with self-healing recovery and API cost kept down through harness + prompt engineering.
 2. Software Developer II → III, Paycom, 2024–2026: Promoted to SD III ahead of peers as the most junior member of the team, plus a performance bonus. Full-stack (React, PHP, MySQL). Built end-to-end jurisdiction-selection automation from candidate data (DB schema, third-party API integration, new data model across 14 stories). Shipped a multi-module compliance feature in 3 weeks with progressive-disclosure UX.
 3. Research Assistant, University of Kansas, 2023–2024: Built and iterated MVP healthcare web apps with a UI/UX faculty researcher, turning patient feedback into user-focused interfaces.
 
 EDUCATION: B.S. Computer Science, University of Kansas (Engineering Scholarship, Certificate in Entrepreneurship). Kansas Academy of Mathematics and Science (early-college program).
 
 SKILLS:
-- AI & Agents: multi-agent orchestration, LLM tool-calling, prompt & harness engineering (PreToolUse/PostToolUse hooks), MCP, agent runtimes (Pi, Claude Code, Codex, OpenClaw)
+- AI & Agents: multi-agent orchestration, LLM tool-calling, prompt & harness engineering (PreToolUse/PostToolUse hooks), RAG & vector search (embeddings, pgvector), MCP, agent runtimes (Pi, Claude Code, Codex, OpenClaw)
 - Languages: TypeScript, JavaScript, PHP, Python, SQL
 - Frontend: React, Next.js, TailwindCSS
 - Backend & data: Node.js, PHP, MySQL, PostgreSQL, Supabase, REST APIs
