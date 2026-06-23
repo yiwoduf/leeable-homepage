@@ -18,7 +18,7 @@ export const portfolio: PortfolioData = {
   },
 
   about: {
-    lead: 'About 2 years shipping production software at a publicly traded HR/payroll SaaS company — now building AI products end to end.',
+    lead: 'A builder-minded AI product engineer who takes ideas from concept to shipped product with full end-to-end ownership. Thrives in ambiguity, pairing systems thinking and product intuition with an AI-native workflow.',
     body: 'I design and deploy multi-agent systems that automate real-world workflows: identifying where agents add leverage, then shipping autonomous pipelines that run unattended. Operator/founder mindset, self-taught since age 12, with strong system-design instincts.',
     facts: [
       { k: 'Based in', v: 'Dallas–Fort Worth, TX' },
