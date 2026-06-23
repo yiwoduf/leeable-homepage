@@ -18,7 +18,7 @@ export const portfolio: PortfolioData = {
   },
 
   about: {
-    lead: 'Builder-minded AI product engineer turning ambiguous problems into shipped, end-to-end products.',
+    lead: 'Builder-minded AI product engineer building end-to-end solutions to real-world problems.',
     body: 'I design and deploy multi-agent systems that automate real-world workflows: identifying where agents add leverage, then shipping autonomous pipelines that run unattended. Operator/founder mindset, self-taught since age 12, with strong system-design instincts.',
     facts: [
       { k: 'Based in', v: 'Dallas–Fort Worth, TX' },
