@@ -18,8 +18,8 @@ export const portfolio: PortfolioData = {
   },
 
   about: {
-    lead: 'Builder-minded AI product engineer building end-to-end solutions to real-world problems.',
-    body: 'I design and deploy multi-agent systems that automate real-world workflows: identifying where agents add leverage, then shipping autonomous pipelines that run unattended. Operator/founder mindset, self-taught since age 12, with strong system-design instincts.',
+    lead: 'Builder-minded AI product engineer turning everyday workflows into shipped AI and web products.',
+    body: 'I partner directly with clients to map how they work, identify repetitive and high-friction steps, and build the right solution — from AI products and workflow automations to full-stack web products. I also design and operate multi-agent systems and autonomous pipelines that run unattended. Operator/founder mindset, self-taught since age 12, with strong system-design instincts.',
     facts: [
       { k: 'Based in', v: 'Dallas–Fort Worth, TX' },
       { k: 'Languages', v: 'English · Korean' },
@@ -27,8 +27,8 @@ export const portfolio: PortfolioData = {
       { k: 'Focus', v: 'Multi-agent systems · Workflow automation' },
     ],
     stats: [
-      { n: '5+', l: 'agents orchestrated' },
-      { n: '2,259+', l: 'LLM evaluations' },
+      { n: '15+', l: 'agents orchestrated' },
+      { n: '500+/day', l: 'records processed + indexed' },
       { n: '~2 yrs', l: 'production software' },
       { n: '24/7', l: 'autonomous' },
     ],
@@ -42,9 +42,10 @@ export const portfolio: PortfolioData = {
       period: 'Apr 2026 — Present',
       now: true,
       points: [
-        'Designed and built a production multi-agent AI system (orchestrator → specialist hierarchy) on the Pi/OpenClaw runtime, with a plugin-based harness layer (PreToolUse/PostToolUse hooks) and MCP integrations (Notion, Google Workspace).',
-        'Shipped a fully autonomous pipeline that crawls, scores, and routes job postings daily — 2,259+ processed to date with zero manual intervention.',
-        'Built News HQ — a self-hosted, four-agent news intelligence system that collects, de-duplicates, analyzes, and reports ~500 articles/day from 10+ sources into a vector knowledge base, with a RAG chat to query it — running unattended daily.',
+        'Partner directly with clients to map their daily workflows, identify repetitive and high-friction steps, and turn them into AI products, workflow automations, and web products — owning discovery, solution design, full-stack implementation, and iteration.',
+        'Built a reusable multi-agent platform for 15+ agents on Pi/OpenClaw with hierarchical orchestration, MCP integrations, hook-based guardrails, and least-privilege tool access — enabling new workflows without rebuilding core orchestration or safety controls.',
+        'Built and operate autonomous, event-driven RAG pipelines that ingest, analyze, embed, and index 500+ records per day with n8n, Supabase/PostgreSQL, and vector search — generating recommendations and reports with traceable sources and no routine manual handling.',
+        'Reduced LLM API costs by ~50% while preserving analysis quality through prompt and harness design, model tiering, and workload partitioning.',
       ],
       tags: ['Multi-agent', 'OpenClaw', 'n8n', 'MCP', 'Supabase', 'RAG'],
     },
@@ -102,8 +103,8 @@ export const portfolio: PortfolioData = {
         { k: 'Discord', d: 'Alert + digest' },
       ],
       metrics: [
-        { n: '2,259+', l: 'LLM evaluations' },
-        { n: 'Daily', l: 'unattended runs' },
+        { n: 'Daily', l: 'postings scored + routed' },
+        { n: '0', l: 'routine manual handling' },
         { n: 'Auto', l: 'résumé + cover-letter tailoring' },
       ],
     },
@@ -125,7 +126,7 @@ export const portfolio: PortfolioData = {
         { k: 'RAG chat',    d: 'Vector retrieval Q&A' },
       ],
       metrics: [
-        { n: '~500/day', l: 'articles triaged unattended' },
+        { n: '500+/day', l: 'articles processed + indexed' },
         { n: '2×',      l: 'faster — parallel agents' },
         { n: '10+',      l: 'sources · 9 categories' },
         { n: 'Auto',     l: 'self-healing recovery' },

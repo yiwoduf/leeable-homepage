@@ -65,10 +65,10 @@ adversary; a deliberate decel-then-push "pump" at an edge can cross.
   UI strings in `src/i18n/ui.ts` (both locales), and keep Simon's fact sheet
   (`api/_lib/simon.ts`) consistent when the facts change (stats, roles, links).
   Map of what lives where: content-and-config.md.
-- **The 2,259+ stat** ("LLM evaluations" / "LLM 평가 수행") is a point-in-time
-  number from the job-search pipeline — bump it occasionally in: both data
-  files (about stat + solution metric), the EN/KO experience bullet, and
-  simon.ts.
+- **The 500+/day stat** ("records processed + indexed" / "처리·인덱싱 데이터")
+  is the ongoing daily throughput of the autonomous RAG pipelines. Keep it
+  synchronized in both data files (about stat, Independent experience, and
+  News HQ metric) and `simon.ts` if the operating volume changes.
 - **Projects grid parity:** the skeleton fillers assume 7 cards (1 filler via
   sk-0 at 4-col; 2 fillers via sk-0+sk-1 at 3-col; 0 at 1-col). If a card is
   added/removed, recount the empty cells per breakpoint

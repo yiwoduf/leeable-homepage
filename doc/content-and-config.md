@@ -13,7 +13,7 @@ Single content object (`portfolio: PortfolioData`, typed by `types/portfolio.ts`
 | Social links (GitHub / LinkedIn / X) | `identity.github` / `.linkedin` / `.x` |
 | About two paragraphs | `about.lead`, `about.body` |
 | About facts (Based in, Languages, …) | `about.facts` — `{ k: label, v: value }` |
-| About stat tiles (5+, 2,259+, …) | `about.stats` — `{ n: number, l: caption }` |
+| About stat tiles (15+, 500+/day, …) | `about.stats` — `{ n: number, l: caption }` |
 | Experience timeline | `experience[]` |
 | └ current role (blue dot + pulse) | add `now: true` to that entry |
 | └ subtitle / tech chips | `sub` / `tags` |
