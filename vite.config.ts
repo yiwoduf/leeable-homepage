@@ -4,6 +4,7 @@ import react from '@vitejs/plugin-react';
 // React + Fast Refresh. Three.js is bundled from npm (pinned 0.137.5).
 export default defineConfig({
   plugins: [react()],
+  optimizeDeps: { esbuildOptions: { target: 'es2022' } },
   build: {
     // es2022 instead of Vite 6's legacy default target list: esbuild ≥0.28
     // (forced via the package.json override for GHSA-gv7w-rqvm-qjhr) no longer

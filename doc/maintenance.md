@@ -35,6 +35,8 @@ verify `npm ls esbuild` is ≥0.28.1 (or whatever Vite then pins) and
 added because esbuild ≥0.28 no longer lowers syntax to Vite 6's legacy
 default target list, but it's the right target anyway — every supported
 browser ships es2022 natively. Do not revert it when removing the override.
+`optimizeDeps.esbuildOptions.target` uses the same target so `npm run dev`
+can prebundle Three.js with the pinned esbuild version too.
 
 ### 2. Re-verify the trackpad gesture patch on real hardware over time
 
