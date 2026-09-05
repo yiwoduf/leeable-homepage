@@ -314,6 +314,11 @@ html[data-lang='ko'] .contact-big .kw { font-size: 1.4em; line-height: .85; }
 .copy-btn:hover .copy-tip, .copy-btn.copied .copy-tip { opacity: 1; transform: translateX(-50%); }
 .copy-btn.copied .copy-tip { color: var(--accent); border-color: var(--accent); }
 .contact-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: 40px; }
+@media (max-width: 960px) {
+  .contact-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); max-width: 480px; margin-inline: auto; }
+  .contact-links .btn { justify-content: center; padding-inline: 12px; }
+  .contact-links .primary { grid-column: 1 / -1; }
+}
 .footer {
   margin-top: 58px; padding-top: 26px; border-top: 1px solid var(--border);
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px;

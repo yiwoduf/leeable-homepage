@@ -27,8 +27,6 @@
 .meeting-embed { position: relative; flex: 1; min-height: 0; background: white; color-scheme: light; }
 .meeting-embed iframe { display: block; width: 100%; height: 100%; border: 0; background: white; }
 .meeting-loading { position: absolute; inset: 24px 20px auto; margin: 0; text-align: center; color: #52525b; font-size: 14px; pointer-events: none; }
-.contact-meeting { display: flex; justify-content: center; margin-top: 24px; }
-.contact-meeting + .contact-links { margin-top: 20px; }
 .meeting-dialog :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 @media (max-width: 560px) {
   .meeting-dialog { width: 100%; height: 100dvh; border: 0; border-radius: 0; }

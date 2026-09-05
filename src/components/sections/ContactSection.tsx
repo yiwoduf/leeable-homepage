@@ -31,11 +31,6 @@ export function ContactSection({ identity, onOpenMeeting }: { identity: Identity
       <div className="reveal" style={{ display: 'flex', justifyContent: 'center', ...cssVars({ '--d': '.2s' }) }}>
         <EmailCopy email={identity.email} />
       </div>
-      <div className="contact-meeting reveal" style={cssVars({ '--d': '.24s' })}>
-        <Button glow variant="primary" onClick={onOpenMeeting} aria-haspopup="dialog">
-          <Icon name="calendar" /> {t.meeting.title}
-        </Button>
-      </div>
       <div className="contact-links reveal" style={cssVars({ '--d': '.27s' })}>
         <Button glow href={identity.github} target="_blank" rel="noopener">
           <Icon name="github" /> {t.social.github}
@@ -48,6 +43,9 @@ export function ContactSection({ identity, onOpenMeeting }: { identity: Identity
         </Button>
         <Button glow href={identity.resume} target="_blank" rel="noopener">
           <Icon name="download" /> {t.social.resume}
+        </Button>
+        <Button glow variant="primary" onClick={onOpenMeeting} aria-haspopup="dialog">
+          <Icon name="calendar" /> {t.meeting.title}
         </Button>
       </div>
       <div className="footer reveal" style={cssVars({ '--d': '.33s' })}>
