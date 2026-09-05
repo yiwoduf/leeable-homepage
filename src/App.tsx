@@ -74,7 +74,7 @@ export function App() {
         <ContactSection identity={identity} onOpenMeeting={openMeeting} />
       </main>
 
-      <ChatWidget lang={lang} />
+      <ChatWidget lang={lang} onOpenMeeting={openMeeting} />
       {meetingOpen && <MeetingModal onClose={() => setMeetingOpen(false)} />}
     </div>
   );

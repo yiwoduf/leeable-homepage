@@ -15,6 +15,7 @@ function XIcon(): ReactElement {
 }
 
 interface ChatWidgetProps {
+  onOpenMeeting: () => void;
   lang: ChatLang;
 }
 
@@ -23,7 +24,7 @@ interface ChatWidgetProps {
  * Carries `data-overlay` so the section-snap pager ignores pointer events
  * inside this subtree.
  */
-export function ChatWidget({ lang }: ChatWidgetProps): ReactElement {
+export function ChatWidget({ lang, onOpenMeeting }: ChatWidgetProps): ReactElement {
   const [open, setOpen] = useState(false);
   const strings = CHAT_STRINGS[lang];
 
@@ -50,7 +51,7 @@ export function ChatWidget({ lang }: ChatWidgetProps): ReactElement {
 
   return (
     <div className="chat-root" data-overlay="">
-      {open && <ChatPanel lang={lang} onClose={handleClose} />}
+      {open && <ChatPanel lang={lang} onClose={handleClose} onOpenMeeting={onOpenMeeting} />}
 
       <button
         className={cx('chat-launcher', open && 'chat-launcher--open')}

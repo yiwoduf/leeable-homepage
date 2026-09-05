@@ -70,3 +70,28 @@ stays natural 의역/합니다체; product names stay English.
 The hero tagline is read from `identity.tagline` in `portfolio.ts` (EN) and
 `portfolio.ko.ts` (KO) and rendered via `renderRich()` — `**bold**` markers
 produce `<b>` tags, `*word*` produces the script-font `.kw` accent.
+
+## Meeting scheduling
+
+- Public event URL: `src/config/meeting.ts` (`MEETING_URL`). Copy the event's
+  scheduling link in Calendly; no token or API key is needed.
+- Dialog/button copy: `meeting` in `src/i18n/ui.ts`, updated in EN/KO together.
+- Outer dialog uses existing theme tokens in `src/styles/meeting.css`.
+- Calendly Free keeps its own light booking UI and English system labels.
+  Background/text/button color customization requires a paid Calendly plan;
+  a site theme switch does not recolor the cross-origin iframe.
+- The iframe mounts only when opened. Its cookie controls remain Calendly's.
+  The external link stays available if embedding is blocked. Completion stays
+  inside Calendly; Simon does not receive booking events or claim to book.
+- Native dialog traps focus and restores the opener on close. Escape works
+  from the site dialog; when focus is inside Calendly, use the visible close
+  button (cross-origin keyboard events do not bubble to the parent page).
+- Check cards with `node scripts/check-meeting.mjs`; check both locales and
+  themes in the browser, including mobile width, iframe scrolling, closing,
+  and reopening from Contact and Simon. `npm run dev` does not serve `/api/chat`;
+  live model-response verification requires the Vercel preview backend.
+
+Official references:
+[iframe embed](https://calendly.com/help/how-to-embed-calendly-with-an-iframe),
+[color customization](https://calendly.com/help/how-to-customize-your-embed),
+[languages](https://calendly.com/help/how-to-change-your-event-type-language).

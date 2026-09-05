@@ -28,6 +28,7 @@ Reveal/glow plumbing: most primitives carry the `reveal` class and accept
 |---|---|
 | `BackgroundField` | Fixed full-viewport `.bgfield[data-variant]` (grid/dots/glow/plain). |
 | `TopBar` | Brand mark (→ scroll to hero) + settings gear (opens `SettingsModal`). `hidden` slides it up (driven by `useHideOnScroll`). |
+| `MeetingModal` | Shared native dialog for Contact and Simon; free Calendly iframe, themed EN/KO header, external-link fallback. |
 | `SettingsModal` | Theme (dark/light) + language (EN/KO) switcher; focus-trapped dialog. |
 | `SideNav` | Fixed left nav with scroll-spy highlight; progress fill reads the `--nav-progress` CSS variable (no per-scroll React state). `data-style` = icons/labels/dots. Desktop. |
 | `MobileNav` | Bottom tab bar, always visible on small screens. |
@@ -59,6 +60,8 @@ Projects · Skills · Contact. Each takes its slice of `portfolio` as props.
 `ChatWidget` (launcher + panel mount) → `ChatPanel` (header/messages/composer) →
 `useChat` (streaming fetch to `/api/chat`, history capping, error states) →
 `ChatMessage` (renders text + `[[card:*]]` tokens via `linkCards.tsx`).
+`[[card:meeting]]` renders a localized button calling the same `App` callback as
+Contact. Opening the meeting dialog keeps the chat mounted and its conversation intact.
 Strings in `chatStrings.ts` (EN/KO). Backend contract & security: `SETUP.md`.
 
 ## Other hooks (non-scroll)

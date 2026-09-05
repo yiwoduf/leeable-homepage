@@ -9,6 +9,7 @@ import {
 import { cx } from '../../lib/cx';
 import type { ChatLang, ChatMessageT } from './types';
 import { CHAT_STRINGS } from './chatStrings';
+import { UI_STRINGS } from '../../i18n/ui';
 import { ChatMessage } from './ChatMessage';
 import { ChatComposer } from './ChatComposer';
 import { SimonAvatar } from './SimonAvatar';
@@ -24,6 +25,7 @@ function CloseIcon(): ReactElement {
 }
 
 interface ChatPanelProps {
+  onOpenMeeting: () => void;
   lang: ChatLang;
   onClose: () => void;
 }
@@ -60,7 +62,7 @@ function useAutoScroll(
  * The floating chat panel — glass surface, scrollable message list, composer.
  * Mounts above the launcher button; unmounting keeps messages alive in useChat.
  */
-export function ChatPanel({ lang, onClose }: ChatPanelProps): ReactElement {
+export function ChatPanel({ lang, onClose, onOpenMeeting }: ChatPanelProps): ReactElement {
   const strings = CHAT_STRINGS[lang];
   const { messages, status, online, inputDisabled, maxInputChars, send, abort, probe } =
     useChat(lang);
@@ -109,7 +111,7 @@ export function ChatPanel({ lang, onClose }: ChatPanelProps): ReactElement {
       : '';
   const srLiveText = showTyping
     ? strings.typingAria
-    : lastAssistantContent;
+    : lastAssistantContent.replace(/\[\[card:meeting\]\]/g, UI_STRINGS[lang].meeting.title);
 
   return (
     <div className="chat-panel" role="dialog" aria-label={strings.panelTitle} data-overlay="">
@@ -160,6 +162,7 @@ export function ChatPanel({ lang, onClose }: ChatPanelProps): ReactElement {
           <ChatMessage
             key={msg.id}
             message={msg}
+            onOpenMeeting={onOpenMeeting}
             isStreaming={isStreaming && msg.id === lastMsg?.id}
           />
         ))}

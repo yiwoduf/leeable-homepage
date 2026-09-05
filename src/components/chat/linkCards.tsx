@@ -1,7 +1,10 @@
 import type { ReactElement, ReactNode } from 'react';
+import { useI18n } from '../../i18n';
+import { Icon } from '../ui';
 
 /** Known card token keys. */
-type CardKey = 'email' | 'github' | 'linkedin' | 'resume';
+type LinkKey = 'email' | 'github' | 'linkedin' | 'resume';
+type CardKey = LinkKey | 'meeting';
 
 interface CardDef {
   label: string;
@@ -39,7 +42,7 @@ const ResumeIcon = (): ReactElement => (
 );
 
 /** Map of all supported card tokens. */
-const CARD_MAP: Record<CardKey, CardDef> = {
+const CARD_MAP: Record<LinkKey, CardDef> = {
   email: {
     label: 'Email',
     href: 'mailto:yiwoduf@gmail.com',
@@ -67,7 +70,16 @@ const CARD_MAP: Record<CardKey, CardDef> = {
 };
 
 /** Renders a compact interactive card chip for a known token. */
-function LinkCard({ cardKey }: { cardKey: CardKey }): ReactElement {
+function LinkCard({ cardKey, onOpenMeeting }: { cardKey: CardKey; onOpenMeeting: () => void }): ReactElement {
+  const { t } = useI18n();
+  if (cardKey === 'meeting') {
+    return (
+      <button type="button" className="chat-link-card" onClick={onOpenMeeting} aria-haspopup="dialog">
+        <span className="chat-link-card-icon"><Icon name="calendar" /></span>
+        <span className="chat-link-card-label">{t.meeting.title}</span>
+      </button>
+    );
+  }
   const def = CARD_MAP[cardKey];
   return (
     <a
@@ -84,23 +96,28 @@ function LinkCard({ cardKey }: { cardKey: CardKey }): ReactElement {
 }
 
 /** Regex that matches a complete [[card:KEY]] token. */
-const TOKEN_RE = /\[\[card:(email|github|linkedin|resume)\]\]/g;
+const TOKEN_RE = /\[\[card:(email|github|linkedin|resume|meeting)\]\]/g;
 
-/**
- * Regex that matches a trailing INCOMPLETE token fragment at the end of a
- * string, e.g. "[[" or "[[card" or "[[card:git". Used to hide partial tokens
- * during streaming so they don't flash as raw text.
- */
-const TRAILING_PARTIAL_RE = /\[\[(?:card(?::(?:email|github|linkedin|resume)?)?)?$/;
+/** Hide only unfinished known tokens, at every possible stream boundary. */
+const CARD_TOKENS = [...Object.keys(CARD_MAP), 'meeting'].map((key) => `[[card:${key}]]`);
+function stripPartialToken(raw: string): string {
+  const start = raw.lastIndexOf('[');
+  if (start < 0) return raw;
+  const offset = start > 0 && raw[start - 1] === '[' ? start - 1 : start;
+  const tail = raw.slice(offset);
+  return CARD_TOKENS.some((token) => token !== tail && token.startsWith(tail))
+    ? raw.slice(0, offset)
+    : raw;
+}
 
 /**
  * Parse assistant message content into an array of text nodes and LinkCard
  * elements. Unknown tokens are left as plain text. Trailing partial tokens
  * are stripped (streaming safety).
  */
-export function parseAssistantContent(raw: string): ReactNode[] {
+export function parseAssistantContent(raw: string, onOpenMeeting: () => void): ReactNode[] {
   // Strip trailing partial token during streaming
-  const text = raw.replace(TRAILING_PARTIAL_RE, '');
+  const text = stripPartialToken(raw);
 
   const nodes: ReactNode[] = [];
   let lastIndex = 0;
@@ -114,7 +131,7 @@ export function parseAssistantContent(raw: string): ReactNode[] {
       nodes.push(before);
     }
     const key = match[1] as CardKey;
-    nodes.push(<LinkCard key={`card-${match.index}`} cardKey={key} />);
+    nodes.push(<LinkCard key={`card-${match.index}`} cardKey={key} onOpenMeeting={onOpenMeeting} />);
     lastIndex = TOKEN_RE.lastIndex;
   }
 

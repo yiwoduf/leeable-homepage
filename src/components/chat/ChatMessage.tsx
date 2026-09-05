@@ -5,12 +5,13 @@ import { SimonAvatar } from './SimonAvatar';
 import { parseAssistantContent } from './linkCards';
 
 interface ChatMessageProps {
+  onOpenMeeting: () => void;
   message: ChatMessageT;
   isStreaming: boolean;
 }
 
 /** Renders a single chat bubble — user (right) or assistant (left). */
-export function ChatMessage({ message, isStreaming }: ChatMessageProps): ReactElement {
+export function ChatMessage({ message, isStreaming, onOpenMeeting }: ChatMessageProps): ReactElement {
   const isUser = message.role === 'user';
 
   if (isUser) {
@@ -39,7 +40,7 @@ export function ChatMessage({ message, isStreaming }: ChatMessageProps): ReactEl
           </span>
         ) : (
           <span className="chat-text">
-            {parseAssistantContent(message.content)}
+            {parseAssistantContent(message.content, onOpenMeeting)}
           </span>
         )}
       </div>

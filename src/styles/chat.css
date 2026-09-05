@@ -305,6 +305,8 @@
 
 /* ---- Link cards ---- */
 .chat-link-card {
+  cursor: pointer;
+  line-height: inherit;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -322,6 +324,7 @@
   margin: 2px 3px;
   white-space: nowrap;
 }
+.chat-link-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .chat-link-card:hover {
   border-color: var(--accent);
   color: var(--accent);
