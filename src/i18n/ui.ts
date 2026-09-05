@@ -90,6 +90,17 @@ export interface UiStrings {
     close: string;
   };
 
+  meeting: {
+    title: string;
+    description: string;
+    close: string;
+    frameTitle: string;
+    note: string;
+    openExternal: string;
+    loading: string;
+    slow: string;
+  };
+
   /** Footer. */
   footer: {
     builtInPublic: string;
@@ -185,6 +196,16 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       language: 'Language',
       close: 'Close',
     },
+    meeting: {
+      title: 'Schedule a meeting',
+      description: 'Let’s find a time to talk.',
+      close: 'Close scheduling',
+      frameTitle: 'Schedule a meeting with Peter (Jaeyol)',
+      note: 'Choose the time zone that works for you.',
+      openExternal: 'Open in Calendly',
+      loading: 'Loading available times…',
+      slow: 'Taking longer than usual? Use “Open in Calendly” above.',
+    },
     footer: {
       builtInPublic: 'Built in public · leeable.dev',
     },
@@ -276,6 +297,16 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
       themeSystem: '시스템',
       language: '언어',
       close: '닫기',
+    },
+    meeting: {
+      title: '미팅 예약하기',
+      description: '편하신 시간을 골라 이야기를 나눠보세요.',
+      close: '미팅 예약 닫기',
+      frameTitle: '이재열 대표님과 미팅 예약',
+      note: '예약 화면은 영어로 제공됩니다. 시간대를 확인해주세요.',
+      openExternal: 'Calendly에서 열기',
+      loading: '예약 가능한 시간을 불러오는 중입니다…',
+      slow: '로딩이 오래 걸리면 위의 “Calendly에서 열기”를 이용해주세요.',
     },
     footer: {
       builtInPublic: '공개 개발 중 · leeable.dev',

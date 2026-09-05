@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { siteConfig, motionFactor } from './config/site';
 import { useTheme } from './hooks/useTheme';
 import { useReveal } from './hooks/useReveal';
@@ -8,6 +8,7 @@ import { useHideOnScroll } from './hooks/useHideOnScroll';
 import { useResizeRealign } from './hooks/useResizeRealign';
 import { useContentRealign } from './hooks/useContentRealign';
 import { useI18n } from './i18n';
+import { MeetingModal } from './components/layout/MeetingModal';
 import { ChatWidget } from './components/chat';
 import { BackgroundField, TopBar, SideNav, SocialRail, MobileNav, ScrollHint, SettingsModal } from './components/layout';
 import {
@@ -31,6 +32,8 @@ export function App() {
   const { active } = useScrollSpy();
   const headerHidden = useHideOnScroll();
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [meetingOpen, setMeetingOpen] = useState(false);
+  const openMeeting = useCallback(() => setMeetingOpen(true), []);
   const { lang, content } = useI18n();
   useReveal();
   useSectionSnap();
@@ -68,10 +71,11 @@ export function App() {
         <SolutionsSection solutions={content.solutions} />
         <ProjectsSection projects={content.projects} />
         <SkillsSection skills={content.skills} />
-        <ContactSection identity={identity} />
+        <ContactSection identity={identity} onOpenMeeting={openMeeting} />
       </main>
 
       <ChatWidget lang={lang} />
+      {meetingOpen && <MeetingModal onClose={() => setMeetingOpen(false)} />}
     </div>
   );
 }

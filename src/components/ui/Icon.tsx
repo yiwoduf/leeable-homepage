@@ -4,6 +4,12 @@ type IconRenderer = (props: SVGProps<SVGSVGElement>) => ReactElement;
 
 /** Minimal inline SVG icon set. Each entry is a full, self-styled `<svg>`. */
 const icons = {
+  calendar: (p) => (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" {...p}>
+      <rect x="3" y="5" width="18" height="16" rx="2" />
+      <path d="M16 3v4M8 3v4M3 11h18m-13 5h2m4 0h2" />
+    </svg>
+  ),
   github: (p) => (
     <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" {...p}>
       <path d="M12 1.5A10.5 10.5 0 0 0 8.68 22c.52.1.71-.23.71-.5v-1.8c-2.9.63-3.52-1.4-3.52-1.4-.48-1.2-1.16-1.53-1.16-1.53-.95-.65.07-.64.07-.64 1.05.08 1.6 1.08 1.6 1.08.94 1.6 2.46 1.14 3.06.87.1-.68.37-1.14.67-1.4-2.32-.27-4.76-1.16-4.76-5.14 0-1.14.4-2.06 1.07-2.79-.1-.27-.46-1.32.1-2.75 0 0 .88-.28 2.88 1.07a9.9 9.9 0 0 1 5.24 0c2-1.35 2.87-1.07 2.87-1.07.57 1.43.21 2.48.1 2.75.67.73 1.07 1.65 1.07 2.79 0 3.99-2.45 4.87-4.78 5.13.38.33.71.97.71 1.96v2.9c0 .28.19.61.72.5A10.5 10.5 0 0 0 12 1.5Z" />

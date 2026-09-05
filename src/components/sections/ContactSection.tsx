@@ -7,7 +7,7 @@ import { useI18n } from '../../i18n';
 /** Public repo of this site — the footer "Fork me" link target. */
 const SITE_REPO_URL = 'https://github.com/yiwoduf/leeable-homepage';
 
-export function ContactSection({ identity }: { identity: Identity }) {
+export function ContactSection({ identity, onOpenMeeting }: { identity: Identity; onOpenMeeting: () => void }) {
   const { t } = useI18n();
   const s = t.sections.contact;
   const year = new Date().getFullYear();
@@ -31,6 +31,11 @@ export function ContactSection({ identity }: { identity: Identity }) {
       <div className="reveal" style={{ display: 'flex', justifyContent: 'center', ...cssVars({ '--d': '.2s' }) }}>
         <EmailCopy email={identity.email} />
       </div>
+      <div className="contact-meeting reveal" style={cssVars({ '--d': '.24s' })}>
+        <Button glow variant="primary" onClick={onOpenMeeting} aria-haspopup="dialog">
+          <Icon name="calendar" /> {t.meeting.title}
+        </Button>
+      </div>
       <div className="contact-links reveal" style={cssVars({ '--d': '.27s' })}>
         <Button glow href={identity.github} target="_blank" rel="noopener">
           <Icon name="github" /> {t.social.github}
@@ -41,7 +46,7 @@ export function ContactSection({ identity }: { identity: Identity }) {
         <Button glow href={identity.x} target="_blank" rel="noopener">
           <Icon name="x" /> {t.social.x}
         </Button>
-        <Button glow variant="primary" href={identity.resume} target="_blank" rel="noopener">
+        <Button glow href={identity.resume} target="_blank" rel="noopener">
           <Icon name="download" /> {t.social.resume}
         </Button>
       </div>
