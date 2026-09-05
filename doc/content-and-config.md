@@ -75,6 +75,9 @@ produce `<b>` tags, `*word*` produces the script-font `.kw` accent.
 
 - Public event URL: `src/config/meeting.ts` (`MEETING_URL`). Copy the event's
   scheduling link in Calendly; no token or API key is needed.
+- Invitee email verification is enabled for the current event (owner confirmed
+  on 2026-09-05). Calendly handles the email code before confirming a booking;
+  this setting lives in Calendly, not the site. Recheck it when replacing the event.
 - Dialog/button copy: `meeting` in `src/i18n/ui.ts`, updated in EN/KO together.
 - Outer dialog uses existing theme tokens in `src/styles/meeting.css`.
 - Calendly Free keeps its own light booking UI and English system labels.

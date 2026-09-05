@@ -1,5 +1,11 @@
 # Project docs
 
+Read the relevant docs before starting work and check the existing site design.
+Whenever a feature, behavior, layout, or configuration changes, briefly update
+the corresponding docs in the same task. Keep the current behavior, relevant
+files/settings, EN/KO and theme considerations, and meaningful limitations easy
+to find; update existing sections instead of duplicating a chronological log.
+
 - [architecture.md](architecture.md) — source tree, boot sequence, data flow
 - [scroll-and-reveal.md](scroll-and-reveal.md) — the section-snap pager + reveal system (the most intricate part — read before touching scroll)
 - [gotchas.md](gotchas.md) — bug postmortems & invariants (WebKit traps, CSS pitfalls, verification recipes) — read before debugging anything iPad-only or language-dependent
