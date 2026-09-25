@@ -105,7 +105,7 @@ async function fetchOpenAI(
   const apiKey = process.env['OPENAI_API_KEY'] ?? '';
 
   const body: OpenAIRequestBody = {
-    model: 'gpt-5-mini',
+    model: 'gpt-5.6-luna',
     stream: true,
     max_completion_tokens: 1200,
     messages,

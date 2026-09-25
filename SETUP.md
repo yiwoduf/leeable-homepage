@@ -98,9 +98,9 @@ this repo is public.
 ## 6. Monitoring usage & cost
 
 - **OpenAI:** <https://platform.openai.com/usage> — daily token/cost breakdown.
-  The budget limit from §1 caps worst-case spend. gpt-5-mini pricing is
-  $0.25 / 1M input + $2.00 / 1M output tokens; a typical Simon exchange is
-  well under $0.001.
+  The budget limit from §1 caps worst-case spend. [gpt-5.6-luna pricing](https://developers.openai.com/api/docs/models/gpt-5.6-luna)
+  is $0.20 / 1M input + $1.20 / 1M output tokens; per-exchange cost depends
+  on input, output, and reasoning token usage.
 - **Upstash:** console.upstash.com → your DB → metrics (free tier: 500K
   commands/month; each chat request costs a handful of commands).
 - **Vercel:** project → **Logs / Observability** — function invocations,
