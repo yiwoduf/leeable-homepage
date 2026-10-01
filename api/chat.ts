@@ -2,7 +2,7 @@
 // ("type": "module") and Vercel compiles api/*.ts file-by-file, so Node's
 // ESM resolver needs explicit extensions at runtime.
 import { validateBody } from './_lib/validate.js';
-import { buildSystemPrompt } from './_lib/simon.js';
+import { buildSystemPrompt, SCOPE_REMINDER } from './_lib/simon.js';
 import {
   isRedisConfigured,
   checkRateLimit,
@@ -305,6 +305,9 @@ export async function POST(request: Request): Promise<Response> {
   const openAIMessages: OpenAIMessage[] = [
     { role: 'system', content: buildSystemPrompt(lang) },
     ...messages,
+    // Sandwich defence: restate the scope after the untrusted history so the
+    // last thing the model reads is ours, not the visitor's.
+    { role: 'system', content: SCOPE_REMINDER },
   ];
 
   // 6. Stream from OpenAI

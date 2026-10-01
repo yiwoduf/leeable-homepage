@@ -118,4 +118,7 @@ this repo is public.
 - Client session: 20 user messages per browser session (sessionStorage).
 - Prompt-injection hardening lives in `api/_lib/simon.ts`; client roles are
   whitelisted to `user`/`assistant` and the system prompt never leaves the
-  server.
+  server. Simon's scope is an allowlist (career, résumé, contact — everything
+  else gets a one-sentence refusal), `SCOPE_REMINDER` is re-sent after the
+  visitor history on every request, and `validate.ts` strips invisible / bidi /
+  Unicode-tag characters.

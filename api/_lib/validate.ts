@@ -2,6 +2,9 @@
 
 /** ASCII control chars except \n (0x0A) and \t (0x09). */
 const CONTROL_CHAR_RE = /[\x00-\x08\x0B-\x0C\x0E-\x1F\x7F]/g;
+/** Invisible, bidi-override and Unicode tag characters — used to smuggle hidden instructions. */
+const INVISIBLE_CHAR_RE =
+  /[\u00AD\u200B-\u200F\u202A-\u202E\u2060-\u2064\u2066-\u206F\uFEFF\u{E0000}-\u{E007F}]/gu;
 
 const MAX_BODY_BYTES = 32 * 1024; // 32 KB
 const MAX_MESSAGES = 32;
@@ -36,9 +39,9 @@ export type ValidationResult =
   | { ok: true; data: ValidBody }
   | { ok: false; error: ValidationError };
 
-/** Strip disallowed ASCII control characters from message content. */
+/** Strip disallowed control and invisible characters from message content. */
 function sanitiseContent(raw: string): string {
-  return raw.replace(CONTROL_CHAR_RE, '');
+  return raw.replace(CONTROL_CHAR_RE, '').replace(INVISIBLE_CHAR_RE, '');
 }
 
 /**
