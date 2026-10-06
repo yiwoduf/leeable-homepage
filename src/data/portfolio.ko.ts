@@ -137,6 +137,30 @@ export const portfolioKo: PortfolioData = {
       ],
     },
     {
+      title: 'Idea-to-Proposal Research Pipeline',
+      codename: 'Gracia',
+      status: 'in-progress',
+      blurb: '연구 아이디어를 근거가 뒷받침된 프로포절로 이어 주는 멀티 모델 파이프라인입니다. 문헌을 찾고, 선별하고, 분석하며, 모든 주장은 원본 PDF의 하이라이트된 구절까지 추적할 수 있습니다.',
+      problem: '연구 아이디어를 프로포절로 만들려면 대학원 연구자는 무엇이 알려져 있고 어디에 공백이 있는지 말할 수 있을 때까지 몇 주를 검색·선별·읽기에 씁니다. 범용 AI는 몇 분 만에 프로포절 초안을 써 주지만, 그 주장과 인용을 검증할 수 없어 초안을 신뢰할 수도 제출할 수도 없습니다.',
+      solution: '모델마다 좁은 역할 하나만 맡는 단계형 파이프라인입니다. LLM이 검색을 계획하고, Jev(타입이 정해진 분류 모델)가 모든 초록에 점수와 라벨을 붙이며, LLM이 전문에서 스키마에 묶인 발견을 추출해 연구 질문과 비교합니다. 인용된 모든 구절은 코드로 원문과 대조하고, 검증되지 않는 인용이 하나라도 있으면 그 분석은 통째로 기각합니다. 연구자가 단계마다 근거를 승인하며, 마지막 단계인 프로포절은 아직 구축 중으로, 승인되고 검증된 근거만으로 작성되도록 설계하고 있습니다.',
+      role: '시스템 설계 · LLM 파이프라인 오케스트레이션 · 구조화 출력 및 근거 검증 · human-in-the-loop UX · Next.js / TypeScript',
+      flow: [
+        { k: 'Query planner (LLM)',    d: '아이디어 또는 시드 PDF → 검색 쿼리' },
+        { k: 'OpenAlex',               d: '시맨틱 + 키워드 검색, 순위 융합' },
+        { k: 'Jev classifier',         d: '초록별 관련성 점수 + 입장 분류' },
+        { k: 'Analyst (LLM)',          d: '전문 → 인용이 달린 스키마 기반 발견' },
+        { k: 'Quote verifier',         d: '코드 검사: 모든 인용이 원문에 존재해야 함' },
+        { k: 'Evidence review',        d: '연구자가 원본 PDF의 하이라이트를 승인' },
+        { k: 'Proposal drafter (LLM)', d: '승인된 근거 → 프로포절 섹션 (계획)' },
+      ],
+      metrics: [
+        { n: '100%',    l: '인용 구절 원문 대조 검증' },
+        { n: '66 / 66', l: '원본 PDF에서 위치 확인된 인용' },
+        { n: '~6초',    l: 'Jev의 초록 40건 선별' },
+        { n: '6 / 7',   l: '구축된 파이프라인 단계' },
+      ],
+    },
+    {
       title: 'Self-Tuning Meta Agent',
       codename: 'Closed Loop',
       status: 'in-progress',
@@ -156,6 +180,13 @@ export const portfolioKo: PortfolioData = {
   ],
 
   projects: [
+    {
+      name: 'Mini CRM',
+      desc: '채팅으로 고객과 업무 기록을 관리하는 macOS 데스크톱 CRM이자 멀티 에이전트 플랫폼입니다. 메인 에이전트가 사용자가 만든 전문 에이전트들에게 일을 병렬로 나눠 맡기고, 에이전트마다 지침·모델·권한을 따로 두며 기록을 바꾸는 작업은 승인을 거칩니다. 기록은 사용자의 Obsidian 노트에 스키마 검증과 함께 저장되어, 비개발자도 말로 시키기만 하면 고객 등록부터 수업 기록, PDF 자료 제작까지 처리할 수 있습니다.',
+      stack: ['TypeScript', 'Tauri', 'Rust', 'MCP'],
+      link: null,
+      private: true,
+    },
     {
       name: 'notion-quest-board',
       desc: 'Notion 데이터베이스를 게임형 퀘스트 보드로 감싼 할 일 관리 웹앱. 할 일은 퀘스트가 되고 상태는 Notion API로 실시간 동기화됩니다.',

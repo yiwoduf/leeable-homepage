@@ -71,8 +71,8 @@ adversary; a deliberate decel-then-push "pump" at an edge can cross.
   is the ongoing daily throughput of the autonomous RAG pipelines. Keep it
   synchronized in both data files (about stat, Independent experience, and
   News HQ metric) and `simon.ts` if the operating volume changes.
-- **Projects grid parity:** the skeleton fillers assume 7 cards (1 filler via
-  sk-0 at 4-col; 2 fillers via sk-0+sk-1 at 3-col; 0 at 1-col). If a card is
+- **Projects grid parity:** the skeleton fillers assume 8 cards (0 fillers at
+  4-col; 1 filler via sk-0 at 3-col; 0 at 1-col). If a card is
   added/removed, recount the empty cells per breakpoint
   (`(cols − cards mod cols) mod cols`) and adjust `SKELETON_SLOTS` + the
   `.proj-skeleton` media rules in `sections.css`.

@@ -64,18 +64,18 @@ function useStaleTrackKick(gridRef: RefObject<HTMLDivElement>): void {
 }
 
 /**
- * Skeleton cells that square off the ragged last grid row. With 7 cards the
- * 4-column window leaves 1 empty cell (sk-0 shown) and the 3-column window
- * leaves 2 (sk-0 and sk-1 shown) — each cell carries a per-slot class
+ * Skeleton cells that square off the ragged last grid row. With 8 cards the
+ * 4-column window is already square (no filler) and the 3-column window
+ * leaves 1 empty cell (sk-0 shown) — each cell carries a per-slot class
  * (`sk-0`…) so CSS breakpoints decide which are visible. Always in the DOM,
  * deliberately static: a measured (ResizeObserver + state) filler count mutated
  * the grid while the tab was hidden behind an external link, which glitched
  * WebKit's grid row heights on restore. (Recount on card add/remove —
  * doc/maintenance.md.)
  */
-const SKELETON_SLOTS = [0, 1] as const;
+const SKELETON_SLOTS = [0] as const;
 
-function ProjectCard({ project, index, soon }: { project: Project; index: number; soon: string }) {
+function ProjectCard({ project, index, nolink }: { project: Project; index: number; nolink: string }) {
   const style = cssVars({ '--d': `${index * 0.05}s` });
   const body = (
     <>
@@ -87,7 +87,7 @@ function ProjectCard({ project, index, soon }: { project: Project; index: number
             <Icon name={project.live ? 'globe' : 'github'} />
           </span>
         ) : (
-          <span className="proj-nolink">{soon}</span>
+          <span className="proj-nolink">{nolink}</span>
         )}
       </div>
       <div className="proj-name">{project.name}</div>
@@ -124,7 +124,7 @@ export function ProjectsSection({ projects }: { projects: Project[] }) {
       <SectionTitle>{renderRich(s.title)}</SectionTitle>
       <div className="proj-grid" ref={gridRef}>
         {projects.map((p, i) => (
-          <ProjectCard key={p.name} project={p} index={i} soon={s.soon} />
+          <ProjectCard key={p.name} project={p} index={i} nolink={p.private ? s.private : s.soon} />
         ))}
         {SKELETON_SLOTS.map((i) => (
           <div

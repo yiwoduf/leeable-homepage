@@ -23,6 +23,7 @@ export interface UiStrings {
       kicker: string;
       title: string;
       soon: string;
+      private: string;
       screenLabel: string;
     };
     skills: {
@@ -142,6 +143,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
         kicker: 'Projects',
         title: "Things I've *made*.",
         soon: 'soon',
+        private: 'private',
         screenLabel: 'Projects',
       },
       skills: {
@@ -244,6 +246,7 @@ export const UI_STRINGS: Record<Lang, UiStrings> = {
         kicker: '프로젝트',
         title: '아이디어에서 *제품*까지',
         soon: 'SOON', // deliberately English in both locales — reads as a badge, not copy
+        private: 'PRIVATE',
         screenLabel: '프로젝트',
       },
       skills: {

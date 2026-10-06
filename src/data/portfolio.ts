@@ -133,6 +133,30 @@ export const portfolio: PortfolioData = {
       ],
     },
     {
+      title: 'Idea-to-Proposal Research Pipeline',
+      codename: 'Gracia',
+      status: 'in-progress',
+      blurb: 'A multi-model pipeline that takes a research idea to an evidence-backed proposal: it finds, screens, and analyzes the literature, with every claim traceable to a highlighted passage in the source PDF.',
+      problem: 'Turning a research idea into a proposal takes graduate researchers weeks of searching, screening, and reading before they can state what is known and where the gap is. General-purpose AI can draft a proposal in minutes, but its claims and citations cannot be verified, so the draft cannot be trusted or submitted.',
+      solution: 'A staged pipeline where each model does one narrow job: an LLM plans the search, Jev (a typed classifier model) scores and labels every abstract, and an LLM extracts schema-bound findings from full texts and compares them with the research question. Every cited quote is checked against the source in code, and an analysis with an unverifiable quote is rejected whole. The researcher approves the evidence at each stage, and the proposal — the final stage, still being built — will be drafted only from that approved, verified evidence.',
+      role: 'System design · LLM pipeline orchestration · structured output & grounding verification · human-in-the-loop UX · Next.js / TypeScript',
+      flow: [
+        { k: 'Query planner (LLM)',    d: 'Idea or seed PDF → search queries' },
+        { k: 'OpenAlex',               d: 'Semantic + keyword search, rank fusion' },
+        { k: 'Jev classifier',         d: 'Relevance score + stance per abstract' },
+        { k: 'Analyst (LLM)',          d: 'Full text → schema-bound findings with quotes' },
+        { k: 'Quote verifier',         d: 'Code check: every quote must exist in source' },
+        { k: 'Evidence review',        d: 'Researcher approves highlights in the original PDF' },
+        { k: 'Proposal drafter (LLM)', d: 'Approved evidence → proposal sections (planned)' },
+      ],
+      metrics: [
+        { n: '100%',    l: 'cited quotes verified against source' },
+        { n: '66 / 66', l: 'quotes located in original PDFs' },
+        { n: '~6 s',    l: '40 abstracts screened by Jev' },
+        { n: '6 / 7',   l: 'pipeline stages built' },
+      ],
+    },
+    {
       title: 'Self-Tuning Meta Agent',
       codename: 'Closed Loop',
       status: 'in-progress',
@@ -152,6 +176,13 @@ export const portfolio: PortfolioData = {
   ],
 
   projects: [
+    {
+      name: 'Mini CRM',
+      desc: "A macOS desktop CRM and multi-agent platform where clients and work records are managed through chat. A main agent fans work out in parallel to specialist agents the user creates — each with its own instructions, model, and permissions — and anything that changes a record goes through approval. Records live in the user's Obsidian notes with schema validation, so a non-developer can go from registering a client to logging lessons and producing PDF materials just by asking.",
+      stack: ['TypeScript', 'Tauri', 'Rust', 'MCP'],
+      link: null,
+      private: true,
+    },
     {
       name: 'notion-quest-board',
       desc: 'A to-do web app that wraps a Notion database as a game-like quest board — tasks become quests with state synced through the Notion API.',

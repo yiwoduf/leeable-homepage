@@ -80,6 +80,8 @@ export interface Project {
   link: string | null;
   /** `link` points at a LIVE product (globe icon) rather than source code (GitHub icon). */
   live?: boolean;
+  /** With `link: null`: closed-source for good — badge reads PRIVATE instead of SOON. */
+  private?: boolean;
 }
 
 export interface SkillGroup {

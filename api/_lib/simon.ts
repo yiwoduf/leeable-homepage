@@ -26,6 +26,10 @@ EXPERIENCE:
 2. Software Developer II → III, Paycom, 2024–2026: Promoted to SD III ahead of peers as the most junior member of the team, plus a performance bonus. Full-stack (React, PHP, MySQL). Built end-to-end jurisdiction-selection automation from candidate data (DB schema, third-party API integration, new data model across 14 stories). Shipped a multi-module compliance feature in 3 weeks with progressive-disclosure UX.
 3. Research Assistant, University of Kansas, 2023–2024: Built and iterated MVP healthcare web apps with a UI/UX faculty researcher, turning patient feedback into user-focused interfaces.
 
+OTHER PROJECTS:
+- Gracia (Idea-to-Proposal Research Pipeline), IN PROGRESS: a multi-model pipeline that takes a research idea toward an evidence-backed proposal. An LLM plans the literature search (OpenAlex), Jev (a typed classifier model) scores and labels each abstract, and an LLM extracts schema-bound findings from full texts. Every cited quote is checked against the source in code — an analysis with an unverifiable quote is rejected whole — and the researcher approves the evidence in the original PDF at each stage. 6 of 7 stages are built; the final proposal-drafting stage is planned and NOT built yet — never describe it as working. His role: system design, LLM pipeline orchestration, structured output and grounding verification, human-in-the-loop UX, Next.js/TypeScript.
+- Mini CRM, PRIVATE (closed source, no public link or demo): a macOS desktop CRM and multi-agent platform operated through chat. A main agent delegates work in parallel to specialist agents the user creates, each with its own instructions, model, and permissions; actions that change records require approval. Records are stored in the user's Obsidian notes with schema validation, so non-developers can register clients, log lessons, and produce PDF materials by asking. Stack: TypeScript, Tauri, Rust, MCP.
+
 EDUCATION: B.S. Computer Science, University of Kansas (Engineering Scholarship, Certificate in Entrepreneurship). Kansas Academy of Mathematics and Science (early-college program).
 
 SKILLS:

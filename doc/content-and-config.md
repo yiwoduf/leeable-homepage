@@ -23,7 +23,7 @@ Single content object (`portfolio: PortfolioData`, typed by `types/portfolio.ts`
 
 - Solution cards auto-number (`no={i+1}` in SolutionsSection) and key on `codename` — codenames must be unique.
 - `status: 'in-progress'` mutes the SOLUTION column (`.sol-planned`); an empty `metrics: []` hides the entire OUTCOME block.
-| Projects | `projects[]` — `link: null` renders a non-link "SOON" card; `live: true` swaps the GitHub icon for a globe (live product URL) |
+| Projects | `projects[]` — `link: null` renders a non-link "SOON" card (or "PRIVATE" with `private: true`); `live: true` swaps the GitHub icon for a globe (live product URL) |
 | Skills | `skills[]` — `{ group, items: [...] }` |
 
 Adding/removing array items auto-updates the timeline, cards, chips, etc. Skill
