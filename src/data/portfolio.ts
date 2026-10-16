@@ -133,6 +133,30 @@ export const portfolio: PortfolioData = {
       ],
     },
     {
+      title: 'Chat-operated CRM with delegated AI agents',
+      codename: 'Solo Tutoring Practice',
+      status: 'live',
+      blurb: "A macOS desktop app where one assistant takes every request and hands work to specialist agents the user defines. Records stay in the user's own Obsidian vault, and every change waits for approval.",
+      problem: 'A one-person English tutoring business kept client histories in one ChatGPT thread per client. Nothing was structured, so lesson logs, course terms and prepared materials could not be searched, carried over, or turned into the next workbook. The owner is not a developer and did not want a database, a web app, or a new tool to learn.',
+      solution: "The app wraps a coding-agent runtime (Codex app-server) in a chat UI and a strict operating model: a fixed main assistant delegates in parallel to agents the user creates, each with its own instructions, model, reasoning level, tools and approval policy. Domain logic lives in a separate MCP server that reads and writes schema-validated Markdown notes in the user's Obsidian vault, so the app itself stays generic. Photos of a whiteboard become a lesson record, and workbooks come out as PDF. It ships as a signed dmg with the runtime bundled, updates itself from a private GitHub repository, and has a second update channel that refreshes agent instructions without reinstalling. Outcome: the user registered clients and migrated lesson history from old chats on day one, by pasting text into the app.",
+      role: 'Product definition · Architecture · Tauri/Rust backend · React UI · Codex runtime integration · MCP server · Release and auto-update pipeline · Agent prompt design',
+      flow: [
+        { k: 'Main agent',       d: 'Takes every request; answers or delegates' },
+        { k: 'Specialists',      d: 'User-created agents with own prompts, model, tools' },
+        { k: 'Approval gate',    d: 'Record changes wait for the user; 30-minute allow' },
+        { k: 'MCP tools',        d: 'Separate server validates schema, writes Obsidian notes' },
+        { k: 'Files & PDF',      d: 'Photos and PDFs in, HTML-to-PDF workbooks out' },
+        { k: 'Scheduler',        d: 'Queued messages and cron jobs with pre-approval' },
+        { k: 'Edition & update', d: 'Client bundle, signed auto-update, prompt-only channel' },
+      ],
+      metrics: [
+        { n: '14',  l: "days from first commit to a user's Mac" },
+        { n: '143', l: 'commits' },
+        { n: '8',   l: 'signed GitHub releases' },
+        { n: '302', l: 'UI strings in Korean and English' },
+      ],
+    },
+    {
       title: 'Idea-to-Proposal Research Pipeline',
       codename: 'Gracia',
       status: 'in-progress',
@@ -178,8 +202,8 @@ export const portfolio: PortfolioData = {
   projects: [
     {
       name: 'Mini CRM',
-      desc: "A macOS desktop CRM and multi-agent platform where clients and work records are managed through chat. A main agent fans work out in parallel to specialist agents the user creates — each with its own instructions, model, and permissions — and anything that changes a record goes through approval. Records live in the user's Obsidian notes with schema validation, so a non-developer can go from registering a client to logging lessons and producing PDF materials just by asking.",
-      stack: ['TypeScript', 'Tauri', 'Rust', 'MCP'],
+      desc: "A macOS desktop app that turns a chat window into a small operations team. A main assistant delegates to specialist agents the user creates — each with its own instructions, model, tools, and approval policy — and every record change waits for approval. Records live as schema-validated notes in the user's Obsidian vault, and it ships to a real user with signed auto-updates.",
+      stack: ['TypeScript', 'React', 'Tauri', 'Rust', 'SQLite', 'MCP', 'Codex app-server', 'GitHub Releases'],
       link: null,
       private: true,
     },

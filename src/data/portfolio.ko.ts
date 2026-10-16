@@ -137,6 +137,30 @@ export const portfolioKo: PortfolioData = {
       ],
     },
     {
+      title: '대화로 운영하는 CRM과 위임형 AI 에이전트',
+      codename: 'Solo Tutoring Practice',
+      status: 'live',
+      blurb: '비서 하나가 모든 요청을 받아 사용자가 정의한 전문 에이전트에게 일을 나누는 macOS 앱입니다. 기록은 사용자의 Obsidian vault에 남고, 모든 변경은 승인을 거칩니다.',
+      problem: '1인 영어 과외 사업자가 고객별 ChatGPT 대화방 하나에 기록을 쌓아 왔습니다. 구조가 없어 수업 기록·계약 조건·준비한 자료를 찾거나 다음 수업으로 이어 가거나 워크북으로 만들 수 없었습니다. 사용자는 개발자가 아니어서 데이터베이스나 웹 앱, 새로 배울 도구를 원하지 않았습니다.',
+      solution: '코딩 에이전트 런타임(Codex app-server)을 채팅 UI와 엄격한 운영 모델로 감쌌습니다. 고정된 메인 비서가 사용자가 만든 에이전트들에게 병렬로 일을 맡기고, 에이전트마다 지침·모델·추론 수준·도구·승인 정책이 따로 있습니다. 도메인 로직은 별도 MCP 서버에 두어 사용자의 Obsidian vault에 스키마 검증된 Markdown 노트를 읽고 쓰게 했고, 앱 자체는 범용으로 남겼습니다. 칠판 사진이 수업 기록이 되고 워크북은 PDF로 나옵니다. 런타임을 동봉한 서명된 dmg로 배포되며 비공개 GitHub 저장소에서 스스로 업데이트하고, 재설치 없이 에이전트 지침만 갱신하는 두 번째 채널이 있습니다. 결과: 사용자가 설치 첫날 앱에 글을 붙여 넣는 것만으로 고객을 등록하고 옛 대화의 수업 기록을 옮겼습니다.',
+      role: '제품 정의 · 아키텍처 · Tauri/Rust 백엔드 · React UI · Codex 런타임 연동 · MCP 서버 · 릴리스·자동 업데이트 파이프라인 · 에이전트 지침 설계',
+      flow: [
+        { k: 'Main agent',       d: '모든 요청을 받아 직접 답하거나 위임합니다' },
+        { k: 'Specialists',      d: '사용자가 만든 에이전트. 지침·모델·도구가 각각입니다' },
+        { k: 'Approval gate',    d: '기록 변경은 사용자 승인을 기다립니다. 30분 허용 가능' },
+        { k: 'MCP tools',        d: '별도 서버가 스키마를 검증하고 Obsidian 노트를 씁니다' },
+        { k: 'Files & PDF',      d: '사진·PDF를 읽고 HTML을 PDF 워크북으로 만듭니다' },
+        { k: 'Scheduler',        d: '대기열과 cron 예약 작업. 사전 승인 가능' },
+        { k: 'Edition & update', d: '고객별 번들, 서명된 자동 업데이트, 지침 전용 채널' },
+      ],
+      metrics: [
+        { n: '14일', l: '첫 커밋에서 사용자 설치까지' },
+        { n: '143',  l: '커밋' },
+        { n: '8',    l: '서명된 GitHub 릴리스' },
+        { n: '302',  l: '한국어·영어 UI 문구' },
+      ],
+    },
+    {
       title: 'Idea-to-Proposal Research Pipeline',
       codename: 'Gracia',
       status: 'in-progress',
@@ -182,8 +206,8 @@ export const portfolioKo: PortfolioData = {
   projects: [
     {
       name: 'Mini CRM',
-      desc: '채팅으로 고객과 업무 기록을 관리하는 macOS 데스크톱 CRM이자 멀티 에이전트 플랫폼입니다. 메인 에이전트가 사용자가 만든 전문 에이전트들에게 일을 병렬로 나눠 맡기고, 에이전트마다 지침·모델·권한을 따로 두며 기록을 바꾸는 작업은 승인을 거칩니다. 기록은 사용자의 Obsidian 노트에 스키마 검증과 함께 저장되어, 비개발자도 말로 시키기만 하면 고객 등록부터 수업 기록, PDF 자료 제작까지 처리할 수 있습니다.',
-      stack: ['TypeScript', 'Tauri', 'Rust', 'MCP'],
+      desc: '채팅 창을 작은 운영팀으로 바꾸는 macOS 데스크톱 앱입니다. 메인 비서가 사용자가 만든 전문 에이전트들에게 일을 맡기고, 에이전트마다 지침·모델·도구·승인 정책이 따로 있으며, 기록 변경은 모두 승인을 거칩니다. 기록은 사용자의 Obsidian vault에 스키마 검증된 노트로 남고, 서명된 자동 업데이트와 함께 실제 사용자에게 배포되었습니다.',
+      stack: ['TypeScript', 'React', 'Tauri', 'Rust', 'SQLite', 'MCP', 'Codex app-server', 'GitHub Releases'],
       link: null,
       private: true,
     },
