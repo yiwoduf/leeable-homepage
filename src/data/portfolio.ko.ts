@@ -138,7 +138,7 @@ export const portfolioKo: PortfolioData = {
     },
     {
       title: '대화로 운영하는 CRM과 위임형 AI 에이전트',
-      codename: 'Solo Tutoring Practice',
+      codename: 'English Tutor Business',
       status: 'live',
       blurb: '비서 하나가 모든 요청을 받아 사용자가 정의한 전문 에이전트에게 일을 나누는 macOS 앱입니다. 기록은 사용자의 Obsidian vault에 남고, 모든 변경은 승인을 거칩니다.',
       problem: '1인 영어 과외 사업자가 고객별 ChatGPT 대화방 하나에 기록을 쌓아 왔습니다. 구조가 없어 수업 기록·계약 조건·준비한 자료를 찾거나 다음 수업으로 이어 가거나 워크북으로 만들 수 없었습니다. 사용자는 개발자가 아니어서 데이터베이스나 웹 앱, 새로 배울 도구를 원하지 않았습니다.',

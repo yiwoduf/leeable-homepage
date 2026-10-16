@@ -134,7 +134,7 @@ export const portfolio: PortfolioData = {
     },
     {
       title: 'Chat-operated CRM with delegated AI agents',
-      codename: 'Solo Tutoring Practice',
+      codename: 'English Tutor Business',
       status: 'live',
       blurb: "A macOS desktop app where one assistant takes every request and hands work to specialist agents the user defines. Records stay in the user's own Obsidian vault, and every change waits for approval.",
       problem: 'A one-person English tutoring business kept client histories in one ChatGPT thread per client. Nothing was structured, so lesson logs, course terms and prepared materials could not be searched, carried over, or turned into the next workbook. The owner is not a developer and did not want a database, a web app, or a new tool to learn.',
